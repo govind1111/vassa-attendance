@@ -6,12 +6,12 @@
   <title>Vassa Properties — Staff Attendance</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #F1F5F9; color: #0F172A; min-height: 100vh; padding: 16px; display: flex; flex-direction: column; align-items: center; }
+    body { background: #0F172A; color: #F8FAFC; min-height: 100vh; padding: 16px; display: flex; flex-direction: column; align-items: center; }
     .container { width: 100%; max-width: 440px; }
     
     .brand-card {
-      background: #FFFFFF;
-      border: 1px solid #CBD5E1;
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      border: 1px solid #334155;
       border-radius: 16px;
       padding: 18px;
       text-align: center;
@@ -21,7 +21,6 @@
     .logo-badge {
       font-size: 24px;
       font-weight: 900;
-      color: #38BDF8;
       letter-spacing: 1.2px;
       margin-bottom: 4px;
       text-transform: uppercase;
@@ -46,35 +45,37 @@
     .clock-box { font-size: 28px; font-weight: 800; color: #F1F5F9; margin: 10px 0 4px; font-variant-numeric: tabular-nums; }
     .date-box { font-size: 12px; color: #94A3B8; }
 
-    .card { background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+    .card { background: #1E293B; border: 1px solid #334155; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
     .field-group { margin-bottom: 14px; }
     label { display: block; font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    select, input { width: 100%; padding: 12px; background: #0F172A; border: 1px solid #CBD5E1; border-radius: 10px; color: #FFFFFF; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    select, input { width: 100%; padding: 12px; background: #0F172A; border: 1px solid #334155; border-radius: 10px; color: #FFFFFF; font-size: 13px; outline: none; transition: border-color 0.2s; }
     select:focus, input:focus { border-color: #38BDF8; }
 
     .profile-card {
-      background: #0F172A;
-      border: 1px solid #0284C7;
-      border-radius: 12px;
-      padding: 12px 14px;
+      background: #0B1329;
+      border: 1.5px solid #10B981;
+      border-radius: 14px;
+      padding: 14px 16px;
       margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
     }
     .profile-info { flex: 1; }
-    .profile-label { font-size: 10px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.5px; }
-    .profile-name { font-size: 16px; font-weight: 800; color: #F8FAFC; margin-top: 2px; }
-    .profile-meta { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+    .profile-label { font-size: 11px; font-weight: 800; color: #34D399; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+    .profile-name { font-size: 17px; font-weight: 900; color: #F8FAFC; margin-top: 3px; }
+    .profile-meta { font-size: 12px; font-weight: 600; color: #7DD3FC; margin-top: 3px; }
     .btn-switch {
-      background: transparent;
-      border: 1px solid #475569;
+      background: #1E293B;
+      border: 1.5px solid #475569;
       color: #94A3B8;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: all 0.2s;
     }
     .btn-switch:hover { color: #F87171; border-color: #F87171; }
 
@@ -91,7 +92,7 @@
     .punched-sub { font-size: 11px; color: #94A3B8; margin-top: 4px; }
     .punched-warn { font-size: 11px; color: #F87171; font-weight: 700; margin-top: 8px; }
 
-    .radar-card { background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .radar-card { background: #0B1329; border: 1px solid #1E3A8A; border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
     .radar-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
     .radar-icon.inside { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 2px solid #10B981; }
     .radar-icon.outside { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 2px solid #EF4444; }
@@ -129,20 +130,23 @@
   <div class="card" id="card-main">
     
     <!-- Locked Staff Profile Badge (Anti-Proxy Protection) -->
-    <div class="profile-card" id="profile-box" style="display: none; background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);">
+    <div class="profile-card" id="profile-box" style="display: none;">
       <div class="profile-info">
-        <div class="profile-label" style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;"><span>🔒</span> Device Locked to Staff</div>
-        <div class="profile-name" id="display-profile-name" style="font-size: 18px; font-weight: 900; color: #0F172A; margin-top: 3px; letter-spacing: 0.2px;">-</div>
-        <div class="profile-meta" id="display-profile-meta" style="font-size: 12px; font-weight: 600; color: #047857; margin-top: 3px;">-</div>
+        <div class="profile-label"><span>🔒</span> Device Locked to Staff</div>
+        <div class="profile-name" id="display-profile-name">-</div>
+        <div class="profile-meta" id="display-profile-meta">-</div>
       </div>
-      <button type="button" class="btn-switch" onclick="clearSavedUser()" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #334155; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);" title="Admin PIN required to switch">Reset (Admin)</button>
+      <button type="button" class="btn-switch" onclick="clearSavedUser()" title="Admin PIN required to switch">Reset (Admin)</button>
     </div>
 
-    <!-- 1. Staff Name Selection (Shown only if not auto-picked from phone or URL) -->
+    <!-- 1. Staff Name Selection -->
     <div class="field-group" id="staff-select-group">
-      <label>1. Select Your Name (Optional if Auto-Picked):</label>
+      <label>1. Select Your Name (From Google Sheet):</label>
       <select id="staff-select" onchange="onStaffChange()">
-        <option value="">-- Choose Your Name (Optional Select) --</option><option value="VP-001">VP-001: Govind Gore (Director / Founder)</option><option value="VP-002">VP-002: Girish Kulkarni (Senior Sales Manager)</option><option value="VP-003">VP-003: Sachin Patil (Site Supervisor)</option><option value="VP-004">VP-004: Amit Shinde (Site Operations)</option>
+        <option value="">-- Choose Your Name --</option>
+        <option value="VP-004">VP-004: Govind Gore (Director / Founder)</option>
+        <option value="VP-002">VP-002: Vaishnavi Rajguru (HR Pre-Sale)</option>
+        <option value="VP-003">VP-003: Savita Chavan (Staff)</option>
       </select>
     </div>
 
@@ -154,7 +158,7 @@
       <div class="punched-warn">⚠️ Same-day duplicate check-in is blocked.</div>
     </div>
 
-    <!-- Real-Time Live Location Tracking Panel (Option 1) -->
+    <!-- Real-Time Live Location Tracking Panel -->
     <div class="card" id="live-tracker-panel" style="display: none; background: #0B1329; border: 1.5px solid #0284C7; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(2, 132, 199, 0.25);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -165,7 +169,7 @@
       </div>
 
       <div style="font-size: 12px; color: #E2E8F0; line-height: 1.4; margin-bottom: 12px;">
-        📍 <b>Auto-Tracking Mode:</b> Aapka live location har 10 minute me automatically Google Sheet me update ho raha hai. Duty ke dauran is page ko mobile browser me open rakhein.
+        📍 <b>Auto-Tracking Mode:</b> Live GPS har 10 minute me automatically Google Sheet <b>Live_Tracking</b> tab me push hota hai.
       </div>
 
       <div style="background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
@@ -189,7 +193,6 @@
       <div id="live-ping-status-msg" style="font-size: 10px; color: #94A3B8; text-align: center; margin-top: 6px;">Auto-sync active while tab is active</div>
     </div>
 
-
     <!-- 07:30 PM Evening Cutoff Banner -->
     <div class="already-punched-card" id="banner-evening-cutoff" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid #DC2626;">
       <div style="font-size: 22px; margin-bottom: 4px;">⛔</div>
@@ -200,11 +203,15 @@
 
     <!-- Active Punching Controls -->
     <div id="active-punch-controls">
-      <!-- 2. Site Selection (ALWAYS VISIBLE!) -->
+      <!-- 2. Site Selection from Site_Master -->
       <div class="field-group">
         <label>2. Current Duty Location / Project Site:</label>
         <select id="location-select" onchange="calculateDistance()">
-          <option value="Golden City Center (Main Office)" data-lat="19.876245" data-lon="75.368521">SITE-01: Golden City Center (Main Office)</option><option value="Shendra MIDC Project Site" data-lat="19.888512" data-lon="75.465034">SITE-02: Shendra MIDC Project Site</option>
+          <option value="Golden City Center (Main Office)" data-lat="19.874668" data-lon="75.372983">SITE-01: Golden City Center (Main Office)</option>
+          <option value="Waluj Mahanagar-1" data-lat="19.888512" data-lon="75.465034">SITE-02: Waluj Mahanagar-1</option>
+          <option value="Waluj Mahanagar-2" data-lat="19.839045" data-lon="75.321078">SITE-03: Waluj Mahanagar-2</option>
+          <option value="Shendra MIDC - Shendra" data-lat="19.831567" data-lon="75.315023">SITE-04: Shendra MIDC - Shendra</option>
+          <option value="Beed Bypass - Satara Parisar" data-lat="19.845012" data-lon="75.228045">SITE-05: Beed Bypass - Satara Parisar</option>
         </select>
       </div>
 
@@ -223,8 +230,8 @@
       </button>
 
       <div class="shift-notice">
-        ⏰ Shift starts at 10:00 AM. Grace period till 10:15 AM.<br>
-        Daily attendance summary PDF is automatically sent to Boss at 11:00 AM.
+        ⏰ Shift: 10:00 AM – 07:00 PM. Grace period till 10:15 AM.<br>
+        Daily attendance dossier is automatically sent to Boss WhatsApp at 11:00 AM.
       </div>
     </div>
 
@@ -234,17 +241,29 @@
 </div>
 
 <script>
-  // Active Google Apps Script Web App Endpoint URL
+  // Active Google Apps Script Web App Endpoint URL (Connected to 'Vassa Properties Attendance 2026')
   const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
   function getApiUrl() {
     return localStorage.getItem("vassa_attendance_api_url") || DEFAULT_API_URL;
   }
 
-  // Dynamic Data Injected from Sheet
-  var STAFF_LIST = [{"id": "VP-001", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center", "mobile": "9011025955", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}, {"id": "VP-002", "name": "Girish Kulkarni", "role": "Senior Sales Manager", "dept": "Sales", "defaultLocation": "Golden City Center", "mobile": "9673754666", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}, {"id": "VP-003", "name": "Sachin Patil", "role": "Site Supervisor", "dept": "Site Operations", "defaultLocation": "Shendra MIDC Project Site", "mobile": "9800000001", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}, {"id": "VP-004", "name": "Amit Shinde", "role": "Field Executive", "dept": "Site Operations", "defaultLocation": "Beed Bypass Plotted Project", "mobile": "9800000002", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}];
-  var SITES_LIST = [{"id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.876245, "lon": 75.368521, "radius": 100}, {"id": "SITE-02", "name": "Shendra MIDC Project Site", "lat": 19.888512, "lon": 75.465034, "radius": 100}];
-  var INITIAL_STAFF_ID = "";
+  // Exact Staff from your Google Drive Sheet 'Vassa Properties Attendance 2026'
+  var STAFF_LIST = [
+    { "id": "VP-004", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center(Head Office)", "mobile": "9011025955", "hasPunchedToday": false, "punchTime": "-", "remark": "-" },
+    { "id": "VP-002", "name": "Vaishnavi Rajguru", "role": "HR Pre-Sale", "dept": "Office", "defaultLocation": "Golden City Center(Head Office)", "mobile": "9999999999", "hasPunchedToday": false, "punchTime": "-", "remark": "-" },
+    { "id": "VP-003", "name": "Savita Chavan", "role": "Staff", "dept": "Office", "defaultLocation": "Golden City Center(Head Office)", "mobile": "9999999999", "hasPunchedToday": false, "punchTime": "-", "remark": "-" }
+  ];
 
+  // Exact Project Sites from your Google Drive Sheet 'Site_Master' tab
+  var SITES_LIST = [
+    { "id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.874668, "lon": 75.372983, "radius": 100 },
+    { "id": "SITE-02", "name": "Waluj Mahanagar-1", "lat": 19.888512, "lon": 75.465034, "radius": 100 },
+    { "id": "SITE-03", "name": "Waluj Mahanagar-2", "lat": 19.839045, "lon": 75.321078, "radius": 100 },
+    { "id": "SITE-04", "name": "Shendra MIDC - Shendra", "lat": 19.831567, "lon": 75.315023, "radius": 100 },
+    { "id": "SITE-05", "name": "Beed Bypass - Satara Parisar", "lat": 19.845012, "lon": 75.228045, "radius": 100 }
+  ];
+
+  var INITIAL_STAFF_ID = "";
   var currentStaff = null;
   var currentLat = null;
   var currentLon = null;
@@ -253,8 +272,8 @@
   function isAfterEveningCutoff() {
     var now = new Date();
     var curMins = (now.getHours() * 60) + now.getMinutes();
-    var cutHour = (window.SERVER_SETTINGS && window.SERVER_SETTINGS.cutoffHour !== undefined) ? window.SERVER_SETTINGS.cutoffHour : 19;
-    var cutMin = (window.SERVER_SETTINGS && window.SERVER_SETTINGS.cutoffMin !== undefined) ? window.SERVER_SETTINGS.cutoffMin : 30;
+    var cutHour = 19;
+    var cutMin = 30;
     return curMins > (cutHour * 60 + cutMin);
   }
 
@@ -265,26 +284,55 @@
     document.getElementById("live-date").innerText = now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   }, 1000);
 
-  // Initialize on Window Load
+  // Initialize on Window Load: Pull live staff and sites from Google Sheet
   window.onload = function() {
     checkSavedUser();
     initLocation();
+    syncLiveStaffFromSheet();
   };
 
-  // Check URL Parameters (?m=9011025955 or ?id=VP-001) or LocalStorage
-  function checkSavedUser() {
-    // 1. Initial staff from server (URL ?m= or ?id=)
-    if (INITIAL_STAFF_ID) {
-      for (var s = 0; s < STAFF_LIST.length; s++) {
-        if (STAFF_LIST[s].id === INITIAL_STAFF_ID) {
-          localStorage.setItem("vassa_staff_empid", STAFF_LIST[s].id);
-          applyStaff(STAFF_LIST[s], true);
-          return;
-        }
+  // Dynamic Live Staff & Site Sync from Google Sheet via JSONP
+  function syncLiveStaffFromSheet() {
+    var cbName = "vassa_staff_sync_" + Date.now();
+    window[cbName] = function(data) {
+      delete window[cbName];
+      if (data && data.staff && data.staff.length > 0) {
+        STAFF_LIST = data.staff;
+        var sel = document.getElementById("staff-select");
+        var curVal = sel.value;
+        sel.innerHTML = '<option value="">-- Choose Your Name --</option>';
+        STAFF_LIST.forEach(function(s) {
+          var opt = document.createElement("option");
+          opt.value = s.id;
+          opt.text = s.id + ": " + s.name + " (" + (s.role || s.dept) + ")";
+          sel.appendChild(opt);
+        });
+        if (curVal) sel.value = curVal;
+        checkSavedUser();
       }
-    }
+      if (data && data.sites && data.sites.length > 0) {
+        SITES_LIST = data.sites;
+        var locSel = document.getElementById("location-select");
+        locSel.innerHTML = "";
+        SITES_LIST.forEach(function(st) {
+          var opt = document.createElement("option");
+          opt.value = st.name;
+          opt.text = st.id + ": " + st.name;
+          opt.setAttribute("data-lat", st.lat);
+          opt.setAttribute("data-lon", st.lon);
+          locSel.appendChild(opt);
+        });
+        calculateDistance();
+      }
+    };
+    var script = document.createElement("script");
+    var base = getApiUrl();
+    script.src = base + (base.includes("?") ? "&" : "?") + "api=true&callback=" + cbName + "&_ts=" + Date.now();
+    document.head.appendChild(script);
+  }
 
-    // 2. Client-side URL parameters (?m= or ?id=)
+  // Check URL Parameters (?m=9011025955 or ?id=VP-004) or LocalStorage
+  function checkSavedUser() {
     var urlParams = new URLSearchParams(window.location.search);
     var paramMobile = urlParams.get('m') || urlParams.get('mobile');
     var paramId = urlParams.get('id') || urlParams.get('emp');
@@ -311,7 +359,6 @@
       }
     }
 
-    // 3. Saved in Phone Memory (LocalStorage)
     var savedId = localStorage.getItem("vassa_staff_empid");
     if (savedId) {
       for (var k = 0; k < STAFF_LIST.length; k++) {
@@ -348,22 +395,22 @@
       document.getElementById("profile-box").style.display = "flex";
       document.getElementById("staff-select-group").style.display = "none";
       document.getElementById("display-profile-name").innerText = staff.name;
-      document.getElementById("display-profile-meta").innerText = staff.id + " • " + staff.role + " (" + staff.dept + ")";
+      document.getElementById("display-profile-meta").innerText = staff.id + " • " + (staff.role || staff.dept);
     }
 
     var sel = document.getElementById("staff-select");
     sel.value = staff.id;
 
-    // Pre-select location matching assigned default
     var locSel = document.getElementById("location-select");
-    for (var j = 0; j < locSel.options.length; j++) {
-      if (locSel.options[j].text.toLowerCase().indexOf(staff.defaultLocation.toLowerCase()) !== -1) {
-        locSel.selectedIndex = j;
-        break;
+    if (staff.defaultLocation) {
+      for (var j = 0; j < locSel.options.length; j++) {
+        if (locSel.options[j].text.toLowerCase().indexOf(staff.defaultLocation.toLowerCase()) !== -1) {
+          locSel.selectedIndex = j;
+          break;
+        }
       }
     }
 
-    // Check duplicate
     if (staff.hasPunchedToday) {
       document.getElementById("banner-already-punched").style.display = "block";
       startLiveTracking();
@@ -391,11 +438,10 @@
       document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
       alert("✅ Device successfully unlocked by Admin.");
     } else if (pin !== null) {
-      alert("❌ Galat Admin PIN! Staff members ek doosre ka name switch nahi kar sakte.");
+      alert("❌ Galat Admin PIN!");
     }
   }
 
-  // Geolocation
   function getOrCreateDeviceId() {
     var dId = localStorage.getItem("vassa_device_uuid");
     if (!dId) {
@@ -494,12 +540,12 @@
     }
 
     if (isAfterEveningCutoff()) {
-      alert("⛔ 07:30 PM ke baad check-in blocked hai! Office shift samapt ho chuki hai. Kal subah 10:00 AM par attendance open hogi.");
+      alert("⛔ 07:30 PM ke baad check-in blocked hai! Office shift samapt ho chuki hai.");
       return;
     }
 
     if (currentStaff.hasPunchedToday) {
-      alert("⚠️ Aap aaj pehle hi check-in kar chuke hain! Duplicate punch allowed nahi hai.");
+      alert("⚠️ Aap aaj pehle hi check-in kar chuke hain!");
       return;
     }
 
@@ -548,10 +594,10 @@
       }
 
       toast.className = "toast success";
-      toast.innerText = "✅ Check-In Recorded Successfully for " + currentStaff.name + "! Status: " + res.status;
+      toast.innerText = "✅ Check-In Recorded Successfully for " + currentStaff.name + "! Status: " + (res.status || res.punchStatus);
       currentStaff.hasPunchedToday = true;
-      currentStaff.punchTime = res.time || "Just Now";
-      currentStaff.status = res.status || "Present";
+      currentStaff.punchTime = res.time || res.punchTime || "Just Now";
+      currentStaff.status = res.status || res.punchStatus || "Present";
       currentStaff.remark = locText;
 
       setTimeout(function() {
@@ -567,44 +613,38 @@
       punchBtn.innerText = "Try Check-In Again";
     }
 
-    if (typeof google !== "undefined" && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(handleSuccess)
-        .withFailureHandler(handleFailure)
-        .submitPunchFromApp(payload);
-    } else {
-      fetch(getApiUrl(), { method: "POST", body: JSON.stringify(payload) })
-        .then(function(r) { return r.json(); })
-        .then(function(res) {
-          if (res.status === "duplicate") {
-            handleSuccess({ isDuplicate: true, message: res.message });
-          } else {
-            handleSuccess({ isDuplicate: false, status: res.punchStatus, time: res.punchTime });
-          }
-        })
-        .catch(handleFailure);
-    }
+    fetch(getApiUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.status === "duplicate") {
+        handleSuccess({ isDuplicate: true, message: res.message });
+      } else {
+        handleSuccess(res);
+      }
+    })
+    .catch(handleFailure);
   }
 
-  // ==============================================================================
-  // OPTION 1: PERIODIC GPS AUTO-PING ENGINE (10-MINUTE REAL-TIME TRACKING)
-  // ==============================================================================
+  // Live Location Auto-Ping Engine (10-minute periodic push)
   var livePingInterval = null;
   var liveCountdownTimer = null;
-  var secondsUntilNextPing = 600; // 10 minutes
+  var secondsUntilNextPing = 600;
 
   function startLiveTracking() {
     var panel = document.getElementById("live-tracker-panel");
     if (panel) panel.style.display = "block";
 
-    // Immediate first ping after 4 seconds
     setTimeout(function() { sendLiveLocationPing(false); }, 4000);
 
     if (livePingInterval) clearInterval(livePingInterval);
     if (liveCountdownTimer) clearInterval(liveCountdownTimer);
 
     secondsUntilNextPing = 600;
-    livePingInterval = setInterval(function() { sendLiveLocationPing(false); }, 600000); // 10 mins
+    livePingInterval = setInterval(function() { sendLiveLocationPing(false); }, 600000);
 
     liveCountdownTimer = setInterval(function() {
       secondsUntilNextPing--;
@@ -624,10 +664,10 @@
     var accEl = document.getElementById("live-ping-acc");
     var siteEl = document.getElementById("live-ping-site");
 
-    if (statusMsgEl) statusMsgEl.innerText = "📡 Acquiring high-accuracy GPS...";
+    if (statusMsgEl) statusMsgEl.innerText = "📡 Acquiring GPS...";
 
     if (!navigator.geolocation) {
-      if (statusMsgEl) statusMsgEl.innerText = "❌ Geolocation not supported on this browser";
+      if (statusMsgEl) statusMsgEl.innerText = "❌ Geolocation not supported";
       return;
     }
 
@@ -637,8 +677,7 @@
         var lon = pos.coords.longitude;
         var acc = Math.round(pos.coords.accuracy);
 
-        // Find nearest site from SITES_LIST
-        var nearestSite = "Field Duty / On Route";
+        var nearestSite = "Field Duty / Office";
         var minDist = 999999;
         if (typeof SITES_LIST !== "undefined" && SITES_LIST.length) {
           for (var i = 0; i < SITES_LIST.length; i++) {
@@ -650,13 +689,7 @@
           }
         }
 
-        var locSummary = nearestSite;
-        if (minDist <= 150) {
-          locSummary = "At " + nearestSite + " (±" + acc + "m)";
-        } else {
-          locSummary = Math.round(minDist) + "m from " + nearestSite + " (±" + acc + "m)";
-        }
-
+        var locSummary = (minDist <= 150) ? ("At " + nearestSite) : (Math.round(minDist) + "m from " + nearestSite);
         if (accEl) accEl.innerText = "±" + acc + "m";
         if (siteEl) siteEl.innerText = locSummary;
 
@@ -672,70 +705,57 @@
           remarks: isManual ? "Manual User Location Refresh" : "Periodic Auto-Ping (10m)"
         };
 
-        // Capture battery if supported
         if (navigator.getBattery) {
           navigator.getBattery().then(function(battery) {
             payload.battery = Math.round(battery.level * 100) + "%" + (battery.charging ? " ⚡" : "");
-            dispatchLivePingPayload(payload, isManual);
+            dispatchLivePingPayload(payload);
           }).catch(function() {
-            dispatchLivePingPayload(payload, isManual);
+            dispatchLivePingPayload(payload);
           });
         } else {
-          dispatchLivePingPayload(payload, isManual);
+          dispatchLivePingPayload(payload);
         }
       },
       function(err) {
-        if (statusMsgEl) statusMsgEl.innerText = "⚠️ GPS Signal Lost: " + err.message;
+        if (statusMsgEl) statusMsgEl.innerText = "⚠️ GPS Error: " + err.message;
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 }
     );
   }
 
-  function dispatchLivePingPayload(payload, isManual) {
+  function dispatchLivePingPayload(payload) {
     var statusMsgEl = document.getElementById("live-ping-status-msg");
     var timeEl = document.getElementById("live-last-ping-time");
 
-    function onSuccess(res) {
+    function onSuccess() {
       var tNow = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
       if (timeEl) timeEl.innerText = tNow;
       if (statusMsgEl) statusMsgEl.innerText = "🟢 Location synced with Google Sheet (" + tNow + ")";
       secondsUntilNextPing = 600;
     }
 
-    function onFailure(err) {
-      if (statusMsgEl) statusMsgEl.innerText = "⚠️ Live Sync Notice: Will retry next interval";
-    }
-
-    if (typeof google !== "undefined" && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(onSuccess)
-        .withFailureHandler(onFailure)
-        .recordLivePingFromApp(payload);
-    } else {
-      var targetApiUrl = getApiUrl();
-      fetch(targetApiUrl, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      })
-      .then(function(r) { return r.json(); })
-      .then(onSuccess)
-      .catch(function() {
-        try {
-          var pingImg = new Image();
-          pingImg.src = targetApiUrl + (targetApiUrl.includes("?") ? "&" : "?") + 
-            "id=" + encodeURIComponent(payload.empId) + 
-            "&lat=" + payload.lat + 
-            "&lon=" + payload.lon + 
-            "&accuracy=" + encodeURIComponent(payload.accuracy || "±8m") + 
-            "&batt=" + encodeURIComponent(payload.battery || "-") + 
-            "&remarks=" + encodeURIComponent(payload.remarks || "Web App Auto-Ping") + 
-            "&_ts=" + Date.now();
-          onSuccess({});
-        } catch(e) {
-          onFailure(e);
-        }
-      });
-    }
+    var targetApiUrl = getApiUrl();
+    fetch(targetApiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(onSuccess)
+    .catch(function() {
+      try {
+        var pingImg = new Image();
+        pingImg.src = targetApiUrl + (targetApiUrl.includes("?") ? "&" : "?") + 
+          "id=" + encodeURIComponent(payload.empId) + 
+          "&lat=" + payload.lat + 
+          "&lon=" + payload.lon + 
+          "&accuracy=" + encodeURIComponent(payload.accuracy || "±8m") + 
+          "&batt=" + encodeURIComponent(payload.battery || "-") + 
+          "&remarks=" + encodeURIComponent(payload.remarks || "Web App Auto-Ping") + 
+          "&_ts=" + Date.now();
+        onSuccess();
+      } catch(e) {}
+    });
   }
 
   function triggerManualLivePing() {
@@ -752,7 +772,6 @@
       }
     }, 3500);
   }
-
 </script>
 
 </body>
