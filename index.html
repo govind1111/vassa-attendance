@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vassa Properties — Staff Attendance</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #F1F5F9; color: #0F172A; min-height: 100vh; padding: 16px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 440px; }
+    
+    .brand-card {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
+    }
+    .logo-badge {
+      font-size: 24px;
+      font-weight: 900;
+      color: #38BDF8;
+      letter-spacing: 1.2px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #38BDF8 0%, #60A5FA 50%, #FFFFFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+    .shift-tag {
+      display: inline-block;
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #7DD3FC;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    
+    .clock-box { font-size: 28px; font-weight: 800; color: #F1F5F9; margin: 10px 0 4px; font-variant-numeric: tabular-nums; }
+    .date-box { font-size: 12px; color: #94A3B8; }
+
+    .card { background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+    .field-group { margin-bottom: 14px; }
+    label { display: block; font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    select, input { width: 100%; padding: 12px; background: #0F172A; border: 1px solid #CBD5E1; border-radius: 10px; color: #FFFFFF; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    select:focus, input:focus { border-color: #38BDF8; }
+
+    .profile-card {
+      background: #0F172A;
+      border: 1px solid #0284C7;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .profile-info { flex: 1; }
+    .profile-label { font-size: 10px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .profile-name { font-size: 16px; font-weight: 800; color: #F8FAFC; margin-top: 2px; }
+    .profile-meta { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+    .btn-switch {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #94A3B8;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-switch:hover { color: #F87171; border-color: #F87171; }
+
+    .already-punched-card {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid #059669;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .punched-title { font-size: 16px; font-weight: 800; color: #34D399; margin-bottom: 4px; }
+    .punched-time { font-size: 13px; font-weight: 700; color: #F1F5F9; }
+    .punched-sub { font-size: 11px; color: #94A3B8; margin-top: 4px; }
+    .punched-warn { font-size: 11px; color: #F87171; font-weight: 700; margin-top: 8px; }
+
+    .radar-card { background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .radar-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .radar-icon.inside { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 2px solid #10B981; }
+    .radar-icon.outside { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 2px solid #EF4444; }
+    .radar-icon.locating { background: rgba(56, 189, 248, 0.2); color: #38BDF8; border: 2px solid #38BDF8; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .radar-info { flex: 1; }
+    .radar-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .radar-desc { font-size: 11px; color: #94A3B8; }
+
+    .btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .btn-punch { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFFFFF; }
+    .btn-punch:disabled { background: #334155; color: #64748B; cursor: not-allowed; box-shadow: none; }
+
+    .shift-notice { font-size: 11px; color: #64748B; text-align: center; margin-top: 10px; line-height: 1.4; }
+    .toast { display: none; padding: 14px; border-radius: 12px; font-size: 12px; margin-top: 14px; text-align: center; font-weight: 600; }
+    .toast.success { display: block; background: #064E3B; color: #A7F3D0; border: 1px solid #059669; }
+    .toast.error { display: block; background: #7F1D1D; color: #FECACA; border: 1px solid #DC2626; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <div class="brand-card">
+    <div class="logo-badge">VASSA PROPERTIES</div>
+    <div style="font-size: 12px; color: #94A3B8;">Staff Attendance & GPS Geofence System</div>
+    <div class="clock-box" id="live-clock">--:--:--</div>
+    <div class="date-box" id="live-date">--</div>
+    <div style="margin-top: 8px;">
+      <span class="shift-tag">Shift: 10:00 AM — 07:00 PM</span>
+    </div>
+  </div>
+
+  <div class="card" id="card-main">
+    
+    <!-- Locked Staff Profile Badge (Anti-Proxy Protection) -->
+    <div class="profile-card" id="profile-box" style="display: none; background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);">
+      <div class="profile-info">
+        <div class="profile-label" style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;"><span>🔒</span> Device Locked to Staff</div>
+        <div class="profile-name" id="display-profile-name" style="font-size: 18px; font-weight: 900; color: #0F172A; margin-top: 3px; letter-spacing: 0.2px;">-</div>
+        <div class="profile-meta" id="display-profile-meta" style="font-size: 12px; font-weight: 600; color: #047857; margin-top: 3px;">-</div>
+      </div>
+      <button type="button" class="btn-switch" onclick="clearSavedUser()" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #334155; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);" title="Admin PIN required to switch">Reset (Admin)</button>
+    </div>
+
+    <!-- 1. Staff Name Selection (Shown only if not auto-picked from phone or URL) -->
+    <div class="field-group" id="staff-select-group">
+      <label>1. Select Your Name (Optional if Auto-Picked):</label>
+      <select id="staff-select" onchange="onStaffChange()">
+        <option value="">-- Choose Your Name (Optional Select) --</option><option value="VP-001">VP-001: Govind Gore (Director / Founder)</option><option value="VP-002">VP-002: Girish Kulkarni (Senior Sales Manager)</option><option value="VP-003">VP-003: Sachin Patil (Site Supervisor)</option><option value="VP-004">VP-004: Amit Shinde (Site Operations)</option>
+      </select>
+    </div>
+
+    <!-- Already Checked In Today Banner -->
+    <div class="already-punched-card" id="banner-already-punched" style="display: none;">
+      <div class="punched-title">✅ Check-In Completed Today!</div>
+      <div class="punched-time" id="punched-time-text">Time: -</div>
+      <div class="punched-sub" id="punched-loc-text">Location: -</div>
+      <div class="punched-warn">⚠️ Same-day duplicate check-in is blocked.</div>
+    </div>
+
+    <!-- Real-Time Live Location Tracking Panel (Option 1) -->
+    <div class="card" id="live-tracker-panel" style="display: none; background: #0B1329; border: 1.5px solid #0284C7; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(2, 132, 199, 0.25);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 12px; height: 12px; border-radius: 50%; background: #10B981; display: inline-block; box-shadow: 0 0 12px #10B981; animation: pulse 1.5s infinite;"></span>
+          <span style="font-size: 13px; font-weight: 900; color: #38BDF8; letter-spacing: 0.5px; text-transform: uppercase;">Real-Time GPS Tracking: Active</span>
+        </div>
+        <span id="live-ping-countdown" style="font-size: 11px; font-weight: 700; color: #F59E0B; background: rgba(245, 158, 11, 0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">Next: 10m</span>
+      </div>
+
+      <div style="font-size: 12px; color: #E2E8F0; line-height: 1.4; margin-bottom: 12px;">
+        📍 <b>Auto-Tracking Mode:</b> Aapka live location har 10 minute me automatically Google Sheet me update ho raha hai. Duty ke dauran is page ko mobile browser me open rakhein.
+      </div>
+
+      <div style="background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+        <div>
+          <span style="color: #94A3B8;">⏱️ Last Ping:</span><br>
+          <b id="live-last-ping-time" style="color: #34D399; font-size: 13px;">Checking...</b>
+        </div>
+        <div>
+          <span style="color: #94A3B8;">📡 GPS Accuracy:</span><br>
+          <b id="live-ping-acc" style="color: #38BDF8; font-size: 13px;">Acquiring...</b>
+        </div>
+        <div style="grid-column: span 2; border-top: 1px solid #1E293B; padding-top: 6px; margin-top: 2px;">
+          <span style="color: #94A3B8;">📍 Location Status:</span><br>
+          <b id="live-ping-site" style="color: #F8FAFC;">Golden City Center Area</b>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="btn-manual-ping" onclick="triggerManualLivePing()" style="background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: #FFFFFF; font-size: 12px; font-weight: 800; padding: 10px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
+        📍 Ping My Location Now (Manual Sync)
+      </button>
+      <div id="live-ping-status-msg" style="font-size: 10px; color: #94A3B8; text-align: center; margin-top: 6px;">Auto-sync active while tab is active</div>
+    </div>
+
+
+    <!-- 07:30 PM Evening Cutoff Banner -->
+    <div class="already-punched-card" id="banner-evening-cutoff" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid #DC2626;">
+      <div style="font-size: 22px; margin-bottom: 4px;">⛔</div>
+      <div style="font-size: 16px; font-weight: 800; color: #F87171;">Office Shift Closed (After 07:30 PM)</div>
+      <div style="font-size: 12px; color: #E2E8F0; margin-top: 4px;">07:30 PM ke baad check-in strictly block hai.</div>
+      <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">Agli attendance kal subah 10:00 AM par open hogi.</div>
+    </div>
+
+    <!-- Active Punching Controls -->
+    <div id="active-punch-controls">
+      <!-- 2. Site Selection (ALWAYS VISIBLE!) -->
+      <div class="field-group">
+        <label>2. Current Duty Location / Project Site:</label>
+        <select id="location-select" onchange="calculateDistance()">
+          <option value="Golden City Center (Main Office)" data-lat="19.876245" data-lon="75.368521">SITE-01: Golden City Center (Main Office)</option><option value="Shendra MIDC Project Site" data-lat="19.888512" data-lon="75.465034">SITE-02: Shendra MIDC Project Site</option>
+        </select>
+      </div>
+
+      <!-- GPS Geofence Radar -->
+      <div class="radar-card">
+        <div class="radar-icon locating" id="radar-icon">📡</div>
+        <div class="radar-info">
+          <div class="radar-title" id="radar-title">Detecting GPS Location...</div>
+          <div class="radar-desc" id="radar-desc">Checking 100m geofence radius</div>
+        </div>
+      </div>
+
+      <!-- Check-In Button -->
+      <button class="btn btn-punch" id="punch-btn" disabled onclick="submitPunch('Check-In')">
+        🔒 Check-In Blocked (Select Name)
+      </button>
+
+      <div class="shift-notice">
+        ⏰ Shift starts at 10:00 AM. Grace period till 10:15 AM.<br>
+        Daily attendance summary PDF is automatically sent to Boss at 11:00 AM.
+      </div>
+    </div>
+
+    <div class="toast" id="toast-msg"></div>
+  </div>
+
+</div>
+
+<script>
+  // Active Google Apps Script Web App Endpoint URL
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
+  function getApiUrl() {
+    return localStorage.getItem("vassa_attendance_api_url") || DEFAULT_API_URL;
+  }
+
+  // Dynamic Data Injected from Sheet
+  var STAFF_LIST = [{"id": "VP-001", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center", "mobile": "9011025955", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}, {"id": "VP-002", "name": "Girish Kulkarni", "role": "Senior Sales Manager", "dept": "Sales", "defaultLocation": "Golden City Center", "mobile": "9673754666", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}, {"id": "VP-003", "name": "Sachin Patil", "role": "Site Supervisor", "dept": "Site Operations", "defaultLocation": "Shendra MIDC Project Site", "mobile": "9800000001", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}, {"id": "VP-004", "name": "Amit Shinde", "role": "Field Executive", "dept": "Site Operations", "defaultLocation": "Beed Bypass Plotted Project", "mobile": "9800000002", "hasPunchedToday": false, "punchTime": "-", "remark": "-"}];
+  var SITES_LIST = [{"id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.876245, "lon": 75.368521, "radius": 100}, {"id": "SITE-02", "name": "Shendra MIDC Project Site", "lat": 19.888512, "lon": 75.465034, "radius": 100}];
+  var INITIAL_STAFF_ID = "";
+
+  var currentStaff = null;
+  var currentLat = null;
+  var currentLon = null;
+  var distanceToTarget = 9999;
+
+  function isAfterEveningCutoff() {
+    var now = new Date();
+    var curMins = (now.getHours() * 60) + now.getMinutes();
+    var cutHour = (window.SERVER_SETTINGS && window.SERVER_SETTINGS.cutoffHour !== undefined) ? window.SERVER_SETTINGS.cutoffHour : 19;
+    var cutMin = (window.SERVER_SETTINGS && window.SERVER_SETTINGS.cutoffMin !== undefined) ? window.SERVER_SETTINGS.cutoffMin : 30;
+    return curMins > (cutHour * 60 + cutMin);
+  }
+
+  // Live Clock
+  setInterval(function() {
+    var now = new Date();
+    document.getElementById("live-clock").innerText = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
+    document.getElementById("live-date").innerText = now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }, 1000);
+
+  // Initialize on Window Load
+  window.onload = function() {
+    checkSavedUser();
+    initLocation();
+  };
+
+  // Check URL Parameters (?m=9011025955 or ?id=VP-001) or LocalStorage
+  function checkSavedUser() {
+    // 1. Initial staff from server (URL ?m= or ?id=)
+    if (INITIAL_STAFF_ID) {
+      for (var s = 0; s < STAFF_LIST.length; s++) {
+        if (STAFF_LIST[s].id === INITIAL_STAFF_ID) {
+          localStorage.setItem("vassa_staff_empid", STAFF_LIST[s].id);
+          applyStaff(STAFF_LIST[s], true);
+          return;
+        }
+      }
+    }
+
+    // 2. Client-side URL parameters (?m= or ?id=)
+    var urlParams = new URLSearchParams(window.location.search);
+    var paramMobile = urlParams.get('m') || urlParams.get('mobile');
+    var paramId = urlParams.get('id') || urlParams.get('emp');
+
+    if (paramMobile) {
+      var cleanMobile = paramMobile.replace(/\D/g, '').slice(-10);
+      for (var i = 0; i < STAFF_LIST.length; i++) {
+        var sm = (STAFF_LIST[i].mobile || "").replace(/\D/g, '').slice(-10);
+        if (sm === cleanMobile) {
+          localStorage.setItem("vassa_staff_empid", STAFF_LIST[i].id);
+          applyStaff(STAFF_LIST[i], true);
+          return;
+        }
+      }
+    }
+
+    if (paramId) {
+      for (var j = 0; j < STAFF_LIST.length; j++) {
+        if (STAFF_LIST[j].id.toLowerCase() === paramId.toLowerCase()) {
+          localStorage.setItem("vassa_staff_empid", STAFF_LIST[j].id);
+          applyStaff(STAFF_LIST[j], true);
+          return;
+        }
+      }
+    }
+
+    // 3. Saved in Phone Memory (LocalStorage)
+    var savedId = localStorage.getItem("vassa_staff_empid");
+    if (savedId) {
+      for (var k = 0; k < STAFF_LIST.length; k++) {
+        if (STAFF_LIST[k].id === savedId) {
+          applyStaff(STAFF_LIST[k], true);
+          return;
+        }
+      }
+    }
+  }
+
+  function onStaffChange() {
+    var sel = document.getElementById("staff-select");
+    var val = sel.value;
+    if (!val) {
+      currentStaff = null;
+      document.getElementById("punch-btn").disabled = true;
+      document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
+      return;
+    }
+    for (var i = 0; i < STAFF_LIST.length; i++) {
+      if (STAFF_LIST[i].id === val) {
+        localStorage.setItem("vassa_staff_empid", STAFF_LIST[i].id);
+        applyStaff(STAFF_LIST[i], true);
+        break;
+      }
+    }
+  }
+
+  function applyStaff(staff, isAuto) {
+    currentStaff = staff;
+
+    if (isAuto) {
+      document.getElementById("profile-box").style.display = "flex";
+      document.getElementById("staff-select-group").style.display = "none";
+      document.getElementById("display-profile-name").innerText = staff.name;
+      document.getElementById("display-profile-meta").innerText = staff.id + " • " + staff.role + " (" + staff.dept + ")";
+    }
+
+    var sel = document.getElementById("staff-select");
+    sel.value = staff.id;
+
+    // Pre-select location matching assigned default
+    var locSel = document.getElementById("location-select");
+    for (var j = 0; j < locSel.options.length; j++) {
+      if (locSel.options[j].text.toLowerCase().indexOf(staff.defaultLocation.toLowerCase()) !== -1) {
+        locSel.selectedIndex = j;
+        break;
+      }
+    }
+
+    // Check duplicate
+    if (staff.hasPunchedToday) {
+      document.getElementById("banner-already-punched").style.display = "block";
+      startLiveTracking();
+      document.getElementById("active-punch-controls").style.display = "none";
+      document.getElementById("punched-time-text").innerText = "Punch Time: " + staff.punchTime + " (" + staff.status + ")";
+      document.getElementById("punched-loc-text").innerText = "Remark: " + staff.remark;
+    } else {
+      document.getElementById("banner-already-punched").style.display = "none";
+      document.getElementById("active-punch-controls").style.display = "block";
+      calculateDistance();
+    }
+  }
+
+  function clearSavedUser() {
+    var pin = prompt("Admin Security PIN dalein device unlock / reset karne ke liye:");
+    if (pin === "25955") {
+      localStorage.removeItem("vassa_staff_empid");
+      currentStaff = null;
+      document.getElementById("profile-box").style.display = "none";
+      document.getElementById("staff-select-group").style.display = "block";
+      document.getElementById("staff-select").value = "";
+      document.getElementById("banner-already-punched").style.display = "none";
+      document.getElementById("active-punch-controls").style.display = "block";
+      document.getElementById("punch-btn").disabled = true;
+      document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
+      alert("✅ Device successfully unlocked by Admin.");
+    } else if (pin !== null) {
+      alert("❌ Galat Admin PIN! Staff members ek doosre ka name switch nahi kar sakte.");
+    }
+  }
+
+  // Geolocation
+  function getOrCreateDeviceId() {
+    var dId = localStorage.getItem("vassa_device_uuid");
+    if (!dId) {
+      dId = "DEV-" + Math.random().toString(36).substring(2, 9).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
+      localStorage.setItem("vassa_device_uuid", dId);
+    }
+    return dId;
+  }
+
+  function initLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        function(pos) {
+          currentLat = pos.coords.latitude;
+          currentLon = pos.coords.longitude;
+          calculateDistance();
+        },
+        function(err) {
+          document.getElementById("radar-title").innerText = "GPS Permission Required";
+          document.getElementById("radar-desc").innerText = "Please enable GPS/Location in mobile settings.";
+          document.getElementById("radar-icon").className = "radar-icon outside";
+          document.getElementById("radar-icon").innerText = "❌";
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+      );
+    }
+  }
+
+  function deg2rad(deg) { return deg * (Math.PI / 180); }
+
+  function getDistanceMeters(lat1, lon1, lat2, lon2) {
+    var R = 6371e3;
+    var dLat = deg2rad(lat2 - lat1);
+    var dLon = deg2rad(lon2 - lon1);
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  function calculateDistance() {
+    if (!currentLat || !currentLon) return;
+
+    var locSelect = document.getElementById("location-select");
+    if (!locSelect.options.length) return;
+    var selectedOption = locSelect.options[locSelect.selectedIndex];
+    var targetLat = parseFloat(selectedOption.getAttribute("data-lat"));
+    var targetLon = parseFloat(selectedOption.getAttribute("data-lon"));
+
+    distanceToTarget = getDistanceMeters(currentLat, currentLon, targetLat, targetLon);
+
+    var radarIcon = document.getElementById("radar-icon");
+    var radarTitle = document.getElementById("radar-title");
+    var radarDesc = document.getElementById("radar-desc");
+    var punchBtn = document.getElementById("punch-btn");
+
+    if (isAfterEveningCutoff()) {
+      document.getElementById("banner-evening-cutoff").style.display = "block";
+      punchBtn.disabled = true;
+      punchBtn.className = "btn btn-punch";
+      punchBtn.style.background = "#475569";
+      punchBtn.innerText = "⛔ Shift Over (Closed at 07:30 PM)";
+      return;
+    } else {
+      document.getElementById("banner-evening-cutoff").style.display = "none";
+    }
+
+    if (distanceToTarget <= 100) {
+      radarIcon.className = "radar-icon inside";
+      radarIcon.innerText = "🟢";
+      radarTitle.innerText = "Within Geofence (" + Math.round(distanceToTarget) + "m away)";
+      radarDesc.innerText = "Location Verified: " + selectedOption.text.split(":")[1];
+      if (currentStaff) {
+        punchBtn.disabled = false;
+        punchBtn.className = "btn btn-punch";
+        punchBtn.innerText = "✅ Check-In Now (" + Math.round(distanceToTarget) + "m)";
+      } else {
+        punchBtn.disabled = true;
+        punchBtn.innerText = "🔒 Select Name to Check-In";
+      }
+    } else {
+      radarIcon.className = "radar-icon outside";
+      radarIcon.innerText = "🔴";
+      radarTitle.innerText = "Outside 100m Range (" + Math.round(distanceToTarget) + "m away)";
+      radarDesc.innerText = "You must be within 100 meters of site pin";
+      punchBtn.disabled = true;
+      punchBtn.innerText = "🔒 Check-In Blocked (" + Math.round(distanceToTarget) + "m Away)";
+    }
+  }
+
+  function submitPunch(type) {
+    if (!currentStaff) {
+      alert("Please select your name first!");
+      return;
+    }
+
+    if (isAfterEveningCutoff()) {
+      alert("⛔ 07:30 PM ke baad check-in blocked hai! Office shift samapt ho chuki hai. Kal subah 10:00 AM par attendance open hogi.");
+      return;
+    }
+
+    if (currentStaff.hasPunchedToday) {
+      alert("⚠️ Aap aaj pehle hi check-in kar chuke hain! Duplicate punch allowed nahi hai.");
+      return;
+    }
+
+    var locSelect = document.getElementById("location-select");
+    var locText = locSelect.options[locSelect.selectedIndex].text;
+
+    var payload = {
+      empId: currentStaff.id,
+      empName: currentStaff.name,
+      punchType: type,
+      dutyType: locText.indexOf("Main Office") !== -1 ? "Office" : "Site",
+      targetSiteName: locText,
+      distanceMeters: distanceToTarget,
+      lat: currentLat,
+      lon: currentLon,
+      isManual: false,
+      deviceId: getOrCreateDeviceId(),
+      remarks: "Mobile GPS Punch (" + Math.round(distanceToTarget) + "m)"
+    };
+
+    var toast = document.getElementById("toast-msg");
+    var punchBtn = document.getElementById("punch-btn");
+    punchBtn.disabled = true;
+    punchBtn.innerText = "⏳ Recording Check-In...";
+
+    toast.className = "toast success";
+    toast.innerText = "⏳ Saving Check-In to Google Sheet...";
+
+    function handleSuccess(res) {
+      if (res && res.isProxyBlocked) {
+        toast.className = "toast error";
+        toast.innerText = res.message;
+        alert(res.message);
+        punchBtn.disabled = true;
+        punchBtn.innerText = "⛔ Proxy Punch Blocked";
+        return;
+      }
+
+      if (res && res.isDuplicate) {
+        toast.className = "toast error";
+        toast.innerText = "⚠️ " + res.message;
+        alert(res.message);
+        currentStaff.hasPunchedToday = true;
+        applyStaff(currentStaff, true);
+        return;
+      }
+
+      toast.className = "toast success";
+      toast.innerText = "✅ Check-In Recorded Successfully for " + currentStaff.name + "! Status: " + res.status;
+      currentStaff.hasPunchedToday = true;
+      currentStaff.punchTime = res.time || "Just Now";
+      currentStaff.status = res.status || "Present";
+      currentStaff.remark = locText;
+
+      setTimeout(function() {
+        applyStaff(currentStaff, true);
+        startLiveTracking();
+      }, 1500);
+    }
+
+    function handleFailure(err) {
+      toast.className = "toast error";
+      toast.innerText = "❌ Error: " + (err.message || err);
+      punchBtn.disabled = false;
+      punchBtn.innerText = "Try Check-In Again";
+    }
+
+    if (typeof google !== "undefined" && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(handleSuccess)
+        .withFailureHandler(handleFailure)
+        .submitPunchFromApp(payload);
+    } else {
+      fetch(getApiUrl(), { method: "POST", body: JSON.stringify(payload) })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (res.status === "duplicate") {
+            handleSuccess({ isDuplicate: true, message: res.message });
+          } else {
+            handleSuccess({ isDuplicate: false, status: res.punchStatus, time: res.punchTime });
+          }
+        })
+        .catch(handleFailure);
+    }
+  }
+
+  // ==============================================================================
+  // OPTION 1: PERIODIC GPS AUTO-PING ENGINE (10-MINUTE REAL-TIME TRACKING)
+  // ==============================================================================
+  var livePingInterval = null;
+  var liveCountdownTimer = null;
+  var secondsUntilNextPing = 600; // 10 minutes
+
+  function startLiveTracking() {
+    var panel = document.getElementById("live-tracker-panel");
+    if (panel) panel.style.display = "block";
+
+    // Immediate first ping after 4 seconds
+    setTimeout(function() { sendLiveLocationPing(false); }, 4000);
+
+    if (livePingInterval) clearInterval(livePingInterval);
+    if (liveCountdownTimer) clearInterval(liveCountdownTimer);
+
+    secondsUntilNextPing = 600;
+    livePingInterval = setInterval(function() { sendLiveLocationPing(false); }, 600000); // 10 mins
+
+    liveCountdownTimer = setInterval(function() {
+      secondsUntilNextPing--;
+      if (secondsUntilNextPing <= 0) secondsUntilNextPing = 600;
+      var mins = Math.floor(secondsUntilNextPing / 60);
+      var secs = secondsUntilNextPing % 60;
+      var cdEl = document.getElementById("live-ping-countdown");
+      if (cdEl) cdEl.innerText = "Next: " + mins + "m " + (secs < 10 ? "0" + secs : secs) + "s";
+    }, 1000);
+  }
+
+  function sendLiveLocationPing(isManual) {
+    if (!currentStaff) return;
+
+    var statusMsgEl = document.getElementById("live-ping-status-msg");
+    var timeEl = document.getElementById("live-last-ping-time");
+    var accEl = document.getElementById("live-ping-acc");
+    var siteEl = document.getElementById("live-ping-site");
+
+    if (statusMsgEl) statusMsgEl.innerText = "📡 Acquiring high-accuracy GPS...";
+
+    if (!navigator.geolocation) {
+      if (statusMsgEl) statusMsgEl.innerText = "❌ Geolocation not supported on this browser";
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        var lat = pos.coords.latitude;
+        var lon = pos.coords.longitude;
+        var acc = Math.round(pos.coords.accuracy);
+
+        // Find nearest site from SITES_LIST
+        var nearestSite = "Field Duty / On Route";
+        var minDist = 999999;
+        if (typeof SITES_LIST !== "undefined" && SITES_LIST.length) {
+          for (var i = 0; i < SITES_LIST.length; i++) {
+            var d = getDistanceMeters(lat, lon, SITES_LIST[i].lat, SITES_LIST[i].lon);
+            if (d < minDist) {
+              minDist = d;
+              nearestSite = SITES_LIST[i].name;
+            }
+          }
+        }
+
+        var locSummary = nearestSite;
+        if (minDist <= 150) {
+          locSummary = "At " + nearestSite + " (±" + acc + "m)";
+        } else {
+          locSummary = Math.round(minDist) + "m from " + nearestSite + " (±" + acc + "m)";
+        }
+
+        if (accEl) accEl.innerText = "±" + acc + "m";
+        if (siteEl) siteEl.innerText = locSummary;
+
+        var payload = {
+          action: "live_ping",
+          empId: currentStaff.id,
+          empName: currentStaff.name,
+          lat: lat,
+          lon: lon,
+          accuracy: "±" + acc + "m",
+          targetSiteName: nearestSite,
+          distanceMeters: Math.round(minDist),
+          remarks: isManual ? "Manual User Location Refresh" : "Periodic Auto-Ping (10m)"
+        };
+
+        // Capture battery if supported
+        if (navigator.getBattery) {
+          navigator.getBattery().then(function(battery) {
+            payload.battery = Math.round(battery.level * 100) + "%" + (battery.charging ? " ⚡" : "");
+            dispatchLivePingPayload(payload, isManual);
+          }).catch(function() {
+            dispatchLivePingPayload(payload, isManual);
+          });
+        } else {
+          dispatchLivePingPayload(payload, isManual);
+        }
+      },
+      function(err) {
+        if (statusMsgEl) statusMsgEl.innerText = "⚠️ GPS Signal Lost: " + err.message;
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 }
+    );
+  }
+
+  function dispatchLivePingPayload(payload, isManual) {
+    var statusMsgEl = document.getElementById("live-ping-status-msg");
+    var timeEl = document.getElementById("live-last-ping-time");
+
+    function onSuccess(res) {
+      var tNow = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+      if (timeEl) timeEl.innerText = tNow;
+      if (statusMsgEl) statusMsgEl.innerText = "🟢 Location synced with Google Sheet (" + tNow + ")";
+      secondsUntilNextPing = 600;
+    }
+
+    function onFailure(err) {
+      if (statusMsgEl) statusMsgEl.innerText = "⚠️ Live Sync Notice: Will retry next interval";
+    }
+
+    if (typeof google !== "undefined" && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .recordLivePingFromApp(payload);
+    } else {
+      var targetApiUrl = getApiUrl();
+      fetch(targetApiUrl, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.json(); })
+      .then(onSuccess)
+      .catch(function() {
+        try {
+          var pingImg = new Image();
+          pingImg.src = targetApiUrl + (targetApiUrl.includes("?") ? "&" : "?") + 
+            "id=" + encodeURIComponent(payload.empId) + 
+            "&lat=" + payload.lat + 
+            "&lon=" + payload.lon + 
+            "&accuracy=" + encodeURIComponent(payload.accuracy || "±8m") + 
+            "&batt=" + encodeURIComponent(payload.battery || "-") + 
+            "&remarks=" + encodeURIComponent(payload.remarks || "Web App Auto-Ping") + 
+            "&_ts=" + Date.now();
+          onSuccess({});
+        } catch(e) {
+          onFailure(e);
+        }
+      });
+    }
+  }
+
+  function triggerManualLivePing() {
+    var btn = document.getElementById("btn-manual-ping");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerText = "⏳ Pinging Current Location...";
+    }
+    sendLiveLocationPing(true);
+    setTimeout(function() {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "📍 Ping My Location Now (Manual Sync)";
+      }
+    }, 3500);
+  }
+
+</script>
+
+</body>
+</html>

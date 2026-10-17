@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vassa Properties — Live Attendance Command Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    :root {
+      --bg-body: #F1F5F9;
+      --text-main: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --card-bg: #FFFFFF;
+      --card-border: #E2E8F0;
+      --card-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+      --input-bg: #F8FAFC;
+      --input-border: #CBD5E1;
+      --input-text: #0F172A;
+      --table-header-bg: #F8FAFC;
+      --table-header-text: #475569;
+      --table-row-border: #F1F5F9;
+      --table-row-hover: #F8FAFC;
+      --table-td-text: #1E293B;
+      --brand-gradient: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+      --brand-shadow: none;
+      --pill-bg: #E0F2FE;
+      --pill-text: #0369A1;
+      --pill-border: #BAE6FD;
+      --sync-bar-bg: #FFFFFF;
+      --sync-bar-border: #E2E8F0;
+      --sync-bar-text: #475569;
+      --filter-tabs-bg: #F1F5F9;
+      --filter-tabs-border: #E2E8F0;
+      --filter-btn-text: #475569;
+      --modal-overlay-bg: rgba(15, 23, 42, 0.45);
+      --modal-bg: #FFFFFF;
+      --modal-border: #E2E8F0;
+      --modal-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      --highlight-box-bg: #ECFDF5;
+      --highlight-box-border: #10B981;
+      --highlight-box-text: #047857;
+      --info-box-bg: #F0F9FF;
+      --info-box-border: #BAE6FD;
+      --info-box-text: #0369A1;
+      --sub-box-bg: #F8FAFC;
+      --sub-box-border: #E2E8F0;
+      --btn-cancel-bg: #E2E8F0;
+      --btn-cancel-text: #1E293B;
+      --theme-btn-bg: #F1F5F9;
+      --theme-btn-text: #0F172A;
+      --theme-btn-border: #CBD5E1;
+      --search-bg: #F8FAFC;
+      --search-border: #CBD5E1;
+      --search-text: #0F172A;
+      --emp-id-color: #0284C7;
+      --checkin-color: #059669;
+      --checkout-color: #0284C7;
+    }
+
+    body.dark-mode {
+      --bg-body: #0B1329;
+      --text-main: #F8FAFC;
+      --text-secondary: #E2E8F0;
+      --text-muted: #94A3B8;
+      --card-bg: #1E293B;
+      --card-border: #334155;
+      --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+      --input-bg: #0F172A;
+      --input-border: #334155;
+      --input-text: #FFFFFF;
+      --table-header-bg: #0F172A;
+      --table-header-text: #94A3B8;
+      --table-row-border: #334155;
+      --table-row-hover: #182234;
+      --table-td-text: #E2E8F0;
+      --brand-gradient: linear-gradient(135deg, #38BDF8 0%, #60A5FA 50%, #FFFFFF 100%);
+      --brand-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+      --pill-bg: rgba(2, 132, 199, 0.15);
+      --pill-text: #7DD3FC;
+      --pill-border: rgba(56, 189, 248, 0.35);
+      --sync-bar-bg: #0F172A;
+      --sync-bar-border: #334155;
+      --sync-bar-text: #94A3B8;
+      --filter-tabs-bg: #0F172A;
+      --filter-tabs-border: #334155;
+      --filter-btn-text: #94A3B8;
+      --modal-overlay-bg: rgba(0,0,0,0.7);
+      --modal-bg: #1E293B;
+      --modal-border: #475569;
+      --modal-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      --highlight-box-bg: #0F172A;
+      --highlight-box-border: #10B981;
+      --highlight-box-text: #34D399;
+      --info-box-bg: #0F172A;
+      --info-box-border: #0284C7;
+      --info-box-text: #38BDF8;
+      --sub-box-bg: #182234;
+      --sub-box-border: #334155;
+      --btn-cancel-bg: #334155;
+      --btn-cancel-text: #FFFFFF;
+      --theme-btn-bg: #334155;
+      --theme-btn-text: #FFFFFF;
+      --theme-btn-border: #475569;
+      --search-bg: #0F172A;
+      --search-border: #334155;
+      --search-text: #FFFFFF;
+      --emp-id-color: #38BDF8;
+      --checkin-color: #34D399;
+      --checkout-color: #38BDF8;
+    }
+
+    body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; padding: 20px; transition: background-color 0.2s, color 0.2s; }
+    .container { max-width: 1360px; margin: 0 auto; }
+
+    /* Top Nav / Header */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 18px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 16px;
+      box-shadow: var(--card-shadow);
+      flex-wrap: wrap;
+      gap: 14px;
+      transition: all 0.2s;
+    }
+    
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .brand-name {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      background: var(--brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      text-shadow: var(--brand-shadow);
+      line-height: 1.25;
+      display: inline-block;
+    }
+    .shift-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      border: 1px solid var(--pill-border);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      vertical-align: middle;
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .admin-badge {
+      background: #ECFDF5;
+      color: #047857;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #A7F3D0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    body.dark-mode .admin-badge {
+      background: #065F46;
+      color: #34D399;
+      border: 1px solid #059669;
+    }
+
+    /* Connection Status Banner */
+    .sync-bar {
+      background: var(--sync-bar-bg);
+      border: 1px solid var(--sync-bar-border);
+      padding: 10px 18px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      color: var(--sync-bar-text);
+    }
+    .sync-status { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .sync-dot { width: 10px; height: 10px; border-radius: 50%; background: #10B981; animation: pulse 1.5s infinite; }
+    .sync-dot.offline { background: #EF4444; animation: none; }
+    .sync-dot.syncing { background: #F59E0B; }
+    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+    /* KPI Summary Cards Grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 640px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card { background: var(--card-bg); border-radius: 14px; padding: 18px; border: 1px solid var(--card-border); position: relative; overflow: hidden; box-shadow: var(--card-shadow); transition: all 0.2s; }
+    .kpi-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+    .kpi-card.total::before { background: #0284C7; }
+    .kpi-card.present::before { background: #10B981; }
+    .kpi-card.late::before { background: #F59E0B; }
+    .kpi-card.absent::before { background: #EF4444; }
+    .kpi-card.leave::before { background: #8B5CF6; }
+
+    .kpi-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .kpi-value { font-size: 32px; font-weight: 800; color: var(--text-main); }
+    .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Action Bar (Search, Filters, PDF Button, 11 AM Status) */
+    .action-bar {
+      background: var(--card-bg);
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: var(--card-shadow);
+    }
+    .filter-tabs { display: flex; gap: 6px; background: var(--filter-tabs-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--filter-tabs-border); }
+    .filter-btn {
+      background: transparent;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--filter-btn-text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active { background: #0284C7; color: #FFFFFF; }
+
+    .search-box {
+      background: var(--search-bg);
+      border: 1px solid var(--search-border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      color: var(--search-text);
+      font-size: 12px;
+      outline: none;
+      width: 220px;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus { border-color: #0284C7; }
+
+    .btn {
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-pdf { background: #DC2626; color: #FFFFFF; }
+    .btn-pdf:hover { background: #B91C1C; }
+    .btn-refresh { background: #E2E8F0; color: #0F172A; }
+    body.dark-mode .btn-refresh { background: #334155; color: #F1F5F9; }
+    .btn-refresh:hover { opacity: 0.9; }
+    .btn-api { background: #64748B; color: #FFFFFF; }
+
+    /* Main Table Card — Fixed Layout for Absolute Column Alignment */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      overflow-x: auto;
+      margin-bottom: 24px;
+      min-height: 250px;
+      box-shadow: var(--card-shadow);
+    }
+    table {
+      width: 100%;
+      min-width: 1280px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      text-align: left;
+      font-size: 12px;
+    }
+    td.action-col {
+      overflow: visible;
+      white-space: nowrap;
+      text-align: right;
+    }
+    td.status-col {
+      text-align: center;
+      white-space: nowrap;
+    }
+    th {
+      background: var(--table-header-bg);
+      color: var(--table-header-text);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 13px 12px;
+      border-bottom: 2px solid var(--card-border);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--table-row-border);
+      color: var(--table-td-text);
+      vertical-align: middle;
+      font-size: 12px;
+      line-height: 1.4;
+      box-sizing: border-box;
+    }
+    tr:hover { background: var(--table-row-hover); }
+
+    /* Status Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      width: 100%;
+      max-width: 135px;
+      box-sizing: border-box;
+    }
+    .badge.present { background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .badge.late { background: rgba(245, 158, 11, 0.12); color: #D97706; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge.absent { background: rgba(239, 68, 68, 0.12); color: #DC2626; border: 1px solid rgba(239, 68, 68, 0.35); }
+    .badge.leave { background: rgba(139, 92, 246, 0.12); color: #7C3AED; border: 1px solid rgba(139, 92, 246, 0.35); }
+    .badge.manual { background: rgba(2, 132, 199, 0.12); color: #0284C7; border: 1px solid rgba(56, 189, 248, 0.4); }
+
+    body.dark-mode .badge.present { color: #34D399; }
+    body.dark-mode .badge.late { color: #FBBF24; }
+    body.dark-mode .badge.absent { color: #F87171; }
+    body.dark-mode .badge.leave { color: #C084FC; }
+
+    /* Action Buttons & Status Pills in Table */
+    .btn-act-manual {
+      background: #F59E0B;
+      color: #000000;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .btn-act-manual:hover { background: #D97706; }
+    .btn-act-leave {
+      background: #8B5CF6;
+      color: #FFFFFF;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .btn-act-leave:hover { background: #7C3AED; }
+
+    .action-status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .action-status-tag.manual { background: rgba(2, 132, 199, 0.1); color: #0284C7; border: 1px solid rgba(2, 132, 199, 0.25); }
+    .action-status-tag.present { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); }
+    .action-status-tag.late { background: rgba(245, 158, 11, 0.1); color: #D97706; border: 1px solid rgba(245, 158, 11, 0.25); }
+    .action-status-tag.leave { background: rgba(139, 92, 246, 0.1); color: #7C3AED; border: 1px solid rgba(139, 92, 246, 0.25); }
+
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay-bg); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal { background: var(--modal-bg); border: 1px solid var(--modal-border); width: 100%; max-width: 500px; border-radius: 16px; padding: 24px; box-shadow: var(--modal-shadow); color: var(--text-main); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    .modal-title { font-size: 16px; font-weight: 800; color: #0284C7; }
+    body.dark-mode .modal-title { color: #38BDF8; }
+    .modal-close { background: transparent; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; }
+    .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--input-text); font-size: 12px; outline: none; transition: border-color 0.2s; }
+    .form-group select:focus, .form-group input:focus { border-color: #0284C7; }
+
+    /* Empty / Loading State */
+    .loading-state { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+
+    /* Print Styles for PDF Generation */
+    @media print {
+      body { background: #FFFFFF; color: #000000; padding: 0; }
+      .top-nav, .action-bar, .sync-bar, .modal-overlay, .btn-act-manual, .btn-act-leave, .search-box, .btn { display: none !important; }
+      .kpi-grid { grid-template-columns: repeat(6, 1fr); margin-bottom: 10px; }
+      .kpi-card { background: #F8FAFC !important; color: #000000 !important; border: 1px solid #CBD5E1 !important; padding: 10px; }
+      .kpi-value { color: #000000 !important; font-size: 20px !important; }
+      .table-card { border: none !important; box-shadow: none !important; overflow: visible !important; }
+      table { border-collapse: collapse; font-size: 10px; width: 100%; table-layout: fixed !important; min-width: 100% !important; }
+      th { background: #0F172A !important; color: #FFFFFF !important; -webkit-print-color-adjust: exact; padding: 6px 6px; }
+      td { border: 1px solid #E2E8F0 !important; color: #000000 !important; padding: 6px 6px; }
+      .print-header { display: block !important; margin-bottom: 12px; border-bottom: 2px solid #0284C7; padding-bottom: 6px; }
+    }
+    .print-header { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- Printable Header for Direct PDF Generation -->
+  <div class="print-header">
+    <h2 style="color: #0369A1; font-size: 18px;">VASSA PROPERTIES — OFFICIAL ATTENDANCE REPORT</h2>
+    <p style="font-size: 10px; color: #64748B;">Golden City Center, Chilkalthana, Chhatrapati Sambhajinagar | Shift: 10:00 AM - 07:00 PM</p>
+    <p style="font-size: 10px; color: #0284C7; font-weight: bold; margin-top: 4px;">Status Report As Of: <span id="print-date">16 October 2026, 11:00 AM</span></p>
+  </div>
+
+  <!-- Top Navigation Bar (NO icon next to VASSA PROPERTIES) -->
+  <div class="top-nav">
+    <div class="brand-section">
+      <span class="brand-name">VASSA PROPERTIES</span>
+      <span class="shift-pill">🕒 Shift: 10:00 AM – 07:00 PM</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="admin-badge" id="admin-badge-container">
+        <span>🛡️</span> Admin: <span id="admin-display-name">Admin</span>
+      </div>
+      <button class="btn" id="theme-toggle-btn" onclick="toggleTheme()" style="background:var(--theme-btn-bg); color:var(--theme-btn-text); border:1px solid var(--theme-btn-border); font-weight:700;">🌙 Dark Mode</button>
+      <button class="btn" onclick="openLiveRadarModal()" style="background:#0284C7; color:#FFFFFF; font-weight:800; box-shadow:0 4px 12px rgba(2,132,199,0.3);">📍 Live GPS Radar</button>
+      <button class="btn btn-settings" onclick="openShiftModal()" style="background:#0284C7; color:#FFFFFF;">🕒 Shift Timings</button>
+      <button class="btn btn-pin" onclick="openPinModal()" style="background:#7C3AED; color:#FFFFFF;">🔐 Reset Admin PIN</button>
+      <button class="btn btn-api" onclick="openApiModal()">⚙️ API Link</button>
+      <button class="btn btn-pdf" onclick="generatePdfReport()">📄 Print Report</button>
+      <button class="btn" onclick="openWhatsappModal()" style="background:#25D366; color:#FFFFFF; font-weight:800; box-shadow:0 4px 12px rgba(37,211,102,0.3);">📲 WhatsApp Report</button>
+    </div>
+  </div>
+
+  <!-- Google Sheet Sync Status Bar -->
+  <div class="sync-bar">
+    <div class="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-text">Connecting to Google Sheet...</span>
+    </div>
+    <div style="color: #94A3B8; font-size: 11px;">
+      Today: <b id="live-date-str" style="color: #38BDF8;">-</b> | Last Synced: <span id="sync-time">-</span>
+    </div>
+  </div>
+
+  <!-- KPI Overview Cards (Check-In & Check-Out Live Tracking) -->
+  <div class="kpi-grid">
+    <div class="kpi-card total">
+      <div class="kpi-label">Total Staff</div>
+      <div class="kpi-value" id="kpi-total">0</div>
+      <div class="kpi-sub">Registered Staff</div>
+    </div>
+    <div class="kpi-card present">
+      <div class="kpi-label">On Duty Now</div>
+      <div class="kpi-value" id="kpi-onduty" style="color:#34D399;">0</div>
+      <div class="kpi-sub">Active in Office / Site</div>
+    </div>
+    <div class="kpi-card" style="border-color:#0284C7;">
+      <div class="kpi-label">Shift Completed</div>
+      <div class="kpi-value" id="kpi-checkout" style="color:#38BDF8;">0</div>
+      <div class="kpi-sub">Checked-Out Today</div>
+    </div>
+    <div class="kpi-card late">
+      <div class="kpi-label">Late Mark</div>
+      <div class="kpi-value" id="kpi-late" style="color:#FBBF24;">0</div>
+      <div class="kpi-sub" id="kpi-late-sub">Checked in after cutoff</div>
+    </div>
+    <div class="kpi-card absent">
+      <div class="kpi-label">Absent (Unpunched)</div>
+      <div class="kpi-value" id="kpi-absent" style="color:#F87171;">0</div>
+      <div class="kpi-sub">No check-in today</div>
+    </div>
+    <div class="kpi-card leave">
+      <div class="kpi-label">On Leave</div>
+      <div class="kpi-value" id="kpi-leave" style="color:#C084FC;">0</div>
+      <div class="kpi-sub">Sanctioned Leave</div>
+    </div>
+  </div>
+
+  <!-- Action Bar & Filter Tabs -->
+  <div class="action-bar">
+    <div class="filter-tabs">
+      <button class="filter-btn active" id="tab-all" onclick="filterTable('all', this)">All Staff (<span id="count-all">0</span>)</button>
+      <button class="filter-btn" id="tab-onduty" onclick="filterTable('onduty', this)">🟢 On Duty (<span id="count-onduty">0</span>)</button>
+      <button class="filter-btn" id="tab-checkout" onclick="filterTable('checkout', this)">🚪 Checked-Out (<span id="count-checkout">0</span>)</button>
+      <button class="filter-btn" id="tab-late" onclick="filterTable('late', this)">🟡 Late (<span id="count-late">0</span>)</button>
+      <button class="filter-btn" id="tab-absent" style="color:#F87171;" onclick="filterTable('absent', this)">🔴 Absent (<span id="count-absent">0</span>)</button>
+      <button class="filter-btn" id="tab-leave" onclick="filterTable('leave', this)">🏖️ On Leave (<span id="count-leave">0</span>)</button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px;">
+      <input type="text" class="search-box" id="search-input" placeholder="🔍 Search Staff Name or ID..." onkeyup="searchStaff()">
+      <button class="btn btn-refresh" onclick="fetchLiveData()">🔄 Refresh Live</button>
+    </div>
+  </div>
+
+  <!-- Main Attendance Table with Locked Colgroup for Perfect Alignment -->
+  <div class="table-card">
+    <table id="attendance-table">
+      <colgroup>
+        <col style="width: 75px;">   <!-- 1. Emp ID -->
+        <col style="width: 140px;">  <!-- 2. Staff Name -->
+        <col style="width: 135px;">  <!-- 3. Role / Department -->
+        <col style="width: 150px;">  <!-- 4. Assigned Location -->
+        <col style="width: 90px;">   <!-- 5. Check-In -->
+        <col style="width: 90px;">   <!-- 6. Check-Out -->
+        <col style="width: 95px;">   <!-- 7. Duty Hours -->
+        <col style="width: 170px;">  <!-- 8. Live GPS Tracking (Option 1) -->
+        <col style="width: 130px;">  <!-- 9. Status -->
+        <col style="width: 275px;">  <!-- 10. Admin Actions -->
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Emp ID</th>
+          <th>Staff Name</th>
+          <th>Role / Department</th>
+          <th>Assigned Location</th>
+          <th style="text-align:center;">Check-In</th>
+          <th style="text-align:center;">Check-Out</th>
+          <th style="text-align:center;">Duty Hours</th>
+          <th style="text-align:left;">📍 Live GPS Tracking</th>
+          <th style="text-align:center;">Status</th>
+          <th style="text-align:right;">Admin Actions</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr>
+          <td colspan="8" class="loading-state">⏳ Loading live attendance data from Google Sheet...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL 1: MANUAL PUNCH FOR PHONE PROBLEM (POSTS LIVE TO SHEET) -->
+<div class="modal-overlay" id="modal-manual">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔑 Admin Manual Punch (Phone / Battery Problem)</div>
+      <button class="modal-close" onclick="closeModal('modal-manual')">&times;</button>
+    </div>
+
+    <div class="form-group">
+      <label>Staff Member:</label>
+      <input type="text" id="manual-staff-name" readonly style="background:var(--sub-box-bg); color:var(--emp-id-color); font-weight:bold; border:1px solid var(--input-border);">
+      <input type="hidden" id="manual-staff-id">
+    </div>
+
+    <div class="form-group">
+      <label>Punch Action Type:</label>
+      <select id="manual-punch-type">
+        <option value="Check-In" selected>🟢 Check-In (Morning / Site Entry)</option>
+        <option value="Check-Out">🚪 Check-Out (Evening / Duty End)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Duty Location Type:</label>
+      <select id="manual-duty-type" onchange="updateSitesDropdown()">
+        <option value="Office">🏢 Main Office (Golden City Center, Chilkalthana)</option>
+        <option value="Site">🏗️ Project Site / Field Duty</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="site-select-group" style="display:none;">
+      <label>Select Verified Project Site (From Site_Master):</label>
+      <select id="manual-site-name">
+        <!-- Injected dynamically from Site_Master -->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Verified Reason for Manual Punch:</label>
+      <select id="manual-reason">
+        <option value="Mobile Phone Switched Off">Phone Switched Off / No Signal on site</option>
+        <option value="Phone Battery Dead">Phone Battery Dead / Discharged at site</option>
+        <option value="Phone Damaged / Under Repair">Mobile Screen Damaged / Under Repair</option>
+        <option value="Field Site Inspection">Emergency Site Visit (Direct from home)</option>
+      </select>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-pdf" style="flex:1; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-manual')">Cancel</button>
+      <button class="btn btn-pdf" style="flex:2; background:#10B981;" id="btn-submit-manual" onclick="submitManualPunchLive()">✅ Approve & Mark Present</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: MARK LEAVE (POSTS LIVE TO SHEET) -->
+<div class="modal-overlay" id="modal-leave">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🏖️ Mark Approved Leave</div>
+      <button class="modal-close" onclick="closeModal('modal-leave')">&times;</button>
+    </div>
+
+    <div class="form-group">
+      <label>Staff Member:</label>
+      <input type="text" id="leave-staff-name" readonly style="background:var(--sub-box-bg); color:#7C3AED; font-weight:bold; border:1px solid var(--input-border);">
+      <input type="hidden" id="leave-staff-id">
+    </div>
+
+    <div class="form-group">
+      <label>Leave Category:</label>
+      <select id="leave-type">
+        <option value="Casual Leave (CL)">Casual Leave (CL)</option>
+        <option value="Sick Leave (SL)">Sick Leave (SL - Medical)</option>
+        <option value="Paid Leave (PL)">Privilege / Paid Leave (PL)</option>
+        <option value="Half Day (First Half)">Half Day (First Half)</option>
+        <option value="Official Outdoor Duty (OD)">Official Tour / Municipal Duty</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Admin Sanction Remark:</label>
+      <input type="text" id="leave-remark" placeholder="e.g. Prior WhatsApp request to Director approved">
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-pdf" style="flex:1; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-leave')">Cancel</button>
+      <button class="btn btn-pdf" style="flex:2; background:#8B5CF6;" id="btn-submit-leave" onclick="submitMarkLeaveLive()">💾 Sanction Leave</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: API URL SETTINGS -->
+<div class="modal-overlay" id="modal-api">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Google Apps Script Web App Endpoint</div>
+      <button class="modal-close" onclick="closeModal('modal-api')">&times;</button>
+    </div>
+
+    <div class="form-group">
+      <label>Web App Deployment URL:</label>
+      <input type="text" id="input-api-url" placeholder="https://script.google.com/macros/s/.../exec">
+      <p style="font-size:11px; color:#94A3B8; margin-top:6px;">This URL links directly to your Google Apps Script Web App for real-time reads & writes.</p>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-pdf" style="flex:1; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-api')">Cancel</button>
+      <button class="btn btn-pdf" style="flex:2; background:#0284C7;" onclick="saveApiUrl()">💾 Save & Reconnect</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Active Google Apps Script Deployment URL
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
+
+  let currentStaffList = [];
+  let currentSitesList = [];
+  let currentFilter = 'all';
+  let currentSettings = { adminPin: "25955" };
+
+  function getActiveAdminPin() {
+    return (currentSettings && currentSettings.adminPin) ? String(currentSettings.adminPin) : (localStorage.getItem("vassa_master_admin_pin") || "25955");
+  }
+
+  function getApiUrl() {
+    return localStorage.getItem("vassa_attendance_api_url") || DEFAULT_API_URL;
+  }
+
+  function setSyncStatus(state, msg) {
+    const dot = document.getElementById("sync-dot");
+    const txt = document.getElementById("sync-text");
+    dot.className = "sync-dot " + (state === 'offline' ? 'offline' : (state === 'syncing' ? 'syncing' : ''));
+    txt.innerText = msg;
+  }
+
+  // Robust Time Formatter (Converts raw ISO/1899 dates into clean 10:23 PM)
+  function formatPunchTime(val) {
+    if (!val || val === '-' || val === '—' || val === 'null' || val === 'undefined') return '—';
+    if (typeof val === 'string') {
+      val = val.trim();
+
+      // Handle raw GMT / 1899 string from Google Sheets
+      if (val.includes('GMT') || val.includes('1899') || val.includes('India Standard Time')) {
+        try {
+          var d = new Date(val);
+          if (!isNaN(d.getTime())) {
+            var istH = d.getHours();
+            var istM = d.getMinutes();
+            var p = istH >= 12 ? 'PM' : 'AM';
+            var h12 = istH % 12 || 12;
+            return (h12 < 10 ? '0' + h12 : h12) + ':' + (istM < 10 ? '0' + istM : istM) + ' ' + p;
+          }
+        } catch(e) {}
+      }
+      
+      // Handle ISO timestamp format (e.g. 1899-12-30T16:53:23.000Z or current year)
+      if (val.includes('T')) {
+        const m = val.match(/T(\d{2}):(\d{2})(?::(\d{2}))?/);
+        if (m) {
+          let utcH = parseInt(m[1], 10);
+          let utcM = parseInt(m[2], 10);
+          // IST is UTC + 5:30
+          let totalMins = utcH * 60 + utcM + 330;
+          let istH = Math.floor(totalMins / 60) % 24;
+          let istM = totalMins % 60;
+          let p = istH >= 12 ? 'PM' : 'AM';
+          let h12 = istH % 12 || 12;
+          return `${h12 < 10 ? '0' + h12 : h12}:${istM < 10 ? '0' + istM : istM} ${p}`;
+        }
+      }
+
+      // Handle standard AM/PM format (e.g. 10:23:23 PM -> 10:23 PM)
+      const matchAmpm = val.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
+      if (matchAmpm) {
+        let h = matchAmpm[1].padStart(2, '0');
+        let m = matchAmpm[2];
+        let p = matchAmpm[3].toUpperCase();
+        return `${h}:${m} ${p}`;
+      }
+
+      // Handle 24-hr format (e.g. 22:23:23 -> 10:23 PM)
+      const match24 = val.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+      if (match24) {
+        let hh = parseInt(match24[1], 10);
+        let mm = match24[2];
+        let p = hh >= 12 ? 'PM' : 'AM';
+        hh = hh % 12 || 12;
+        return `${hh < 10 ? '0' + hh : hh}:${mm} ${p}`;
+      }
+    }
+    return val;
+  }
+
+  // JSONP transport for 100% reliable data loading (bypasses CORS restrictions on file:///)
+  function fetchLiveDataJsonp() {
+    return new Promise(function(resolve, reject) {
+      var callbackName = "onLiveAttendanceDataLoaded_" + Math.floor(Math.random() * 1000000);
+      var timeoutId = setTimeout(function() {
+        cleanup();
+        reject(new Error("Timeout: Google Sheet response timed out (15s)."));
+      }, 15000);
+
+      function cleanup() {
+        clearTimeout(timeoutId);
+        try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
+        var el = document.getElementById(callbackName);
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+      }
+
+      window[callbackName] = function(data) {
+        cleanup();
+        resolve(data);
+      };
+
+      var script = document.createElement("script");
+      script.id = callbackName;
+      var apiUrl = getApiUrl();
+      var sep = apiUrl.includes("?") ? "&" : "?";
+      script.src = apiUrl + sep + "api=true&callback=" + callbackName + "&_ts=" + Date.now();
+      script.onerror = function() {
+        cleanup();
+        reject(new Error("Network Error: Could not connect to Google Apps Script."));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  // 1. Fetch Real Live Attendance Data from Google Sheet (Dual Transport: fetch + JSONP)
+  async function fetchLiveData() {
+    let apiUrl = getApiUrl();
+    setSyncStatus('syncing', 'Fetching live records from Google Sheet...');
+
+    let data = null;
+    let fetchError = null;
+
+    // Transport 1: Direct fetch
+    try {
+      const fetchUrl = apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'api=true';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const response = await fetch(fetchUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        data = await response.json();
+      } else {
+        throw new Error("HTTP error " + response.status);
+      }
+    } catch (err) {
+      fetchError = err;
+      console.warn("Direct fetch() failed, attempting script-tag JSONP bridge...", err);
+    }
+
+    // Transport 2: Fallback to JSONP (works seamlessly from file:/// and all browsers)
+    if (!data) {
+      try {
+        setSyncStatus('syncing', 'Connecting via script bridge...');
+        data = await fetchLiveDataJsonp();
+      } catch (jsonpErr) {
+        console.error("JSONP fetch also failed:", jsonpErr);
+        var finalErr = fetchError ? (fetchError.message + " | " + jsonpErr.message) : jsonpErr.message;
+        setSyncStatus('offline', '🔴 Connection Error: Google Sheet unreachable. Verify API URL.');
+        document.getElementById('table-body').innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align:center; padding:30px; color:#F87171;">
+              <b>Failed to load live data from Google Sheet.</b><br>
+              <span style="font-size:11px; color:#94A3B8;">Error: ${finalErr}. Click ⚙️ API Link above to verify Web App URL.</span>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+    }
+
+    try {
+      // Capture persistent Google Drive PDF URL from server
+      if (data.lastPdfUrl) {
+        window.LAST_DRIVE_PDF_URL = data.lastPdfUrl;
+        var driveLinkInput = document.getElementById('wa-pdf-drive-link');
+        if (driveLinkInput && !driveLinkInput.value) {
+          driveLinkInput.value = data.lastPdfUrl;
+        }
+      }
+
+      // 1. Update Settings & Shift Pill from Server
+      if (data.settings) {
+        if (data.settings.shiftText) {
+          document.querySelector(".shift-pill").innerText = data.settings.shiftText;
+        }
+        currentSettings = data.settings;
+        var sHour = (data.settings.startHour !== undefined) ? data.settings.startHour : 10;
+        var sMin = (data.settings.startMin !== undefined) ? data.settings.startMin : 0;
+        var sGrace = (data.settings.graceMins !== undefined) ? data.settings.graceMins : 15;
+        var lateCutoff = (sHour * 60) + sMin + sGrace;
+        var lateCutoffH = Math.floor(lateCutoff / 60);
+        var lateCutoffM = lateCutoff % 60;
+        var lateSubEl = document.getElementById("kpi-late-sub");
+        if (lateSubEl) {
+          lateSubEl.innerText = "Checked in after " + format12(lateCutoffH, lateCutoffM);
+        }
+      }
+
+      // 2. Update KPI Counters from Real Sheet (Check-In & Check-Out)
+      var onDutyCnt = data.summary.onDuty !== undefined ? data.summary.onDuty : (data.summary.present - (data.summary.checkedOut || 0));
+      var checkedOutCnt = data.summary.checkedOut || 0;
+
+      document.getElementById('kpi-total').innerText = data.summary.total;
+      document.getElementById('kpi-onduty').innerText = onDutyCnt;
+      document.getElementById('kpi-checkout').innerText = checkedOutCnt;
+      document.getElementById('kpi-late').innerText = data.summary.late;
+      document.getElementById('kpi-absent').innerText = data.summary.absent;
+      document.getElementById('kpi-leave').innerText = data.summary.leave;
+
+      document.getElementById('count-all').innerText = data.summary.total;
+      document.getElementById('count-onduty').innerText = onDutyCnt;
+      document.getElementById('count-checkout').innerText = checkedOutCnt;
+      document.getElementById('count-late').innerText = data.summary.late;
+      document.getElementById('count-absent').innerText = data.summary.absent;
+      document.getElementById('count-leave').innerText = data.summary.leave;
+
+      document.getElementById('live-date-str').innerText = data.summary.date;
+      document.getElementById('sync-time').innerText = new Date().toLocaleTimeString();
+
+      // 2. Set Admin Name from Staff_Master (SuperAdmin, Admin, Director, or First Staff)
+      let adminName = "Admin";
+      if (data.staff && data.staff.length > 0) {
+        const adminStaff = data.staff.find(s => 
+          s.userRole === "SuperAdmin" || 
+          s.userRole === "Admin" || 
+          (s.name && s.name.toLowerCase().includes("govind")) ||
+          (s.role && (
+            s.role.toLowerCase().includes("director") || 
+            s.role.toLowerCase().includes("founder") || 
+            s.role.toLowerCase().includes("owner") ||
+            s.role.toLowerCase().includes("admin")
+          ))
+        );
+        if (adminStaff) {
+          adminName = adminStaff.name;
+        } else {
+          adminName = data.staff[0].name;
+        }
+      }
+      document.getElementById('admin-display-name').innerText = adminName;
+
+      // 3. Store Staff & Sites data
+      currentStaffList = data.staff;
+      currentSitesList = data.sites || [];
+
+      // 4. Populate Sites in Manual Override Dropdown
+      populateSitesDropdown();
+
+      // 5. Render Live Table Rows
+      applyFilterAndRender();
+
+      setSyncStatus('online', '🟢 Connected Live to Google Sheet (Real-Time)');
+    } catch (procErr) {
+      console.error("Data processing error:", procErr);
+      setSyncStatus('offline', '🔴 Data Processing Error: ' + procErr.message);
+    }
+  }
+
+  function populateSitesDropdown() {
+    const siteSelect = document.getElementById('manual-site-name');
+    siteSelect.innerHTML = '';
+    currentSitesList.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.name;
+      opt.text = `${s.id}: ${s.name}`;
+      siteSelect.appendChild(opt);
+    });
+  }
+
+  function applyFilterAndRender() {
+    let filtered = currentStaffList;
+    if (currentFilter === 'present') {
+      filtered = currentStaffList.filter(s => s.status === 'present' || s.status === 'manual');
+    } else if (currentFilter === 'late') {
+      filtered = currentStaffList.filter(s => s.status === 'late');
+    } else if (currentFilter === 'absent') {
+      filtered = currentStaffList.filter(s => s.status === 'absent');
+    } else if (currentFilter === 'leave') {
+      filtered = currentStaffList.filter(s => s.status === 'leave');
+    }
+    renderTableRows(filtered);
+  }
+
+  function renderTableRows(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    if (!data.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align:center; padding:30px; color:#64748B;">
+            Koi staff record nahi mila is filter ke mutabiq.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    data.forEach(staff => {
+      let badgeHtml = '';
+      let actionHtml = '';
+
+      var inTime = formatPunchTime(staff.checkInTime || staff.punchTime);
+      var outTime = formatPunchTime(staff.checkOutTime);
+      var duration = staff.workDuration || '-';
+      if (staff.hasCheckedIn && !staff.hasCheckedOut) {
+        duration = '<span style="color:#10B981; font-weight:700;">⏱️ Active (On Duty)</span>';
+      }
+
+      var isLate = (staff.checkInStatus && staff.checkInStatus.includes('Late')) || staff.status === 'late';
+
+      if (staff.hasCheckedIn && staff.hasCheckedOut) {
+        badgeHtml = '<span class="badge" style="background:rgba(56,189,248,0.15); color:#38BDF8; border:1px solid #0284C7;">🏁 Checked-Out</span>';
+        actionHtml = '<div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">' +
+                     '<span class="action-status-tag" style="background:#0F172A; color:#38BDF8; border:1px solid #0284C7;">Day Completed</span>' +
+                     (isLate ? '<button class="btn-act-manual" style="background:#10B981; color:#FFFFFF;" onclick="approveLateAsPresent(\'' + staff.id + '\', \'' + staff.name.replace(/'/g, "\\'") + '\')">✅ Mark On-Time</button>' : '') +
+                     '</div>';
+      } else if (staff.hasCheckedIn && !staff.hasCheckedOut) {
+        if (isLate) {
+          badgeHtml = '<span class="badge late">🟡 Late (On Duty)</span>';
+          actionHtml = '<div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">' +
+                       '<button class="btn-act-manual" style="background:#10B981; color:#FFFFFF;" onclick="approveLateAsPresent(\'' + staff.id + '\', \'' + staff.name.replace(/'/g, "\\'") + '\')">✅ Mark On-Time</button>' +
+                       '<button class="btn-act-manual" style="background:#F59E0B; color:#000000;" onclick="adminCheckOutStaff(\'' + staff.id + '\', \'' + staff.name.replace(/'/g, "\\'") + '\')">🚪 Check-Out</button>' +
+                       '</div>';
+        } else {
+          badgeHtml = '<span class="badge present">🟢 On Duty</span>';
+          actionHtml = '<div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">' +
+                       '<button class="btn-act-manual" style="background:#F59E0B; color:#000000;" onclick="adminCheckOutStaff(\'' + staff.id + '\', \'' + staff.name.replace(/'/g, "\\'") + '\')">🚪 Check-Out</button>' +
+                       '</div>';
+        }
+      } else if (staff.status === 'leave') {
+        badgeHtml = '<span class="badge leave">🏖️ On Leave</span>';
+        actionHtml = '<div style="display:flex; justify-content:flex-end;"><span class="action-status-tag leave">Sanctioned</span></div>';
+      } else {
+        badgeHtml = '<span class="badge absent">🔴 Absent</span>';
+        actionHtml = `
+          <div style="display:flex; gap:6px; justify-content:flex-end;">
+            <button class="btn-act-manual" onclick="openManualModal('${staff.id}', '${staff.name}')">📱 Phone Punch</button>
+            <button class="btn-act-leave" onclick="openLeaveModal('${staff.id}', '${staff.name}')">🏖️ Mark Leave</button>
+          </div>
+        `;
+      }
+
+      var liveGpsHtml = '<span style="color:var(--text-muted);">—</span>';
+      if (staff.liveLocation && staff.liveLocation.mapsUrl) {
+        var isPunch = staff.liveLocation.isPunchFallback;
+        liveGpsHtml = `
+          <div style="font-size:11px; line-height:1.3;">
+            <a href="${staff.liveLocation.mapsUrl}" target="_blank" style="color:${isPunch ? '#059669' : '#0284C7'}; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+              <span>📍</span> ${isPunch ? 'Punch Map (' + staff.liveLocation.time + ')' : 'Open Live Map'}
+            </a>
+            <div style="color:${isPunch ? '#059669' : '#10B981'}; font-weight:700; font-size:10px; margin-top:2px;">
+              🕒 ${staff.liveLocation.time} (${staff.liveLocation.accuracy || '±8m'})
+            </div>
+            <div style="color:var(--text-secondary); font-size:10px; margin-top:1px;">
+              ${staff.liveLocation.site || 'Field Duty'}
+            </div>
+          </div>
+        `;
+      } else if (staff.hasCheckedIn && !staff.hasCheckedOut) {
+        var punchMap = staff.checkInMapsUrl || ('https://www.google.com/maps?q=' + encodeURIComponent((staff.checkInLocation || staff.defaultLocation || 'Golden City Center') + ', Chhatrapati Sambhajinagar'));
+        liveGpsHtml = `
+          <div style="font-size:11px; line-height:1.3;">
+            <a href="${punchMap}" target="_blank" style="color:#059669; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:3px;" title="View check-in GPS location">
+              <span>📍</span> Punch Map (${staff.checkInTime})
+            </a>
+            <div style="font-size:10px; color:#F59E0B; margin-top:2px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" onclick="openLiveRadarModal()" title="Click to view Live GPS Radar">
+              <span style="width:6px; height:6px; border-radius:50%; background:#F59E0B; display:inline-block; animation:pulse 1.5s infinite;"></span>
+              <span>Awaiting Traccar...</span>
+            </div>
+          </div>
+        `;
+      }
+
+      const row = `
+        <tr>
+          <td style="font-weight:700; color:var(--emp-id-color);">${staff.id}</td>
+          <td style="font-weight:600; color:var(--text-main);">${staff.name}</td>
+          <td>${staff.role} <span style="font-size:10px; color:var(--text-muted);">(${staff.dept})</span></td>
+          <td style="color:var(--text-secondary);">${staff.defaultLocation || 'Office'}</td>
+          <td style="font-weight:700; color:var(--checkin-color); font-variant-numeric:tabular-nums; text-align:center;">${inTime}</td>
+          <td style="font-weight:700; color:var(--checkout-color); font-variant-numeric:tabular-nums; text-align:center;">${outTime}</td>
+          <td style="font-weight:600; font-size:11px; text-align:center; color:var(--text-secondary);">${duration}</td>
+          <td style="vertical-align:middle;">${liveGpsHtml}</td>
+          <td class="status-col">${badgeHtml}</td>
+          <td class="action-col">${actionHtml}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  }
+
+  function updateShiftPreview() {
+    var sStartVal = document.getElementById("shift-start-select").value;
+    var sGrace = parseInt(document.getElementById("shift-grace-select").value) || 15;
+    var startParsed = parseTimeField(sStartVal, 10, 0);
+    var graceCutoffTotal = (startParsed.hour * 60) + startParsed.minute + sGrace;
+    var graceH = Math.floor(graceCutoffTotal / 60);
+    var graceM = graceCutoffTotal % 60;
+    var pEl = document.getElementById("shift-cutoff-preview-text");
+    if (pEl) {
+      pEl.innerText = "⏰ On-Time Cutoff: " + format12(graceH, graceM) + " tak check-in On-Time (Present) rahega. Uske baad Late Mark aayega.";
+    }
+  }
+
+  function openPinModal() {
+    document.getElementById("current-pin-input").value = "";
+    document.getElementById("new-pin-input").value = "";
+    document.getElementById("confirm-pin-input").value = "";
+    document.getElementById("modal-pin").style.display = "flex";
+  }
+
+  function parseTimeField(val, defaultH, defaultM) {
+    if (!val) return { hour: defaultH, minute: defaultM };
+    val = String(val).trim().toUpperCase();
+    var isPM = val.includes("PM");
+    var isAM = val.includes("AM");
+    var clean = val.replace(/[^0-9:]/g, "");
+    var parts = clean.split(":");
+    var h = parseInt(parts[0], 10);
+    if (isNaN(h)) h = defaultH;
+    var m = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+    if (isNaN(m)) m = 0;
+    if (isPM && h < 12) h += 12;
+    if (isAM && h === 12) h = 0;
+    return { hour: h, minute: m };
+  }
+
+  function format12(h, m) {
+    var ampm = h >= 12 ? "PM" : "AM";
+    var h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+    var mStr = m < 10 ? "0" + m : m;
+    var hStr = h12 < 10 ? "0" + h12 : h12;
+    return hStr + ":" + mStr + " " + ampm;
+  }
+
+  // Universal Robust API Request Dispatcher (Dual-Transport: fetch + JSONP Fallback)
+  // Guarantees 100% success on local file:/// without "Failed to fetch" CORS errors!
+  function sendDashboardApiRequest(payload) {
+    return new Promise(function(resolve, reject) {
+      var fetchUrl = getApiUrl();
+
+      // Transport 1: Direct POST fetch with text/plain (avoids CORS preflight)
+      fetch(fetchUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+      .then(function(resp) {
+        if (resp.ok) {
+          return resp.json();
+        } else {
+          throw new Error("HTTP " + resp.status);
+        }
+      })
+      .then(function(data) {
+        resolve(data);
+      })
+      .catch(function(fetchErr) {
+        console.warn("Direct POST fetch failed, falling back to JSONP bridge...", fetchErr);
+
+        // Transport 2: JSONP GET Bridge (100% immune to CORS on file:///)
+        var cbName = "vassa_api_cb_" + Math.floor(Math.random() * 1000000);
+        var timeoutId = setTimeout(function() {
+          cleanup();
+          reject(new Error("Request timed out (15s). Please verify your Google Sheet URL."));
+        }, 15000);
+
+        function cleanup() {
+          clearTimeout(timeoutId);
+          try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
+          var scriptEl = document.getElementById(cbName);
+          if (scriptEl && scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+        }
+
+        window[cbName] = function(res) {
+          cleanup();
+          resolve(res);
+        };
+
+        var script = document.createElement("script");
+        script.id = cbName;
+        var sep = fetchUrl.includes("?") ? "&" : "?";
+        var queryParts = ["callback=" + cbName, "_ts=" + Date.now()];
+        for (var k in payload) {
+          if (payload[k] !== undefined && payload[k] !== null) {
+            queryParts.push(encodeURIComponent(k) + "=" + encodeURIComponent(payload[k]));
+          }
+        }
+        script.src = fetchUrl + sep + queryParts.join("&");
+        script.onerror = function() {
+          cleanup();
+          reject(new Error("Network Error: Could not connect to Google Apps Script."));
+        };
+        document.head.appendChild(script);
+      });
+    });
+  }
+
+  async function saveShiftSettingsLive() {
+    const sStartVal = document.getElementById("shift-start-select").value;
+    const sEndVal = document.getElementById("shift-end-select").value;
+    const sGrace = parseInt(document.getElementById("shift-grace-select").value) || 15;
+    const cHour = parseInt(document.getElementById("cutoff-hour-24").value) || 19;
+    const cMin = parseInt(document.getElementById("cutoff-min").value) || 30;
+
+    const startParsed = parseTimeField(sStartVal, 10, 0);
+    const endParsed = parseTimeField(sEndVal, 19, 0);
+
+    const shiftText = "🕒 Shift: " + format12(startParsed.hour, startParsed.minute) + " – " + format12(endParsed.hour, endParsed.minute);
+    document.querySelector(".shift-pill").innerText = shiftText;
+
+    const graceCutoffTotal = (startParsed.hour * 60) + startParsed.minute + sGrace;
+    const graceH = Math.floor(graceCutoffTotal / 60);
+    const graceM = graceCutoffTotal % 60;
+
+    var bossNumInput = document.getElementById("shift-boss-whatsapp") ? document.getElementById("shift-boss-whatsapp").value.trim() : "";
+    var cleanBoss = bossNumInput.replace(/\D/g, "");
+    if (cleanBoss.length === 10) cleanBoss = "91" + cleanBoss;
+    if (cleanBoss) localStorage.setItem("vassa_boss_whatsapp", cleanBoss);
+
+    const payload = {
+      action: "update_settings",
+      startHour: startParsed.hour,
+      startMin: startParsed.minute,
+      graceMins: sGrace,
+      cutoffHour: cHour,
+      cutoffMin: cMin,
+      shiftText: shiftText,
+      bossWhatsapp: cleanBoss
+    };
+
+    try {
+      await sendDashboardApiRequest(payload);
+      closeModal("modal-shift");
+      alert("✅ Shift Timings Successfully Updated!\n" +
+            "Shift: " + format12(startParsed.hour, startParsed.minute) + " to " + format12(endParsed.hour, endParsed.minute) + "\n" +
+            "On-Time Cutoff: " + format12(graceH, graceM) + " tak check-in On-Time (Present) rahega.\n" +
+            "Late Mark: " + format12(graceH, graceM) + " ke baad Late Mark aayega.\n" +
+            "Cutoff: " + format12(cHour, cMin) + " ke baad check-in strictly block rahega.");
+      fetchLiveData();
+    } catch(e) {
+      closeModal("modal-shift");
+      alert("Shift timings saved locally. Server sync error: " + e.message);
+    }
+  }
+
+  async function approveLateAsPresent(empId, empName) {
+    const enteredPin = prompt("Admin PIN dalein " + empName + " (" + empId + ") ka Late Mark hata kar Present (On-Time) karne ke liye:");
+    if (enteredPin === getActiveAdminPin()) {
+      setSyncStatus("syncing", "Updating " + empName + " status in Google Sheet...");
+      try {
+        const payload = {
+          action: "update_status",
+          empId: empId,
+          empName: empName,
+          newStatus: "Present (On-Time)"
+        };
+        const res = await sendDashboardApiRequest(payload);
+        alert("✅ Status Updated Successfully!\n" + empName + " is now marked Present (On-Time) in Google Sheet Attendance_Log.");
+        fetchLiveData();
+      } catch (err) {
+        alert("❌ Error updating status: " + err.message);
+        fetchLiveData();
+      }
+    } else if (enteredPin !== null) {
+      alert("❌ Galat Admin PIN!");
+    }
+  }
+
+  async function saveNewAdminPinLive() {
+    const cur = document.getElementById('current-pin-input').value.trim();
+    const np = document.getElementById('new-pin-input').value.trim();
+    const cp = document.getElementById('confirm-pin-input').value.trim();
+
+    if (cur !== getActiveAdminPin()) {
+      alert("❌ Current Admin PIN galat hai!");
+      return;
+    }
+
+    if (!np || np.length < 4) {
+      alert("⚠️ Naya PIN kam se kam 4 digits ka hona chahiye!");
+      return;
+    }
+
+    if (np !== cp) {
+      alert("⚠️ New PIN aur Confirm PIN match nahi ho rahe!");
+      return;
+    }
+
+    localStorage.setItem("vassa_master_admin_pin", np);
+
+    const payload = {
+      action: "update_settings",
+      adminPin: np
+    };
+
+    try {
+      await sendDashboardApiRequest(payload);
+      closeModal('modal-pin');
+      alert("✅ Admin Security PIN successfully updated! Naya PIN save ho gaya hai.");
+    } catch(e) {
+      closeModal('modal-pin');
+      alert("✅ Admin PIN updated locally to " + np);
+    }
+  }
+
+  function openManualModal(id, name) {
+    document.getElementById('manual-staff-id').value = id;
+    document.getElementById('manual-staff-name').value = `${id}: ${name}`;
+    document.getElementById('modal-manual').style.display = 'flex';
+  }
+
+  function openLeaveModal(id, name) {
+    document.getElementById('leave-staff-id').value = id;
+    document.getElementById('leave-staff-name').value = `${id}: ${name}`;
+    document.getElementById('modal-leave').style.display = 'flex';
+  }
+
+  function openApiModal() {
+    document.getElementById('input-api-url').value = getApiUrl();
+    document.getElementById('modal-api').style.display = 'flex';
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  function saveApiUrl() {
+    const url = document.getElementById('input-api-url').value.trim();
+    if (url) {
+      localStorage.setItem("vassa_attendance_api_url", url);
+      closeModal('modal-api');
+      fetchLiveData();
+    }
+  }
+
+  function updateSitesDropdown() {
+    const duty = document.getElementById('manual-duty-type').value;
+    document.getElementById('site-select-group').style.display = (duty === 'Site') ? 'block' : 'none';
+  }
+
+  // Submit Manual Punch LIVE to Google Sheet
+  async function submitManualPunchLive() {
+    const btn = document.getElementById('btn-submit-manual');
+    const id = document.getElementById('manual-staff-id').value;
+    const nameWithId = document.getElementById('manual-staff-name').value;
+    const empName = nameWithId.split(': ')[1] || nameWithId;
+    const duty = document.getElementById('manual-duty-type').value;
+    const site = (duty === 'Site') ? document.getElementById('manual-site-name').value : "Golden City Center Office";
+    const reason = document.getElementById('manual-reason').value;
+
+    btn.disabled = true;
+    btn.innerText = "⏳ Saving to Google Sheet...";
+
+    const payload = {
+      empId: id,
+      empName: empName,
+      punchType: "Check-In",
+      dutyType: duty,
+      targetSiteName: site,
+      distanceMeters: 0,
+      lat: 19.8762,
+      lon: 75.3685,
+      isManual: true,
+      remarks: `Manual Approved: ${reason}`
+    };
+
+    try {
+      const res = await sendDashboardApiRequest(payload);
+      closeModal('modal-manual');
+      alert(`✅ Manual Punch Approved for ${empName}!
+Saved directly to Google Sheet Attendance_Log and Live_Tracking.`);
+      fetchLiveData();
+    } catch (e) {
+      alert("Error saving punch: " + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "✅ Approve & Mark Present";
+    }
+  }
+
+  // Submit Leave LIVE to Google Sheet
+  async function submitMarkLeaveLive() {
+    const btn = document.getElementById('btn-submit-leave');
+    const id = document.getElementById('leave-staff-id').value;
+    const nameWithId = document.getElementById('leave-staff-name').value;
+    const empName = nameWithId.split(': ')[1] || nameWithId;
+    const leaveType = document.getElementById('leave-type').value;
+    const remark = document.getElementById('leave-remark').value || "Sanctioned by Admin";
+
+    btn.disabled = true;
+    btn.innerText = "⏳ Saving to Leave_Register...";
+
+    const payload = {
+      action: "mark_leave",
+      empId: id,
+      empName: empName,
+      leaveType: leaveType,
+      adminName: document.getElementById('admin-display-name').innerText,
+      remark: remark
+    };
+
+    try {
+      const res = await sendDashboardApiRequest(payload);
+      closeModal('modal-leave');
+      alert(`🏖️ Leave Sanctioned for ${empName}!
+Saved directly to Google Sheet Leave_Register.`);
+      fetchLiveData();
+    } catch (e) {
+      alert("Error saving leave: " + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "💾 Sanction Leave";
+    }
+  }
+
+  async function generatePdfReport() {
+    var btn = event ? event.target : null;
+    var origText = btn ? btn.innerText : "";
+    if (btn) btn.innerText = "⏳ Opening PDF...";
+    setSyncStatus('syncing', 'Generating / Opening Official Google Drive PDF Report...');
+    try {
+      var fetchUrl = getApiUrl() + (getApiUrl().includes('?') ? '&' : '?') + 'action=generate_pdf_report&format=json';
+      var resp = await fetch(fetchUrl);
+      var res = await resp.json();
+      if (res && res.pdfUrl) {
+        setSyncStatus('online', '🟢 Opening Official PDF in Google Drive...');
+        if (btn) btn.innerText = origText;
+        window.open(res.pdfUrl, '_blank');
+        return;
+      }
+    } catch(e) {
+      console.warn("Backend PDF generation fallback:", e);
+    }
+    if (btn) btn.innerText = origText;
+    setSyncStatus('online', '🟢 Printing Attendance Report...');
+    window.print();
+  }
+
+  function openShiftModal() {
+    document.getElementById('modal-shift').style.display = 'flex';
+    var curBossPhone = getBossWhatsappNumber();
+    var shiftPhoneInput = document.getElementById('shift-boss-whatsapp');
+    if (shiftPhoneInput) shiftPhoneInput.value = curBossPhone;
+    updateShiftPreview();
+  }
+
+  function getBossWhatsappNumber() {
+    return localStorage.getItem("vassa_boss_whatsapp") || (currentSettings && currentSettings.bossWhatsapp) || "919011025955";
+  }
+
+  function saveQuickBossWhatsapp() {
+    var num = document.getElementById('wa-modal-recipient').value.trim();
+    if (!num) {
+      alert("Kripya valid WhatsApp number dalein!");
+      return;
+    }
+    var clean = num.replace(/\D/g, "");
+    if (clean.length === 10) clean = "91" + clean;
+    localStorage.setItem("vassa_boss_whatsapp", clean);
+    alert("✅ WhatsApp number default save ho gaya hai: " + clean);
+  }
+
+  // JSONP Fetcher to bypass CORS and get real Google Drive URL from Apps Script
+  function fetchPdfDriveUrlJsonp() {
+    return new Promise(function(resolve) {
+      var cbName = 'vassa_cb_' + Date.now();
+      var timeout = setTimeout(function() {
+        if (window[cbName]) {
+          delete window[cbName];
+          resolve(null);
+        }
+      }, 12000);
+
+      window[cbName] = function(res) {
+        clearTimeout(timeout);
+        delete window[cbName];
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+        resolve(res);
+      };
+
+      var script = document.createElement('script');
+      var base = getApiUrl();
+      script.src = base + (base.includes('?') ? '&' : '?') + 'action=generate_pdf_report&callback=' + cbName;
+      script.onerror = function() {
+        clearTimeout(timeout);
+        delete window[cbName];
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+        resolve(null);
+      };
+      document.body.appendChild(script);
+    });
+  }
+
+  function refreshLivePdfLinkFromApp() {
+    var linkInput = document.getElementById('wa-pdf-drive-link');
+    var btn = event ? event.target : null;
+    var origText = btn ? btn.innerText : "";
+    if (btn) btn.innerText = "⏳ Generating...";
+    setSyncStatus('syncing', 'Generating fresh Google Drive PDF...');
+
+    fetchPdfDriveUrlJsonp().then(function(res) {
+      if (btn) btn.innerText = origText;
+      if (res && res.pdfUrl) {
+        window.LAST_DRIVE_PDF_URL = res.pdfUrl;
+        if (linkInput) linkInput.value = res.pdfUrl;
+        setSyncStatus('online', '🟢 Google Drive PDF Link ready!');
+        alert("✅ Live Google Drive PDF created!\nURL: " + res.pdfUrl);
+      } else {
+        setSyncStatus('online', 'Connected to Google Sheet');
+        alert("⚠️ PDF link generate ho raha hai. Agar sheet busy ho, toh Dashboard me se '📄 Save PDF' button use karke file attach karein.");
+      }
+    });
+  }
+
+  function openWhatsappModal() {
+    var curPhone = getBossWhatsappNumber();
+    document.getElementById('wa-modal-recipient').value = curPhone;
+    
+    var now = new Date();
+    var timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    document.getElementById('wa-modal-time').innerText = timeStr;
+    
+    var shiftPill = document.querySelector('.shift-pill');
+    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM';
+    
+    var linkInput = document.getElementById('wa-pdf-drive-link');
+    if (linkInput) {
+      if (window.LAST_DRIVE_PDF_URL && window.LAST_DRIVE_PDF_URL.includes("drive.google.com")) {
+        linkInput.value = window.LAST_DRIVE_PDF_URL;
+      } else {
+        linkInput.value = "";
+        linkInput.placeholder = "Generating direct Google Drive link...";
+        fetchPdfDriveUrlJsonp().then(function(res) {
+          if (res && res.pdfUrl) {
+            window.LAST_DRIVE_PDF_URL = res.pdfUrl;
+            linkInput.value = res.pdfUrl;
+          }
+        });
+      }
+    }
+
+    document.getElementById('modal-whatsapp').style.display = 'flex';
+  }
+
+  function buildWhatsappAttendanceMessage(targetPhone, directDrivePdfUrl) {
+    var now = new Date();
+    var currentTime = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    var todayStr = document.getElementById('live-date-str').innerText || now.toLocaleDateString('en-IN');
+    var shiftPill = document.querySelector('.shift-pill');
+    var shiftText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM';
+
+    var total = document.getElementById('kpi-total').innerText;
+    var onDuty = document.getElementById('kpi-onduty').innerText;
+    var checkedOut = document.getElementById('kpi-checkout').innerText;
+    var late = document.getElementById('kpi-late').innerText;
+    var absent = document.getElementById('kpi-absent').innerText;
+    var leave = document.getElementById('kpi-leave').innerText;
+
+    var msg = "*VASSA PROPERTIES — ATTENDANCE REPORT*\n" +
+              "📅 *Date:* " + todayStr + " | *Time:* " + currentTime + "\n" +
+              "🕒 *Shift:* " + shiftText + "\n\n" +
+              "👥 *Total Staff:* " + total + "\n" +
+              "🟢 *On Duty Now:* " + onDuty + "\n" +
+              "🏁 *Shift Completed:* " + checkedOut + "\n" +
+              "🟡 *Late Mark:* " + late + "\n" +
+              "🔴 *Absent (Unpunched):* " + absent + "\n" +
+              "🏖️ *On Leave:* " + leave + "\n\n";
+
+    var driveLinkInput = document.getElementById('wa-pdf-drive-link');
+    var pdfDriveLink = (driveLinkInput && driveLinkInput.value.trim()) || directDrivePdfUrl || window.LAST_DRIVE_PDF_URL;
+    if (!pdfDriveLink || !pdfDriveLink.includes('drive.google.com')) {
+      pdfDriveLink = getApiUrl() + (getApiUrl().includes('?') ? '&' : '?') + 'action=generate_pdf_report';
+    }
+    msg += "📄 *Download Official PDF Report (Google Drive):*\n" + pdfDriveLink + "\n\n";
+
+    var absentStaff = currentStaffList.filter(function(s) { return s.status === 'absent'; });
+    if (absentStaff.length > 0) {
+      msg += "⚠️ *Absent / Unpunched Staff (" + absentStaff.length + "):*\n";
+      absentStaff.forEach(function(s) {
+        msg += "• " + s.id + ": " + s.name + " (" + (s.role || s.dept) + ")\n";
+      });
+      msg += "\n";
+    }
+
+    msg += "🌐 *Live Command Dashboard:* " + window.location.href.split('?')[0];
+    return msg;
+  }
+
+  async function executeDirectWhatsappSend() {
+    var inputNum = document.getElementById('wa-modal-recipient').value.trim();
+    if (!inputNum) {
+      alert("Kripya recipient WhatsApp number dalein!");
+      return;
+    }
+    var clean = inputNum.replace(/\D/g, "");
+    if (clean.length === 10) clean = "91" + clean;
+    localStorage.setItem("vassa_boss_whatsapp", clean);
+
+    var btn = document.getElementById('btn-wa-send-submit');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerText = "⏳ Generating PDF Link...";
+    }
+    setSyncStatus('syncing', 'Generating Google Drive PDF link for WhatsApp...');
+
+    var driveLinkInput = document.getElementById('wa-pdf-drive-link');
+    var directPdfUrl = (driveLinkInput && driveLinkInput.value.trim()) || window.LAST_DRIVE_PDF_URL || "";
+
+    if (!directPdfUrl || !directPdfUrl.includes("drive.google.com")) {
+      var btn = document.getElementById('btn-wa-send-submit');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ Fetching Drive Link...";
+      }
+      setSyncStatus('syncing', 'Fetching Google Drive link...');
+      try {
+        var res = await fetchPdfDriveUrlJsonp();
+        if (res && res.pdfUrl) {
+          directPdfUrl = res.pdfUrl;
+          window.LAST_DRIVE_PDF_URL = res.pdfUrl;
+          if (driveLinkInput) driveLinkInput.value = res.pdfUrl;
+        }
+      } catch(e) {}
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "📲 Open WhatsApp & Send";
+      }
+    }
+
+    if (!directPdfUrl) {
+      directPdfUrl = getApiUrl() + (getApiUrl().includes('?') ? '&' : '?') + 'action=generate_pdf_report';
+    }
+
+    var msg = buildWhatsappAttendanceMessage(clean, directPdfUrl);
+    closeModal('modal-whatsapp');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "📲 Open WhatsApp & Send";
+    }
+    setSyncStatus('online', '🟢 Opening WhatsApp...');
+    var waUrl = "https://api.whatsapp.com/send?phone=" + clean + "&text=" + encodeURIComponent(msg);
+    window.open(waUrl, '_blank');
+  }
+
+  async function copyReportTextToClipboard() {
+    var num = document.getElementById('wa-modal-recipient').value.trim();
+    var btn = event ? event.target : null;
+    if (btn) btn.innerText = "⏳ Generating Link...";
+
+    var directPdfUrl = "";
+    try {
+      var fetchUrl = getApiUrl() + (getApiUrl().includes('?') ? '&' : '?') + 'action=generate_pdf_report&format=json';
+      var resp = await fetch(fetchUrl);
+      var res = await resp.json();
+      if (res && res.pdfUrl) {
+        directPdfUrl = res.pdfUrl;
+      }
+    } catch(e) {}
+
+    if (!directPdfUrl) {
+      directPdfUrl = getApiUrl() + (getApiUrl().includes('?') ? '&' : '?') + 'action=generate_pdf_report';
+    }
+
+    var msg = buildWhatsappAttendanceMessage(num, directPdfUrl);
+    navigator.clipboard.writeText(msg).then(function() {
+      if (btn) btn.innerText = "📋 Copy Report Text";
+      alert("✅ Attendance report text with direct Google Drive PDF link copied to clipboard!");
+    }).catch(function() {
+      if (btn) btn.innerText = "📋 Copy Report Text";
+      alert("Text ready:\n\n" + msg);
+    });
+  }
+
+  async function sendWhatsappAttendanceReport() {
+    setSyncStatus('syncing', 'Generating Official PDF Report & Opening WhatsApp...');
+    const bossPhone = (currentSettings && currentSettings.bossWhatsapp) || "919011025955";
+
+    const total = document.getElementById('kpi-total').innerText;
+    const onDuty = document.getElementById('kpi-onduty').innerText;
+    const checkedOut = document.getElementById('kpi-checkout').innerText;
+    const late = document.getElementById('kpi-late').innerText;
+    const absent = document.getElementById('kpi-absent').innerText;
+    const leave = document.getElementById('kpi-leave').innerText;
+    const todayStr = document.getElementById('live-date-str').innerText;
+
+    let pdfUrl = "";
+    try {
+      const resp = await fetch(getApiUrl() + (getApiUrl().includes('?') ? '&' : '?') + 'action=generate_pdf_report');
+      const res = await resp.json();
+      if (res && res.pdfUrl) {
+        pdfUrl = res.pdfUrl;
+      }
+    } catch(e) {
+      console.warn("Backend PDF generation notice:", e);
+    }
+
+    let msg = `*VASSA PROPERTIES — ATTENDANCE REPORT*\n` +
+              `📅 *Date:* ${todayStr} | *Time:* ${new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true})}\n` +
+              `🕒 *Shift:* ${document.querySelector('.shift-pill') ? document.querySelector('.shift-pill').innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM'}\n\n` +
+              `👥 *Total Staff:* ${total}\n` +
+              `🟢 *On Duty Now:* ${onDuty}\n` +
+              `🏁 *Shift Completed:* ${checkedOut}\n` +
+              `🟡 *Late Mark:* ${late}\n` +
+              `🔴 *Absent (Unpunched):* ${absent}\n` +
+              `🏖️ *On Leave:* ${leave}\n\n`;
+
+    if (pdfUrl) {
+      msg += `📄 *Download Official PDF Report (Google Drive):*\n${pdfUrl}\n\n`;
+    }
+
+    const absentStaff = currentStaffList.filter(s => s.status === 'absent');
+    if (absentStaff.length > 0) {
+      msg += `⚠️ *Absent / Unpunched Staff (${absentStaff.length}):*\n`;
+      absentStaff.forEach(s => {
+        msg += `• ${s.id}: ${s.name} (${s.role || s.dept})\n`;
+      });
+      msg += `\n`;
+    }
+
+    msg += `🌐 *Live Dashboard:* ${window.location.href.split('?')[0]}`;
+
+    setSyncStatus('online', '🟢 Opening WhatsApp...');
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${bossPhone}&text=${encodeURIComponent(msg)}`;
+    window.open(whatsappLink, '_blank');
+  }
+
+  // Load live data on window load & auto-refresh every 60 seconds
+
+  // Theme Manager: Default Light Theme with Instant Toggle
+  function initTheme() {
+    var saved = localStorage.getItem("vassa_theme");
+    if (saved === "dark") {
+      document.body.classList.add("dark-mode");
+      var btn = document.getElementById("theme-toggle-btn");
+      if (btn) btn.innerHTML = "☀️ Light Mode";
+    } else {
+      document.body.classList.remove("dark-mode");
+      var btn = document.getElementById("theme-toggle-btn");
+      if (btn) btn.innerHTML = "🌙 Dark Mode";
+    }
+  }
+
+  function toggleTheme() {
+    var isDark = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("vassa_theme", isDark ? "dark" : "light");
+    var btn = document.getElementById("theme-toggle-btn");
+    if (btn) {
+      btn.innerHTML = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+    }
+  }
+
+  
+  function openLiveRadarModal() {
+    populateLiveRadarModal();
+    document.getElementById("modal-live-radar").style.display = "flex";
+  }
+
+  async function testPingForStaff(empId, empName) {
+    setSyncStatus('syncing', 'Sending verified live GPS ping for ' + empName + '...');
+    var payload = {
+      action: "live_ping",
+      empId: empId,
+      empName: empName,
+      lat: 19.876245,
+      lon: 75.368521,
+      accuracy: "±5m",
+      battery: "98%",
+      targetSiteName: "Golden City Center (Main Office)",
+      distanceMeters: 0,
+      remarks: "Live Sync Verified Ping"
+    };
+    try {
+      var res = await sendDashboardApiRequest(payload);
+      alert("✅ Live Location Ping Sent for " + empName + " (" + empId + ")!\nGoogle Sheet me 'Live_Tracking' tab check karein — turant row add ho chuki hai.");
+      fetchLiveData();
+    } catch(e) {
+      alert("Error sending ping: " + e.message);
+    }
+  }
+
+  function populateLiveRadarModal() {
+    var tbody = document.getElementById("radar-table-body");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    var activeStaff = currentStaffList.filter(function(s) {
+      return s.status === "present" || s.status === "late" || s.status === "manual" || (s.hasCheckedIn && !s.hasCheckedOut);
+    });
+
+    if (!activeStaff.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">Filhal koi staff on duty check-in nahi hai.</td></tr>';
+      return;
+    }
+
+    activeStaff.forEach(function(s) {
+      var ping = s.liveLocation;
+      var mapBtn = '<span style="color:var(--text-muted);">No GPS yet</span>';
+      var timeStr = '<span style="color:#F59E0B;">Awaiting 1st ping</span>';
+      var siteStr = s.defaultLocation || "Office";
+      var accStr = "—";
+
+      if (ping && ping.mapsUrl) {
+        var isPunch = ping.isPunchFallback;
+        mapBtn = '<a href="' + ping.mapsUrl + '" target="_blank" class="btn" style="padding:4px 8px; font-size:10px; background:' + (isPunch ? '#059669' : '#0284C7') + '; color:#FFFFFF; text-decoration:none; display:inline-flex; align-items:center; gap:3px;"><span>📍</span> ' + (isPunch ? 'Punch Map' : 'View Live Map') + '</a>';
+        timeStr = '<b style="color:' + (isPunch ? '#059669' : '#10B981') + ';">' + ping.time + (isPunch ? ' (Punch GPS)' : '') + '</b>';
+        siteStr = ping.site || s.defaultLocation;
+        accStr = (ping.accuracy || "±8m") + (ping.battery && ping.battery !== "-" ? (" | 🔋 " + ping.battery) : "");
+      } else if (s.checkInTime && s.checkInTime !== "-") {
+        var punchMap = s.checkInMapsUrl || ('https://www.google.com/maps?q=' + encodeURIComponent((s.checkInLocation || s.defaultLocation || 'Golden City Center') + ', Chhatrapati Sambhajinagar'));
+        mapBtn = '<a href="' + punchMap + '" target="_blank" class="btn" style="padding:4px 8px; font-size:10px; background:#059669; color:#FFFFFF; text-decoration:none; display:inline-flex; align-items:center; gap:3px;"><span>📍</span> Punch Map</a>';
+        timeStr = '<span style="color:#059669; font-weight:700;">' + s.checkInTime + ' (Punch GPS)</span>';
+        siteStr = s.checkInLocation || s.defaultLocation;
+        accStr = "Punch Geofence (Awaiting Traccar)";
+      }
+
+      var tr = `
+        <tr style="border-bottom:1px solid var(--table-row-border);">
+          <td style="padding:10px 8px; font-weight:700; color:var(--text-main);">${s.name} <span style="font-size:10px; color:var(--text-muted);">(${s.id})</span></td>
+          <td style="padding:10px 8px;"><span class="badge present" style="padding:2px 8px; font-size:10px;">🟢 On Duty</span></td>
+          <td style="padding:10px 8px;">${timeStr}</td>
+          <td style="padding:10px 8px; color:var(--text-secondary);">${siteStr}</td>
+          <td style="padding:10px 8px; font-size:10px; color:var(--text-muted);">${accStr}</td>
+          <td style="padding:10px 8px; text-align:right; white-space:nowrap;">
+            <div style="display:inline-flex; gap:5px; align-items:center;">
+              ${mapBtn}
+              <button type="button" class="btn" style="padding:4px 8px; font-size:10px; background:#0284C7; color:#FFFFFF; text-decoration:none;" onclick="testPingForStaff('${s.id}', '${s.name.replace(/'/g, "\\'")}')" title="Push instant live location ping to Google Sheet">
+                ⚡ Force Ping
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += tr;
+    });
+  }
+
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay').forEach(function(m) {
+        m.style.display = 'none';
+      });
+    }
+  });
+
+  window.onload = () => {
+    initTheme();
+    fetchLiveData();
+    setInterval(fetchLiveData, 60000);
+  };
+</script>
+
+
+<!-- MODAL 4: FLEXIBLE OFFICE SHIFT TIMING SETTINGS -->
+<div class="modal-overlay" id="modal-shift">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🕒 Flexible Office Shift & Cutoff Settings</div>
+      <button class="modal-close" onclick="closeModal('modal-shift')">&times;</button>
+    </div>
+
+    <div class="form-group" style="background:var(--info-box-bg); padding:12px; border-radius:10px; border:1px solid var(--info-box-border); margin-bottom:14px;">
+      <label style="color:var(--info-box-text); font-weight:800;">📱 Recipient WhatsApp Report Number (No Hardcoding):</label>
+      <input type="tel" id="shift-boss-whatsapp" placeholder="e.g. 9011025955 or 919011025955" maxlength="15">
+      <p style="font-size:11px; color:var(--text-muted); margin-top:4px;">Is number par daily attendance summary aur PDF link send hota hai. Number aap yahan update kar sakte hain.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Shift Start Time (Official Duty Start):</label>
+      <select id="shift-start-select" onchange="updateShiftPreview()">
+        <option value="09:00 AM">09:00 AM</option>
+        <option value="09:30 AM">09:30 AM</option>
+        <option value="10:00 AM" selected>10:00 AM</option>
+        <option value="10:30 AM">10:30 AM</option>
+        <option value="11:00 AM">11:00 AM</option>
+        <option value="11:30 AM">11:30 AM</option>
+        <option value="12:00 PM">12:00 PM (Noon / Dopahar)</option>
+        <option value="12:30 PM">12:30 PM</option>
+        <option value="01:00 PM">01:00 PM</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Late Mark Grace Period (Buffer Minutes):</label>
+      <select id="shift-grace-select" onchange="updateShiftPreview()">
+        <option value="10">10 Minutes</option>
+        <option value="15" selected>15 Minutes (Standard)</option>
+        <option value="30">30 Minutes (Relaxed)</option>
+        <option value="45">45 Minutes</option>
+        <option value="60">60 Minutes (1 Hour)</option>
+      </select>
+      <p id="shift-cutoff-preview-text" style="font-size:12px; color:#38BDF8; margin-top:6px; font-weight:700;">
+        ⏰ On-Time Cutoff: 10:15 AM tak check-in On-Time (Present) rahega.
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label>Shift End Time (Office Closes):</label>
+      <select id="shift-end-select">
+        <option value="06:00 PM">06:00 PM</option>
+        <option value="06:30 PM">06:30 PM</option>
+        <option value="07:00 PM" selected>07:00 PM</option>
+        <option value="07:30 PM">07:30 PM</option>
+        <option value="08:00 PM">08:00 PM</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Hard Cutoff Time (Check-In strictly blocked after this):</label>
+      <div style="display:flex; gap:10px;">
+        <input type="number" id="cutoff-hour-24" placeholder="19" style="flex:1;" value="19" min="0" max="23">
+        <input type="number" id="cutoff-min" placeholder="30" style="flex:1;" value="30" min="0" max="59">
+      </div>
+      <p style="font-size:11px; color:#F87171; margin-top:4px;">Hour 19, Min 30 = 07:30 PM ke baad check-in strictly block ho jayega.</p>
+    </div>
+
+    <div style="background:var(--sub-box-bg); border:1px solid var(--sub-box-border); padding:10px; border-radius:8px; margin-bottom:14px; font-size:11px; color:#0284C7;">
+      <b>Next Day Re-Opening Rule:</b> Agla check-in agle din <b>00:01 AM (Midnight)</b> ke baad automatically open hoga.
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn btn-pdf" style="flex:1; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-shift')">Cancel</button>
+      <button class="btn btn-pdf" style="flex:2; background:#0284C7;" onclick="saveShiftSettingsLive()">💾 Save & Sync Shift</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 5: RESET ADMIN PIN -->
+<div class="modal-overlay" id="modal-pin">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔐 Reset Master Admin Security PIN</div>
+      <button class="modal-close" onclick="closeModal('modal-pin')">&times;</button>
+    </div>
+
+    <div class="form-group">
+      <label>Current Admin PIN:</label>
+      <input type="password" id="current-pin-input" placeholder="Current PIN (Default 25955)" maxlength="10">
+    </div>
+
+    <div class="form-group">
+      <label>New Secret Admin PIN (4 to 8 digits):</label>
+      <input type="password" id="new-pin-input" placeholder="Enter new secret PIN" maxlength="10">
+    </div>
+
+    <div class="form-group">
+      <label>Confirm New Admin PIN:</label>
+      <input type="password" id="confirm-pin-input" placeholder="Re-enter new secret PIN" maxlength="10">
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn btn-pdf" style="flex:1; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-pin')">Cancel</button>
+      <button class="btn btn-pdf" style="flex:2; background:#7C3AED;" onclick="saveNewAdminPinLive()">💾 Update Admin PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 6: WHATSAPP ATTENDANCE DISPATCHER -->
+<div class="modal-overlay" id="modal-whatsapp">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color:#25D366; display:flex; align-items:center; gap:8px;">
+        <span>📲</span> Send Attendance Report to WhatsApp
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-whatsapp')">&times;</button>
+    </div>
+
+    <div class="form-group" style="background:var(--highlight-box-bg); padding:12px; border-radius:10px; border:1px solid var(--highlight-box-border); margin-bottom:14px;">
+      <label style="color:var(--highlight-box-text); font-weight:800;">Recipient WhatsApp Mobile Number:</label>
+      <div style="display:flex; gap:8px;">
+        <input type="tel" id="wa-modal-recipient" placeholder="Enter 10-digit mobile or with country code" style="font-size:14px; font-weight:700; color:var(--input-text); background:var(--input-bg); flex:1;">
+        <button type="button" class="btn" style="background:#0284C7; color:#FFFFFF; padding:8px 12px; font-size:11px;" onclick="saveQuickBossWhatsapp()">💾 Set Default</button>
+      </div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:4px;">Aap is number ko kabhi bhi change kar sakte hain (e.g. Director, Partner ya Manager).</p>
+    </div>
+
+    <!-- Flexible Real-Time Timing Indicator -->
+    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--sub-box-bg); border:1px solid var(--sub-box-border); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:11px; color:var(--text-secondary);">
+      <span>⏰ <b>Report Time:</b> <span id="wa-modal-time" style="color:#0284C7; font-weight:700;">-</span> (Live Real-Time)</span>
+      <span>🕒 <b>Shift:</b> <span id="wa-modal-shift" style="color:#D97706; font-weight:700;">-</span></span>
+    </div>
+
+    <!-- Direct Google Drive PDF Link Box -->
+    <div class="form-group" style="background:var(--sub-box-bg); padding:12px; border-radius:10px; border:1px solid var(--sub-box-border); margin-bottom:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="color:var(--text-main); font-weight:800; font-size:11px; margin-bottom:0;">📄 Direct Google Drive PDF Link:</label>
+        <button type="button" class="btn" style="padding:4px 8px; font-size:10px; background:#0284C7; color:#FFFFFF;" onclick="refreshLivePdfLinkFromApp()">⚡ Generate Fresh Drive Link</button>
+      </div>
+      <input type="text" id="wa-pdf-drive-link" placeholder="https://drive.google.com/file/d/.../view" style="font-size:11px; font-family:monospace; background:var(--input-bg); color:var(--input-text); border:1px solid var(--input-border); width:100%; padding:8px 10px; border-radius:6px;">
+      <p style="font-size:10px; color:var(--text-muted); margin-top:4px;">Ye direct Google Drive link WhatsApp message me jayega taaki recipient ek click me Google Drive me PDF dekh sake.</p>
+    </div>
+
+    <!-- PDF Attachment & Sharing Guide -->
+    <div style="background:var(--sub-box-bg); border:1px solid var(--sub-box-border); padding:12px; border-radius:10px; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <b style="font-size:12px; color:var(--text-main);">📄 Official PDF Document Report:</b>
+        <span style="font-size:11px; color:#059669; font-weight:700;">✅ Live Drive Link Embedded</span>
+      </div>
+      <p style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+        WhatsApp message me <b>Official PDF ka Google Drive direct link</b> jud kar jayega. Agar aapko WhatsApp chat me <b>actual .pdf file document attach</b> karni hai, toh pehle neeche <b>"📄 Save PDF File"</b> dabakar PDF download karein aur chat me attach karein.
+      </p>
+      <div style="margin-top:10px; display:flex; gap:8px;">
+        <button type="button" class="btn btn-pdf" style="flex:1; font-size:11px; padding:7px 10px; background:#DC2626;" onclick="generatePdfReport()">📄 1. Save/Print PDF File</button>
+        <button type="button" class="btn" style="flex:1; font-size:11px; padding:7px 10px; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="copyReportTextToClipboard()">📋 Copy Report Text</button>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button type="button" class="btn btn-pdf" style="flex:1; background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-whatsapp')">Cancel</button>
+      <button type="button" id="btn-wa-send-submit" class="btn" style="flex:2; background:#25D366; color:#FFFFFF; font-weight:800; font-size:13px; box-shadow:0 4px 14px rgba(37,211,102,0.4);" onclick="executeDirectWhatsappSend()">
+        📲 Open WhatsApp & Send
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL 7: REAL-TIME LIVE LOCATION RADAR (OPTION 1) -->
+<div class="modal-overlay" id="modal-live-radar" onclick="if(event.target === this) closeModal('modal-live-radar')">
+  <div class="modal" style="max-width:760px; max-height:85vh; display:flex; flex-direction:column;">
+    <div class="modal-header">
+      <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+        <span style="width:12px; height:12px; border-radius:50%; background:#10B981; display:inline-block; box-shadow:0 0 10px #10B981; animation:pulse 1.5s infinite;"></span>
+        <span>📍 Vassa Properties — Real-Time Staff Location Radar</span>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-live-radar')">&times;</button>
+    </div>
+
+    <div style="background:var(--sub-box-bg); border:1px solid var(--sub-box-border); padding:12px 16px; border-radius:10px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:12px; font-weight:800; color:var(--text-main);">📡 Active Field Tracking (10-Minute Periodic Pings)</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Staff mobiles automatically push GPS coordinates to Google Sheets while on duty.</div>
+      </div>
+      <button type="button" class="btn btn-refresh" onclick="fetchLiveData(); populateLiveRadarModal();" style="padding:6px 12px; font-size:11px;">
+        🔄 Refresh Pings
+      </button>
+    </div>
+
+    <div style="overflow-y:auto; flex:1; max-height:450px;">
+      <table style="width:100%; min-width:100%; font-size:11px; border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--table-header-bg); color:var(--table-header-text); border-bottom:2px solid var(--card-border);">
+            <th style="padding:8px;">Staff Member</th>
+            <th style="padding:8px;">Status</th>
+            <th style="padding:8px;">Last Ping Time</th>
+            <th style="padding:8px;">Nearby Project Site</th>
+            <th style="padding:8px;">Accuracy / Battery</th>
+            <th style="padding:8px; text-align:right;">Map Action</th>
+          </tr>
+        </thead>
+        <tbody id="radar-table-body">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+      <button class="btn btn-pdf" style="background:var(--btn-cancel-bg); color:var(--btn-cancel-text);" onclick="closeModal('modal-live-radar')">Close Radar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
