@@ -690,12 +690,7 @@
   }
 
   function getApiUrl() {
-    var stored = localStorage.getItem("vassa_attendance_api_url");
-    if (!stored || stored.includes("AKfycbxGLLU_") || !stored.includes("script.google.com")) {
-      localStorage.setItem("vassa_attendance_api_url", DEFAULT_API_URL);
-      return DEFAULT_API_URL;
-    }
-    return stored;
+    return localStorage.getItem("vassa_attendance_api_url") || DEFAULT_API_URL;
   }
 
   function setSyncStatus(state, msg) {
