@@ -897,8 +897,9 @@
       let adminName = "Admin";
       let adminRole = "Admin";
       if (data.staff && data.staff.length > 0) {
-        // Priority 1: Check userRole column (SuperAdmin / Admin)
-        let adminStaff = data.staff.find(s => s.userRole && (s.userRole.toLowerCase() === "superadmin" || s.userRole.toLowerCase() === "admin"));
+        // Priority 1: Founder / Owner Govind Gore or SuperAdmin / Admin
+        let adminStaff = data.staff.find(s => s.name && /govind/i.test(s.name)) ||
+                         data.staff.find(s => s.userRole && (s.userRole.toLowerCase() === "superadmin" || s.userRole.toLowerCase() === "admin"));
         
         // Priority 2: Executive Leadership in role/designation (Director, Founder, Owner, CEO, Managing Director, MD, Proprietor)
         if (!adminStaff) {

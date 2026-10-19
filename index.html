@@ -451,8 +451,9 @@
 
   // Exact Staff from Google Sheet 'Staff_Master'
   var STAFF_LIST = [
-    { "id": "VP-001", "name": "Vaishnavi Rajguru", "role": "HR Pre-Sale", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
-    { "id": "VP-002", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9011025955", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" }
+    { "id": "VP-004", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9011025955", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-002", "name": "Vaishnavi Rajguru", "role": "HR Pre-Sale", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-003", "name": "Savita Chavan", "role": "Staff", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" }
   ];
 
   // Exact Project Sites from Google Sheet 'Site_Master'
@@ -1000,9 +1001,18 @@
 
   function startLiveTracking() {
     if (livePingInterval) clearInterval(livePingInterval);
-    // Background ping every 10 minutes silently
-    livePingInterval = setInterval(function() { sendLiveLocationPing(false); }, 600000);
+    // 1. Send IMMEDIATE ping at 0 seconds (instantly records live location in sheet upon check-in!)
+    sendLiveLocationPing(false);
+    // 2. Schedule periodic pings every 5 minutes (300,000 ms) instead of 10 minutes
+    livePingInterval = setInterval(function() { sendLiveLocationPing(false); }, 300000);
   }
+
+  // 3. Auto-ping on tab visibility resume (whenever user unlocks screen or returns to browser)
+  document.addEventListener("visibilitychange", function() {
+    if (!document.hidden && currentStaff && (currentStaff.hasCheckedIn || currentStaff.hasPunchedToday) && !currentStaff.hasCheckedOut) {
+      sendLiveLocationPing(false);
+    }
+  });
 
   function sendLiveLocationPing(isManual) {
     if (!currentStaff) return;
