@@ -387,7 +387,7 @@
       <div class="field-group">
         <label>2. Current Duty Location / Project Site:</label>
         <select id="location-select" onchange="calculateDistance()">
-          <option value="Golden City Center (Main Office)" data-lat="19.874668" data-lon="75.372983">SITE-01: Golden City Center (Main Office)</option>
+          <option value="Golden City Center (Main Office)" data-lat="19.905984" data-lon="75.359430">SITE-01: Golden City Center (Main Office)</option>
           <option value="Waluj Mahanagar-1" data-lat="19.888512" data-lon="75.465034">SITE-02: Waluj Mahanagar-1</option>
           <option value="Waluj Mahanagar-2" data-lat="19.839045" data-lon="75.321078">SITE-03: Waluj Mahanagar-2</option>
           <option value="Shendra MIDC - Shendra" data-lat="19.831567" data-lon="75.315023">SITE-04: Shendra MIDC - Shendra</option>
@@ -442,7 +442,7 @@
 
 <script>
   // Active Google Apps Script Web App Endpoint URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
   function getApiUrl() {
     var stored = localStorage.getItem("vassa_attendance_api_url");
     if (!stored || stored.includes("AKfycbxGLLU_") || !stored.includes("script.google.com")) {
@@ -461,7 +461,7 @@
 
   // Exact Project Sites from Google Sheet 'Site_Master'
   var SITES_LIST = [
-    { "id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.874668, "lon": 75.372983, "radius": 100 },
+    { "id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.905984, "lon": 75.359430, "radius": 100 },
     { "id": "SITE-02", "name": "Waluj Mahanagar-1", "lat": 19.888512, "lon": 75.465034, "radius": 100 },
     { "id": "SITE-03", "name": "Waluj Mahanagar-2", "lat": 19.839045, "lon": 75.321078, "radius": 100 },
     { "id": "SITE-04", "name": "Shendra MIDC - Shendra", "lat": 19.831567, "lon": 75.315023, "radius": 100 },
@@ -478,8 +478,8 @@
   function isAfterEveningCutoff() {
     var now = new Date();
     var curMins = (now.getHours() * 60) + now.getMinutes();
-    var cutHour = 19;
-    var cutMin = 30;
+    var cutHour = (window.CURRENT_SETTINGS && window.CURRENT_SETTINGS.cutoffHour !== undefined) ? window.CURRENT_SETTINGS.cutoffHour : (parseInt(localStorage.getItem("vassa_cutoff_hour")) || 23);
+    var cutMin = (window.CURRENT_SETTINGS && window.CURRENT_SETTINGS.cutoffMin !== undefined) ? window.CURRENT_SETTINGS.cutoffMin : (parseInt(localStorage.getItem("vassa_cutoff_min")) || 59);
     return curMins > (cutHour * 60 + cutMin);
   }
 

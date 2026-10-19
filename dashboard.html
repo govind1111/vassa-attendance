@@ -678,7 +678,7 @@
 
 <script>
   // Active Google Apps Script Deployment URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
 
   let currentStaffList = [];
   let currentSitesList = [];
@@ -690,6 +690,14 @@
   }
 
   function getApiUrl() {
+    var stored = localStorage.getItem("vassa_attendance_api_url");
+    if (!stored || stored.includes("AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR")) {
+      localStorage.setItem("vassa_attendance_api_url", DEFAULT_API_URL);
+      return DEFAULT_API_URL;
+    }
+    return stored;
+  }
+  function __dummy_getApiUrl_old() {
     return localStorage.getItem("vassa_attendance_api_url") || DEFAULT_API_URL;
   }
 
@@ -1350,8 +1358,8 @@
       dutyType: duty,
       targetSiteName: site,
       distanceMeters: 0,
-      lat: 19.8762,
-      lon: 75.3685,
+      lat: 19.905984,
+      lon: 75.359430,
       isManual: true,
       remarks: `Manual Approved: ${reason}`
     };
@@ -1428,11 +1436,44 @@ Saved directly to Google Sheet Leave_Register.`);
     window.print();
   }
 
+  
+  function onShiftEndChange() {
+    var endVal = document.getElementById("shift-end-select").value;
+    var parsed = parseTimeField(endVal, 19, 0);
+    var cHourInput = document.getElementById("cutoff-hour-24");
+    var cMinInput = document.getElementById("cutoff-min");
+    if (cHourInput && cMinInput) {
+      cHourInput.value = parsed.hour;
+      cMinInput.value = parsed.minute;
+      var note = document.getElementById("cutoff-note-text");
+      if (note) {
+        var minStr = parsed.minute < 10 ? "0" + parsed.minute : parsed.minute;
+        note.innerText = "Hour " + parsed.hour + ", Min " + minStr + " = " + format12(parsed.hour, parsed.minute) + " ke baad check-in strictly block ho jayega.";
+      }
+    }
+  }
+
   function openShiftModal() {
     document.getElementById('modal-shift').style.display = 'flex';
     var curBossPhone = getBossWhatsappNumber();
     var shiftPhoneInput = document.getElementById('shift-boss-whatsapp');
     if (shiftPhoneInput) shiftPhoneInput.value = curBossPhone;
+
+    if (typeof currentSettings !== 'undefined' && currentSettings) {
+      if (currentSettings.cutoffHour !== undefined) {
+        document.getElementById('cutoff-hour-24').value = currentSettings.cutoffHour;
+      }
+      if (currentSettings.cutoffMin !== undefined) {
+        document.getElementById('cutoff-min').value = currentSettings.cutoffMin;
+      }
+      var cNote = document.getElementById('cutoff-note-text');
+      if (cNote && currentSettings.cutoffHour !== undefined) {
+        var ch = currentSettings.cutoffHour;
+        var cm = currentSettings.cutoffMin !== undefined ? currentSettings.cutoffMin : 0;
+        var cmStr = cm < 10 ? '0' + cm : cm;
+        cNote.innerText = 'Hour ' + ch + ', Min ' + cmStr + ' = ' + format12(ch, cm) + ' tak check-in allowed rahega.';
+      }
+    }
     updateShiftPreview();
   }
 
@@ -1753,8 +1794,8 @@ Saved directly to Google Sheet Leave_Register.`);
       action: "live_ping",
       empId: empId,
       empName: empName,
-      lat: 19.876245,
-      lon: 75.368521,
+      lat: 19.905984,
+      lon: 75.359430,
       accuracy: "±5m",
       battery: "98%",
       targetSiteName: "Golden City Center (Main Office)",
@@ -1859,16 +1900,29 @@ Saved directly to Google Sheet Leave_Register.`);
 
     <div class="form-group">
       <label>Shift Start Time (Official Duty Start):</label>
-      <select id="shift-start-select" onchange="updateShiftPreview()">
+            <select id="shift-start-select" onchange="updateShiftPreview()">
+        <option value="06:00 AM">06:00 AM (Early Morning)</option>
+        <option value="07:00 AM">07:00 AM</option>
+        <option value="08:00 AM">08:00 AM</option>
+        <option value="08:30 AM">08:30 AM</option>
         <option value="09:00 AM">09:00 AM</option>
         <option value="09:30 AM">09:30 AM</option>
-        <option value="10:00 AM" selected>10:00 AM</option>
+        <option value="10:00 AM" selected>10:00 AM (Standard Duty)</option>
         <option value="10:30 AM">10:30 AM</option>
         <option value="11:00 AM">11:00 AM</option>
         <option value="11:30 AM">11:30 AM</option>
         <option value="12:00 PM">12:00 PM (Noon / Dopahar)</option>
         <option value="12:30 PM">12:30 PM</option>
         <option value="01:00 PM">01:00 PM</option>
+        <option value="02:00 PM">02:00 PM</option>
+        <option value="03:00 PM">03:00 PM</option>
+        <option value="04:00 PM">04:00 PM</option>
+        <option value="05:00 PM">05:00 PM</option>
+        <option value="06:00 PM">06:00 PM</option>
+        <option value="07:00 PM">07:00 PM</option>
+        <option value="08:00 PM">08:00 PM</option>
+        <option value="09:00 PM">09:00 PM</option>
+        <option value="10:00 PM">10:00 PM (Night Testing)</option>
       </select>
     </div>
 
@@ -1888,12 +1942,26 @@ Saved directly to Google Sheet Leave_Register.`);
 
     <div class="form-group">
       <label>Shift End Time (Office Closes):</label>
-      <select id="shift-end-select">
+            <select id="shift-end-select" onchange="onShiftEndChange()">
+        <option value="01:00 PM">01:00 PM</option>
+        <option value="02:00 PM">02:00 PM</option>
+        <option value="03:00 PM">03:00 PM</option>
+        <option value="04:00 PM">04:00 PM</option>
+        <option value="05:00 PM">05:00 PM</option>
+        <option value="05:30 PM">05:30 PM</option>
         <option value="06:00 PM">06:00 PM</option>
         <option value="06:30 PM">06:30 PM</option>
-        <option value="07:00 PM" selected>07:00 PM</option>
+        <option value="07:00 PM" selected>07:00 PM (Standard Close)</option>
         <option value="07:30 PM">07:30 PM</option>
         <option value="08:00 PM">08:00 PM</option>
+        <option value="08:30 PM">08:30 PM</option>
+        <option value="09:00 PM">09:00 PM</option>
+        <option value="09:30 PM">09:30 PM</option>
+        <option value="10:00 PM">10:00 PM</option>
+        <option value="10:30 PM">10:30 PM</option>
+        <option value="11:00 PM">11:00 PM</option>
+        <option value="11:30 PM">11:30 PM</option>
+        <option value="11:59 PM">11:59 PM (Late Night / Testing)</option>
       </select>
     </div>
 
@@ -1903,7 +1971,7 @@ Saved directly to Google Sheet Leave_Register.`);
         <input type="number" id="cutoff-hour-24" placeholder="19" style="flex:1;" value="19" min="0" max="23">
         <input type="number" id="cutoff-min" placeholder="30" style="flex:1;" value="30" min="0" max="59">
       </div>
-      <p style="font-size:11px; color:#F87171; margin-top:4px;">Hour 19, Min 30 = 07:30 PM ke baad check-in strictly block ho jayega.</p>
+      <p id="cutoff-note-text" style="font-size:11px; color:#F87171; margin-top:4px;">Hour 19, Min 30 = 07:30 PM ke baad check-in strictly block ho jayega.</p>
     </div>
 
     <div style="background:var(--sub-box-bg); border:1px solid var(--sub-box-border); padding:10px; border-radius:8px; margin-bottom:14px; font-size:11px; color:#0284C7;">
