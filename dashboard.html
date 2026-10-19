@@ -678,7 +678,7 @@
 
 <script>
   // Active Google Apps Script Deployment URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
 
   let currentStaffList = [];
   let currentSitesList = [];
@@ -690,13 +690,7 @@
   }
 
   function getApiUrl() {
-    var stored = localStorage.getItem("vassa_attendance_api_url");
-    // Automatically purge old deprecated sheet URL if cached in browser
-    if (!stored || stored.includes("AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR")) {
-      localStorage.setItem("vassa_attendance_api_url", DEFAULT_API_URL);
-      return DEFAULT_API_URL;
-    }
-    return stored;
+    return localStorage.getItem("vassa_attendance_api_url") || DEFAULT_API_URL;
   }
 
   function setSyncStatus(state, msg) {
@@ -897,9 +891,8 @@
       let adminName = "Admin";
       let adminRole = "Admin";
       if (data.staff && data.staff.length > 0) {
-        // Priority 1: Founder / Owner Govind Gore or SuperAdmin / Admin
-        let adminStaff = data.staff.find(s => s.name && /govind/i.test(s.name)) ||
-                         data.staff.find(s => s.userRole && (s.userRole.toLowerCase() === "superadmin" || s.userRole.toLowerCase() === "admin"));
+        // Priority 1: Check userRole column (SuperAdmin / Admin)
+        let adminStaff = data.staff.find(s => s.userRole && (s.userRole.toLowerCase() === "superadmin" || s.userRole.toLowerCase() === "admin"));
         
         // Priority 2: Executive Leadership in role/designation (Director, Founder, Owner, CEO, Managing Director, MD, Proprietor)
         if (!adminStaff) {

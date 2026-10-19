@@ -358,7 +358,20 @@
     <div class="field-group" id="staff-select-group">
       <label>1. Select Your Name (Optional if Auto-Picked):</label>
       <select id="staff-select" onchange="onStaffChange()">
-        <option value="">-- Choose Your Name (Loading Staff...) --</option>
+        <option value="">-- Choose Your Name --</option>
+        <option value="VP-001">VP-001: Rushikesh Magare (Manager)</option>
+        <option value="VP-002">VP-002: Ravindra Adhane (Sales executive)</option>
+        <option value="VP-003">VP-003: Savita Chavan (Pre-sales Manager)</option>
+        <option value="VP-004">VP-004: Vaibhav Navale (Sales executive)</option>
+        <option value="VP-005">VP-005: Vaishnavi Rajguru (HR- Pre sales)</option>
+        <option value="VP-006">VP-006: Suraj Bhume (Sales executive)</option>
+        <option value="VP-007">VP-007: Aniket Jadhav (Sales executive)</option>
+        <option value="VP-008">VP-008: Ganesh Dakhol (Sales executive)</option>
+        <option value="VP-009">VP-009: Vinayak Kadam (Sales executive)</option>
+        <option value="VP-010">VP-010: Pankaj Rajput (Sales executive)</option>
+        <option value="VP-011">VP-011: Govind Chodhari (Video Shooting Editing)</option>
+        <option value="VP-012" selected>VP-012: Govind Gore (Director / Founder)</option>
+        <option value="VP-013">VP-013: Pradeep Raut (Video Shooting Editing)</option>
       </select>
     </div>
 
@@ -439,10 +452,10 @@
 
 <script>
   // Active Google Apps Script Web App Endpoint URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
   function getApiUrl() {
     var stored = localStorage.getItem("vassa_attendance_api_url");
-    if (!stored || stored.includes("AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR")) {
+    if (!stored || stored.includes("AKfycbxGLLU_") || !stored.includes("script.google.com")) {
       localStorage.setItem("vassa_attendance_api_url", DEFAULT_API_URL);
       return DEFAULT_API_URL;
     }
@@ -451,9 +464,19 @@
 
   // Exact Staff from Google Sheet 'Staff_Master'
   var STAFF_LIST = [
-    { "id": "VP-004", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9011025955", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
-    { "id": "VP-002", "name": "Vaishnavi Rajguru", "role": "HR Pre-Sale", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
-    { "id": "VP-003", "name": "Savita Chavan", "role": "Staff", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" }
+    { "id": "VP-001", "name": "Rushikesh Magare", "role": "Manager", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-002", "name": "Ravindra Adhane", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-003", "name": "Savita Chavan", "role": "Pre-sales Manager", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-004", "name": "Vaibhav Navale", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-005", "name": "Vaishnavi Rajguru", "role": "HR- Pre sales", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-006", "name": "Suraj Bhume", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-007", "name": "Aniket Jadhav", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-008", "name": "Ganesh Dakhol", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-009", "name": "Vinayak Kadam", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-010", "name": "Pankaj Rajput", "role": "Sales executive", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-011", "name": "Govind Chodhari", "role": "Video Shooting Editing", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-012", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9011025955", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-013", "name": "Pradeep Raut", "role": "Video Shooting Editing", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" }
   ];
 
   // Exact Project Sites from Google Sheet 'Site_Master'
@@ -999,7 +1022,28 @@
   // ==============================================================================
   var livePingInterval = null;
 
+  
+  // Screen Wake Lock API (keeps screen awake while on duty to prevent browser throttling)
+  var wakeLock = null;
+  async function requestWakeLock() {
+    try {
+      if ("wakeLock" in navigator) {
+        wakeLock = await navigator.wakeLock.request("screen");
+        console.log("Screen Wake Lock active");
+      }
+    } catch (err) {
+      console.warn("Wake Lock notice:", err);
+    }
+  }
+
+  document.addEventListener("visibilitychange", async () => {
+    if (wakeLock !== null && document.visibilityState === "visible") {
+      await requestWakeLock();
+    }
+  });
+
   function startLiveTracking() {
+    requestWakeLock();
     if (livePingInterval) clearInterval(livePingInterval);
     // 1. Send IMMEDIATE ping at 0 seconds (instantly records live location in sheet upon check-in!)
     sendLiveLocationPing(false);
