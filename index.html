@@ -478,12 +478,16 @@
     return curMins > (cutHour * 60 + cutMin);
   }
 
-  // Live Clock
-  setInterval(function() {
+  // Live Clock (Runs immediately + every 1s)
+  function updateLiveClock() {
     var now = new Date();
-    document.getElementById("live-clock").innerText = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
-    document.getElementById("live-date").innerText = now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  }, 1000);
+    var clockEl = document.getElementById("live-clock");
+    var dateEl = document.getElementById("live-date");
+    if (clockEl) clockEl.innerText = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
+    if (dateEl) dateEl.innerText = now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
 
   // Initialize on Window Load
   window.onload = function() {
@@ -1064,8 +1068,7 @@
     sendPunchApiRequest(payload).then(function() {
       var tNow = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
       if (statusMsgEl) statusMsgEl.innerText = "🟢 Location synced with Google Sheet (" + tNow + ")";
-      if (isManual) alert("✅ Live Location Ping Sent!
-Coordinates Google Sheets me 'Live_Tracking' tab par save ho chuke hain.");
+      if (isManual) alert("✅ Live Location Ping Sent!\nCoordinates Google Sheets me 'Live_Tracking' tab par save ho chuke hain.");
     }).catch(function(err) {
       if (statusMsgEl) statusMsgEl.innerText = "⚠️ Sync notice: Retrying in background";
     });
