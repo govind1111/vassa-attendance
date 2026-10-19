@@ -442,10 +442,10 @@
 
 <script>
   // Active Google Apps Script Web App Endpoint URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
   function getApiUrl() {
     var stored = localStorage.getItem("vassa_attendance_api_url");
-    if (!stored || stored.includes("AKfycbxGLLU_") || !stored.includes("script.google.com")) {
+    if (!stored || !stored.includes("AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR") || !stored.includes("script.google.com")) {
       localStorage.setItem("vassa_attendance_api_url", DEFAULT_API_URL);
       return DEFAULT_API_URL;
     }
