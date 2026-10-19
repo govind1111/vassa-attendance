@@ -678,7 +678,7 @@
 
 <script>
   // Active Google Apps Script Deployment URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
 
   let currentStaffList = [];
   let currentSitesList = [];
@@ -887,27 +887,46 @@
       document.getElementById('live-date-str').innerText = data.summary.date;
       document.getElementById('sync-time').innerText = new Date().toLocaleTimeString();
 
-      // 2. Set Admin Name from Staff_Master (SuperAdmin, Admin, Director, or First Staff)
+      // 2. Set Dynamic Admin Name & Role strictly from Sheet Staff_Master (Zero Hardcoded Names!)
       let adminName = "Admin";
+      let adminRole = "Admin";
       if (data.staff && data.staff.length > 0) {
-        const adminStaff = data.staff.find(s => 
-          s.userRole === "SuperAdmin" || 
-          s.userRole === "Admin" || 
-          (s.name && s.name.toLowerCase().includes("govind")) ||
-          (s.role && (
-            s.role.toLowerCase().includes("director") || 
-            s.role.toLowerCase().includes("founder") || 
-            s.role.toLowerCase().includes("owner") ||
-            s.role.toLowerCase().includes("admin")
-          ))
-        );
+        // Priority 1: Check userRole column (SuperAdmin / Admin)
+        let adminStaff = data.staff.find(s => s.userRole && (s.userRole.toLowerCase() === "superadmin" || s.userRole.toLowerCase() === "admin"));
+        
+        // Priority 2: Executive Leadership in role/designation (Director, Founder, Owner, CEO, Managing Director, MD, Proprietor)
+        if (!adminStaff) {
+          adminStaff = data.staff.find(s => s.role && /director|founder|owner|proprietor|ceo|managing director|md/i.test(s.role));
+        }
+
+        // Priority 3: Management department
+        if (!adminStaff) {
+          adminStaff = data.staff.find(s => s.dept && /management|executive|admin/i.test(s.dept));
+        }
+
+        // Priority 4: Managerial roles (Manager, Head, Lead)
+        if (!adminStaff) {
+          adminStaff = data.staff.find(s => s.role && /manager|head|lead/i.test(s.role));
+        }
+
+        // Priority 5: Fallback to first active staff member in Staff_Master
+        if (!adminStaff) {
+          adminStaff = data.staff[0];
+        }
+
         if (adminStaff) {
           adminName = adminStaff.name;
-        } else {
-          adminName = data.staff[0].name;
+          adminRole = (adminStaff.role) ? adminStaff.role.split("/")[0].trim() : (adminStaff.userRole || "Admin");
         }
       }
-      document.getElementById('admin-display-name').innerText = adminName;
+
+      const badgeContainer = document.getElementById("admin-badge-container");
+      if (badgeContainer) {
+        badgeContainer.innerHTML = `<span>🛡️</span> ${adminRole}: <span id="admin-display-name">${adminName}</span>`;
+      } else {
+        const el = document.getElementById("admin-display-name");
+        if (el) el.innerText = adminName;
+      }
 
       // 3. Store Staff & Sites data
       currentStaffList = data.staff;

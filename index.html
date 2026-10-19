@@ -358,10 +358,7 @@
     <div class="field-group" id="staff-select-group">
       <label>1. Select Your Name (Optional if Auto-Picked):</label>
       <select id="staff-select" onchange="onStaffChange()">
-        <option value="">-- Choose Your Name --</option>
-        <option value="VP-004">VP-004: Govind Gore (Director / Founder)</option>
-        <option value="VP-002">VP-002: Vaishnavi Rajguru (HR Pre-Sale)</option>
-        <option value="VP-003">VP-003: Savita Chavan (Staff)</option>
+        <option value="">-- Choose Your Name (Loading Staff...) --</option>
       </select>
     </div>
 
@@ -449,9 +446,8 @@
 
   // Exact Staff from Google Sheet 'Staff_Master'
   var STAFF_LIST = [
-    { "id": "VP-004", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center(Head Office)", "mobile": "9011025955", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
-    { "id": "VP-002", "name": "Vaishnavi Rajguru", "role": "HR Pre-Sale", "dept": "Office", "defaultLocation": "Golden City Center(Head Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
-    { "id": "VP-003", "name": "Savita Chavan", "role": "Staff", "dept": "Office", "defaultLocation": "Golden City Center(Head Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" }
+    { "id": "VP-001", "name": "Vaishnavi Rajguru", "role": "HR Pre-Sale", "dept": "Office", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9999999999", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" },
+    { "id": "VP-002", "name": "Govind Gore", "role": "Director / Founder", "dept": "Management", "defaultLocation": "Golden City Center (Main Office)", "mobile": "9011025955", "hasPunchedToday": false, "hasCheckedIn": false, "hasCheckedOut": false, "punchTime": "-", "checkInTime": "-", "checkOutTime": "-" }
   ];
 
   // Exact Project Sites from Google Sheet 'Site_Master'
