@@ -338,7 +338,7 @@
     <div class="clock-box" id="live-clock">--:--:--</div>
     <div class="date-box" id="live-date">--</div>
     <div style="margin-top: 6px;">
-      <span class="shift-tag">🕒 Shift: 10:00 AM — 07:00 PM</span>
+      <span class="shift-tag">🕒 Shift: 06:00 AM — 07:00 PM</span>
     </div>
   </div>
 
@@ -378,7 +378,7 @@
       <div style="font-size: 20px; margin-bottom: 2px;">⛔</div>
       <div style="font-size: 15px; font-weight: 800; color: #991B1B;">Office Shift Closed (After 07:30 PM)</div>
       <div style="font-size: 12px; color: #B91C1C; margin-top: 3px;">07:30 PM ke baad check-in strictly block hai.</div>
-      <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Agli attendance kal subah 10:00 AM par open hogi.</div>
+      <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Agli attendance kal subah 06:00 AM par open hogi.</div>
     </div>
 
     <!-- Active Punching Controls (For Check-In and Check-Out) -->
@@ -420,7 +420,7 @@
       </div>
 
       <div class="shift-notice">
-        ⏰ Shift: 10:00 AM – 07:00 PM. Grace period till 10:15 AM.<br>
+        ⏰ Shift: 06:00 AM – 07:00 PM. Grace period till 10:15 AM.<br>
         Daily attendance summary is automatically sent to Boss at 11:00 AM.
       </div>
     </div>
@@ -431,7 +431,7 @@
         🎉 Aaj ki duty successfully complete ho chuki hai!
       </div>
       <div style="font-size: 12px; color: var(--text-muted);">
-        Agla attendance punch kal subah 10:00 AM par open hoga. Have a good evening!
+        Agla attendance punch kal subah 06:00 AM par open hoga. Have a good evening!
       </div>
     </div>
 
@@ -474,6 +474,14 @@
   var currentLon = null;
   var distanceToTarget = 9999;
   var currentPunchMode = "Check-In"; // "Check-In" or "Check-Out"
+
+  function isBeforeShiftStart() {
+    var now = new Date();
+    var curMins = (now.getHours() * 60) + now.getMinutes();
+    var startHour = 6;
+    var startMin = 0;
+    return curMins < (startHour * 60 + startMin);
+  }
 
   function isAfterEveningCutoff() {
     var now = new Date();
@@ -792,7 +800,14 @@
 
     var isCheckInMode = (currentPunchMode === "Check-In");
 
-    // Cutoff check applies only to Check-In
+    // Timing checks apply only to Check-In
+    if (isCheckInMode && isBeforeShiftStart()) {
+      punchBtn.disabled = true;
+      punchBtn.className = "btn btn-checkin";
+      punchBtn.innerText = "⛔ Shift Starts at 06:00 AM";
+      return;
+    }
+
     if (isCheckInMode && isAfterEveningCutoff()) {
       document.getElementById("banner-evening-cutoff").style.display = "block";
       punchBtn.disabled = true;
@@ -901,6 +916,11 @@
   function submitPunch(type) {
     if (!currentStaff) {
       alert("Please select your name first!");
+      return;
+    }
+
+    if (type === "Check-In" && isBeforeShiftStart()) {
+      alert("⛔ Subah 06:00 AM se pehle check-in blocked hai! Office shift 06:00 AM par shuru hoti hai.");
       return;
     }
 

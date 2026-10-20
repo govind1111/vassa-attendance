@@ -438,7 +438,7 @@
   <!-- Printable Header for Direct PDF Generation -->
   <div class="print-header">
     <h2 style="color: #0369A1; font-size: 18px;">VASSA PROPERTIES — OFFICIAL ATTENDANCE REPORT</h2>
-    <p style="font-size: 10px; color: #64748B;">Golden City Center, Chilkalthana, Chhatrapati Sambhajinagar | Shift: 10:00 AM - 07:00 PM</p>
+    <p style="font-size: 10px; color: #64748B;">Golden City Center, Chilkalthana, Chhatrapati Sambhajinagar | Shift: 06:00 AM - 07:00 PM</p>
     <p style="font-size: 10px; color: #0284C7; font-weight: bold; margin-top: 4px;">Status Report As Of: <span id="print-date">16 October 2026, 11:00 AM</span></p>
   </div>
 
@@ -446,7 +446,7 @@
   <div class="top-nav">
     <div class="brand-section">
       <span class="brand-name">VASSA PROPERTIES</span>
-      <span class="shift-pill">🕒 Shift: 10:00 AM – 07:00 PM</span>
+      <span class="shift-pill">🕒 Shift: 06:00 AM – 07:00 PM</span>
     </div>
 
     <div class="nav-actions">
@@ -1090,7 +1090,7 @@
   function updateShiftPreview() {
     var sStartVal = document.getElementById("shift-start-select").value;
     var sGrace = parseInt(document.getElementById("shift-grace-select").value) || 15;
-    var startParsed = parseTimeField(sStartVal, 10, 0);
+    var startParsed = parseTimeField(sStartVal, 6, 0);
     var graceCutoffTotal = (startParsed.hour * 60) + startParsed.minute + sGrace;
     var graceH = Math.floor(graceCutoffTotal / 60);
     var graceM = graceCutoffTotal % 60;
@@ -1202,7 +1202,7 @@
     const cHour = parseInt(document.getElementById("cutoff-hour-24").value) || 19;
     const cMin = parseInt(document.getElementById("cutoff-min").value) || 30;
 
-    const startParsed = parseTimeField(sStartVal, 10, 0);
+    const startParsed = parseTimeField(sStartVal, 6, 0);
     const endParsed = parseTimeField(sEndVal, 19, 0);
 
     const shiftText = "🕒 Shift: " + format12(startParsed.hour, startParsed.minute) + " – " + format12(endParsed.hour, endParsed.minute);
@@ -1554,7 +1554,7 @@ Saved directly to Google Sheet Leave_Register.`);
     document.getElementById('wa-modal-time').innerText = timeStr;
     
     var shiftPill = document.querySelector('.shift-pill');
-    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM';
+    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '06:00 AM – 07:00 PM';
     
     var linkInput = document.getElementById('wa-pdf-drive-link');
     if (linkInput) {
@@ -1580,7 +1580,7 @@ Saved directly to Google Sheet Leave_Register.`);
     var currentTime = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     var todayStr = document.getElementById('live-date-str').innerText || now.toLocaleDateString('en-IN');
     var shiftPill = document.querySelector('.shift-pill');
-    var shiftText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM';
+    var shiftText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '06:00 AM – 07:00 PM';
 
     var total = document.getElementById('kpi-total').innerText;
     var onDuty = document.getElementById('kpi-onduty').innerText;
@@ -1729,7 +1729,7 @@ Saved directly to Google Sheet Leave_Register.`);
 
     let msg = `*VASSA PROPERTIES — ATTENDANCE REPORT*\n` +
               `📅 *Date:* ${todayStr} | *Time:* ${new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true})}\n` +
-              `🕒 *Shift:* ${document.querySelector('.shift-pill') ? document.querySelector('.shift-pill').innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM'}\n\n` +
+              `🕒 *Shift:* ${document.querySelector('.shift-pill') ? document.querySelector('.shift-pill').innerText.replace('🕒 ', '') : '06:00 AM – 07:00 PM'}\n\n` +
               `👥 *Total Staff:* ${total}\n` +
               `🟢 *On Duty Now:* ${onDuty}\n` +
               `🏁 *Shift Completed:* ${checkedOut}\n` +
@@ -1901,13 +1901,13 @@ Saved directly to Google Sheet Leave_Register.`);
     <div class="form-group">
       <label>Shift Start Time (Official Duty Start):</label>
             <select id="shift-start-select" onchange="updateShiftPreview()">
-        <option value="06:00 AM">06:00 AM (Early Morning)</option>
+        <option value="06:00 AM" selected>06:00 AM (Duty Start)</option>
         <option value="07:00 AM">07:00 AM</option>
         <option value="08:00 AM">08:00 AM</option>
         <option value="08:30 AM">08:30 AM</option>
         <option value="09:00 AM">09:00 AM</option>
         <option value="09:30 AM">09:30 AM</option>
-        <option value="10:00 AM" selected>10:00 AM (Standard Duty)</option>
+        <option value="10:00 AM">10:00 AM (Standard Duty)</option>
         <option value="10:30 AM">10:30 AM</option>
         <option value="11:00 AM">11:00 AM</option>
         <option value="11:30 AM">11:30 AM</option>
@@ -1936,7 +1936,7 @@ Saved directly to Google Sheet Leave_Register.`);
         <option value="60">60 Minutes (1 Hour)</option>
       </select>
       <p id="shift-cutoff-preview-text" style="font-size:12px; color:#38BDF8; margin-top:6px; font-weight:700;">
-        ⏰ On-Time Cutoff: 10:15 AM tak check-in On-Time (Present) rahega.
+        ⏰ On-Time Cutoff: 06:15 AM tak check-in On-Time (Present) rahega.
       </p>
     </div>
 
