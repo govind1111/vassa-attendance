@@ -1554,7 +1554,7 @@ Saved directly to Google Sheet Leave_Register.`);
     document.getElementById('wa-modal-time').innerText = timeStr;
     
     var shiftPill = document.querySelector('.shift-pill');
-    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '06:00 AM – 07:00 PM';
+    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM';
     
     var linkInput = document.getElementById('wa-pdf-drive-link');
     if (linkInput) {
@@ -1580,7 +1580,7 @@ Saved directly to Google Sheet Leave_Register.`);
     var currentTime = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     var todayStr = document.getElementById('live-date-str').innerText || now.toLocaleDateString('en-IN');
     var shiftPill = document.querySelector('.shift-pill');
-    var shiftText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '06:00 AM – 07:00 PM';
+    var shiftText = shiftPill ? shiftPill.innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM';
 
     var total = document.getElementById('kpi-total').innerText;
     var onDuty = document.getElementById('kpi-onduty').innerText;
@@ -1729,7 +1729,7 @@ Saved directly to Google Sheet Leave_Register.`);
 
     let msg = `*VASSA PROPERTIES — ATTENDANCE REPORT*\n` +
               `📅 *Date:* ${todayStr} | *Time:* ${new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true})}\n` +
-              `🕒 *Shift:* ${document.querySelector('.shift-pill') ? document.querySelector('.shift-pill').innerText.replace('🕒 ', '') : '06:00 AM – 07:00 PM'}\n\n` +
+              `🕒 *Shift:* ${document.querySelector('.shift-pill') ? document.querySelector('.shift-pill').innerText.replace('🕒 ', '') : '10:00 AM – 07:00 PM'}\n\n` +
               `👥 *Total Staff:* ${total}\n` +
               `🟢 *On Duty Now:* ${onDuty}\n` +
               `🏁 *Shift Completed:* ${checkedOut}\n` +
@@ -1901,13 +1901,13 @@ Saved directly to Google Sheet Leave_Register.`);
     <div class="form-group">
       <label>Shift Start Time (Official Duty Start):</label>
             <select id="shift-start-select" onchange="updateShiftPreview()">
-        <option value="06:00 AM" selected>06:00 AM (Duty Start)</option>
+        <option value="06:00 AM">06:00 AM (Early Morning)</option>
         <option value="07:00 AM">07:00 AM</option>
         <option value="08:00 AM">08:00 AM</option>
         <option value="08:30 AM">08:30 AM</option>
         <option value="09:00 AM">09:00 AM</option>
         <option value="09:30 AM">09:30 AM</option>
-        <option value="10:00 AM">10:00 AM (Standard Duty)</option>
+        <option value="10:00 AM" selected>10:00 AM (Standard Duty)</option>
         <option value="10:30 AM">10:30 AM</option>
         <option value="11:00 AM">11:00 AM</option>
         <option value="11:30 AM">11:30 AM</option>
@@ -1936,7 +1936,7 @@ Saved directly to Google Sheet Leave_Register.`);
         <option value="60">60 Minutes (1 Hour)</option>
       </select>
       <p id="shift-cutoff-preview-text" style="font-size:12px; color:#38BDF8; margin-top:6px; font-weight:700;">
-        ⏰ On-Time Cutoff: 06:15 AM tak check-in On-Time (Present) rahega.
+        ⏰ On-Time Cutoff: 10:15 AM tak check-in On-Time (Present) rahega.
       </p>
     </div>
 
