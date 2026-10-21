@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Vassa Properties — Staff Attendance</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
@@ -338,7 +343,7 @@
     <div class="clock-box" id="live-clock">--:--:--</div>
     <div class="date-box" id="live-date">--</div>
     <div style="margin-top: 6px;">
-      <span class="shift-tag">🕒 Shift: 10:00 AM — 07:00 PM</span>
+      <span class="shift-tag">🕒 Shift: 06:00 AM — 07:00 PM</span>
     </div>
   </div>
 
@@ -378,7 +383,7 @@
       <div style="font-size: 20px; margin-bottom: 2px;">⛔</div>
       <div style="font-size: 15px; font-weight: 800; color: #991B1B;">Office Shift Closed (After 07:30 PM)</div>
       <div style="font-size: 12px; color: #B91C1C; margin-top: 3px;">07:30 PM ke baad check-in strictly block hai.</div>
-      <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Agli attendance kal subah 10:00 AM par open hogi.</div>
+      <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Agli attendance kal subah 06:00 AM par open hogi.</div>
     </div>
 
     <!-- Active Punching Controls (For Check-In and Check-Out) -->
@@ -387,7 +392,7 @@
       <div class="field-group">
         <label>2. Current Duty Location / Project Site:</label>
         <select id="location-select" onchange="calculateDistance()">
-          <option value="Golden City Center (Main Office)" data-lat="19.874668" data-lon="75.372983">SITE-01: Golden City Center (Main Office)</option>
+          <option value="Golden City Center (Main Office)" data-lat="19.905984" data-lon="75.359430">SITE-01: Golden City Center (Main Office)</option>
           <option value="Waluj Mahanagar-1" data-lat="19.888512" data-lon="75.465034">SITE-02: Waluj Mahanagar-1</option>
           <option value="Waluj Mahanagar-2" data-lat="19.839045" data-lon="75.321078">SITE-03: Waluj Mahanagar-2</option>
           <option value="Shendra MIDC - Shendra" data-lat="19.831567" data-lon="75.315023">SITE-04: Shendra MIDC - Shendra</option>
@@ -420,7 +425,7 @@
       </div>
 
       <div class="shift-notice">
-        ⏰ Shift: 10:00 AM – 07:00 PM. Grace period till 10:15 AM.<br>
+        ⏰ Shift: 06:00 AM – 07:00 PM. Grace period till 10:15 AM.<br>
         Daily attendance summary is automatically sent to Boss at 11:00 AM.
       </div>
     </div>
@@ -431,7 +436,7 @@
         🎉 Aaj ki duty successfully complete ho chuki hai!
       </div>
       <div style="font-size: 12px; color: var(--text-muted);">
-        Agla attendance punch kal subah 10:00 AM par open hoga. Have a good evening!
+        Agla attendance punch kal subah 06:00 AM par open hoga. Have a good evening!
       </div>
     </div>
 
@@ -442,10 +447,10 @@
 
 <script>
   // Active Google Apps Script Web App Endpoint URL
-  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxGLLU_zjd3fV5fYfDL8w-dIHI2p-4_f0dOFojexKjaLmUcuFRbmThySpoCzlm5xAXuNQ/exec";
+  const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR/exec";
   function getApiUrl() {
     var stored = localStorage.getItem("vassa_attendance_api_url");
-    if (!stored || stored.includes("AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR")) {
+    if (!stored || stored.includes("AKfycbxGLLU") || !stored.includes("AKfycby1bYzPfBAuC9niiJMBHTa4JPx5HjZog1yEnzj9oTzKbIv7EwDGX76dZ_jZHFUemQUR")) {
       localStorage.setItem("vassa_attendance_api_url", DEFAULT_API_URL);
       return DEFAULT_API_URL;
     }
@@ -461,7 +466,7 @@
 
   // Exact Project Sites from Google Sheet 'Site_Master'
   var SITES_LIST = [
-    { "id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.874668, "lon": 75.372983, "radius": 100 },
+    { "id": "SITE-01", "name": "Golden City Center (Main Office)", "lat": 19.905984, "lon": 75.359430, "radius": 100 },
     { "id": "SITE-02", "name": "Waluj Mahanagar-1", "lat": 19.888512, "lon": 75.465034, "radius": 100 },
     { "id": "SITE-03", "name": "Waluj Mahanagar-2", "lat": 19.839045, "lon": 75.321078, "radius": 100 },
     { "id": "SITE-04", "name": "Shendra MIDC - Shendra", "lat": 19.831567, "lon": 75.315023, "radius": 100 },
@@ -475,11 +480,19 @@
   var distanceToTarget = 9999;
   var currentPunchMode = "Check-In"; // "Check-In" or "Check-Out"
 
+  function isBeforeShiftStart() {
+    var now = new Date();
+    var curMins = (now.getHours() * 60) + now.getMinutes();
+    var startHour = 6;
+    var startMin = 0;
+    return curMins < (startHour * 60 + startMin);
+  }
+
   function isAfterEveningCutoff() {
     var now = new Date();
     var curMins = (now.getHours() * 60) + now.getMinutes();
-    var cutHour = 19;
-    var cutMin = 30;
+    var cutHour = (window.CURRENT_SETTINGS && window.CURRENT_SETTINGS.cutoffHour !== undefined) ? window.CURRENT_SETTINGS.cutoffHour : (parseInt(localStorage.getItem("vassa_cutoff_hour")) || 23);
+    var cutMin = (window.CURRENT_SETTINGS && window.CURRENT_SETTINGS.cutoffMin !== undefined) ? window.CURRENT_SETTINGS.cutoffMin : (parseInt(localStorage.getItem("vassa_cutoff_min")) || 59);
     return curMins > (cutHour * 60 + cutMin);
   }
 
@@ -502,57 +515,87 @@
   };
 
   // Dynamic Live Staff & Site Sync from Google Sheet via JSONP
-  function syncLiveStaffFromSheet() {
-    var cbName = "vassa_staff_sync_" + Date.now();
-    window[cbName] = function(data) {
-      delete window[cbName];
-      if (data && data.settings && data.settings.shiftText) {
-        var tag = document.querySelector(".shift-tag");
-        if (tag) tag.innerText = data.settings.shiftText;
-      }
-      if (data && data.staff && data.staff.length > 0) {
-        STAFF_LIST = data.staff;
-        var sel = document.getElementById("staff-select");
-        var curVal = sel.value;
-        sel.innerHTML = '<option value="">-- Choose Your Name --</option>';
-        STAFF_LIST.forEach(function(s) {
-          var opt = document.createElement("option");
-          opt.value = s.id;
-          opt.text = s.id + ": " + s.name + " (" + (s.role || s.dept) + ")";
-          sel.appendChild(opt);
-        });
-        sel.value = curVal || "VP-004";
+  function handleLiveStaffSyncResponse(data) {
+    if (!data) return;
+    if (data.settings && data.settings.shiftText) {
+      var tag = document.querySelector(".shift-tag");
+      if (tag) tag.innerText = data.settings.shiftText;
+    }
+    if (data.staff && data.staff.length > 0) {
+      STAFF_LIST = data.staff;
+      var sel = document.getElementById("staff-select");
+      var curVal = sel.value;
+      sel.innerHTML = '<option value="">-- Choose Your Name --</option>';
+      STAFF_LIST.forEach(function(s) {
+        var opt = document.createElement("option");
+        opt.value = s.id;
+        opt.text = s.id + ": " + s.name + " (" + (s.role || s.dept) + ")";
+        sel.appendChild(opt);
+      });
+
+      var savedId = localStorage.getItem("vassa_staff_empid");
+      var targetId = curVal || savedId || "";
+
+      if (targetId) {
         for (var k = 0; k < STAFF_LIST.length; k++) {
-          if (STAFF_LIST[k].id === (curVal || "VP-004")) {
+          if (STAFF_LIST[k].id === targetId) {
+            sel.value = targetId;
             applyStaff(STAFF_LIST[k], true);
             break;
           }
         }
+      } else {
+        sel.value = "";
+        document.getElementById("profile-box").style.display = "none";
+        document.getElementById("staff-select-group").style.display = "block";
       }
-      if (data && data.sites && data.sites.length > 0) {
-        SITES_LIST = data.sites;
-        var locSel = document.getElementById("location-select");
-        locSel.innerHTML = "";
-        SITES_LIST.forEach(function(st) {
-          var opt = document.createElement("option");
-          opt.value = st.name;
-          opt.text = st.id + ": " + st.name;
-          opt.setAttribute("data-lat", st.lat);
-          opt.setAttribute("data-lon", st.lon);
-          locSel.appendChild(opt);
-        });
-        calculateDistance();
-      }
-    };
-    var script = document.createElement("script");
+    }
+    if (data.sites && data.sites.length > 0) {
+      SITES_LIST = data.sites;
+      var locSel = document.getElementById("location-select");
+      locSel.innerHTML = "";
+      SITES_LIST.forEach(function(st) {
+        var opt = document.createElement("option");
+        opt.value = st.name;
+        opt.text = st.id + ": " + st.name;
+        opt.setAttribute("data-lat", st.lat);
+        opt.setAttribute("data-lon", st.lon);
+        locSel.appendChild(opt);
+      });
+      calculateDistance();
+    }
+  }
+
+  function syncLiveStaffFromSheet() {
     var base = getApiUrl();
-    script.src = base + (base.includes("?") ? "&" : "?") + "api=true&callback=" + cbName + "&_ts=" + Date.now();
-    script.onerror = function() { delete window[cbName]; };
-    document.body.appendChild(script);
+    var fetchUrl = base + (base.includes("?") ? "&" : "?") + "api=true&_ts=" + Date.now();
+
+    // Dual Transport: Try direct fetch first (fast on Safari/iOS), fallback to JSONP
+    fetch(fetchUrl)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        handleLiveStaffSyncResponse(data);
+      })
+      .catch(function(fetchErr) {
+        var cbName = "vassa_staff_sync_" + Date.now();
+        window[cbName] = function(data) {
+          delete window[cbName];
+          handleLiveStaffSyncResponse(data);
+        };
+        var script = document.createElement("script");
+        script.src = base + (base.includes("?") ? "&" : "?") + "api=true&callback=" + cbName + "&_ts=" + Date.now();
+        script.onerror = function() { delete window[cbName]; };
+        document.body.appendChild(script);
+      });
   }
 
   // Check URL Parameters (?m=9011025955 or ?id=VP-004) or LocalStorage
   function checkSavedUser() {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset') === 'true' || urlParams.get('unlock') === 'true') {
+      localStorage.removeItem("vassa_staff_empid");
+      currentStaff = null;
+    }
     if (INITIAL_STAFF_ID) {
       for (var s = 0; s < STAFF_LIST.length; s++) {
         if (STAFF_LIST[s].id === INITIAL_STAFF_ID) {
@@ -659,7 +702,6 @@
 
     // STATE 1: Day Completed (Both Check-In & Check-Out Finished)
     if (isCheckedIn && isCheckedOut) {
-      if (livePingInterval) { clearInterval(livePingInterval); livePingInterval = null; }
       bannerEl.className = "already-punched-card completed";
       bannerEl.style.display = "block";
       titleEl.innerText = "🏁 Shift Completed (Checked-Out)";
@@ -687,7 +729,8 @@
       var inStatus = staff.checkInStatus || staff.status || "Present";
       timeEl.innerText = "🕒 Check-In Time: " + (staff.checkInTime || staff.punchTime || "-") + " (" + inStatus + ")";
       durationEl.style.display = "none"; // NO REMARK
-      warnEl.style.display = "none";
+      warnEl.innerText = "⚡ Duty active hai. Kaam khatam hone par niche se Check-Out karein.";
+      warnEl.style.color = "#047857";
 
       punchControls.style.display = "block";
       shiftCompletedControls.style.display = "none";
@@ -758,7 +801,7 @@
           radarTitle.innerText = "GPS Permission Required";
           radarDesc.innerText = "Please enable GPS/Location in mobile settings.";
         },
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
       );
     }
   }
@@ -796,7 +839,14 @@
 
     var isCheckInMode = (currentPunchMode === "Check-In");
 
-    // Cutoff check applies only to Check-In
+    // Timing checks apply only to Check-In
+    if (isCheckInMode && isBeforeShiftStart()) {
+      punchBtn.disabled = true;
+      punchBtn.className = "btn btn-checkin";
+      punchBtn.innerText = "⛔ Shift Starts at 06:00 AM";
+      return;
+    }
+
     if (isCheckInMode && isAfterEveningCutoff()) {
       document.getElementById("banner-evening-cutoff").style.display = "block";
       punchBtn.disabled = true;
@@ -905,6 +955,11 @@
   function submitPunch(type) {
     if (!currentStaff) {
       alert("Please select your name first!");
+      return;
+    }
+
+    if (type === "Check-In" && isBeforeShiftStart()) {
+      alert("⛔ Subah 06:00 AM se pehle check-in blocked hai! Office shift 06:00 AM par shuru hoti hai.");
       return;
     }
 
@@ -1103,7 +1158,7 @@
       function(err) {
         if (statusMsgEl) statusMsgEl.innerText = "⚠️ GPS notice: " + err.message;
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 }
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 }
     );
   }
 
