@@ -1051,7 +1051,8 @@
 
       function cleanup() {
         clearTimeout(timeoutId);
-        try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
+        // keep a no-op so a late-loading script tag never throws "is not defined"
+        try { window[callbackName] = function(){}; } catch(e) { window[callbackName] = function(){}; }
         var el = document.getElementById(callbackName);
         if (el && el.parentNode) el.parentNode.removeChild(el);
       }
