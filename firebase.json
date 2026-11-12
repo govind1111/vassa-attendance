@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "vassa-attendance",
     "public": ".",
     "ignore": [
       "firebase.json",
