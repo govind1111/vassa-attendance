@@ -138,8 +138,8 @@
       background: #F0FDF4;
       border: 1.5px solid #10B981;
       border-radius: 14px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -186,9 +186,9 @@
     /* Clean Punch Status Banner (NO REMARK LINE) */
     .already-punched-card {
       border-radius: 14px;
-      padding: 14px 16px;
+      padding: 18px 20px;
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
       transition: all 0.2s;
     }
     .already-punched-card.on-duty {
@@ -198,13 +198,14 @@
     .already-punched-card.completed {
       background: #F0F9FF;
       border: 1.5px solid #0284C7;
+      margin-top: 26px;
     }
-    .punched-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+    .punched-title { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
     .on-duty .punched-title { color: #047857; }
     .completed .punched-title { color: #0369A1; }
     
-    .punched-time { font-size: 13px; font-weight: 700; color: var(--text-main); }
-    .punched-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+    .punched-time { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+    .punched-sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-weight: 700; }
     .punched-warn { font-size: 11px; font-weight: 700; margin-top: 6px; }
 
     /* GPS Geofence Radar Card */
@@ -383,6 +384,7 @@
       <div class="punched-time" id="punched-time-text">Time: -</div>
       <div class="punched-sub" id="punched-duration-text" style="display: none;"></div>
       <div class="punched-warn" id="punched-warn-text"></div>
+      <div id="punched-sync-badge" style="display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; margin-top: 6px; padding: 3px 8px; border-radius: 6px; background: #E0F2FE; color: #0369A1;">⚡ Syncing with Google Sheet...</div>
     </div>
 
     <!-- Evening Cutoff Banner -->
@@ -426,15 +428,8 @@
       <!-- shift-notice removed for compact single-screen layout -->
     </div>
 
-    <!-- Day Completed Friendly Banner (When both Check-In & Check-Out are done) -->
-    <div id="shift-completed-controls" style="display: none; text-align: center; padding: 12px;">
-      <div style="font-size: 13px; font-weight: 700; color: #047857; margin-bottom: 6px;">
-        🎉 Aaj ki duty successfully complete ho chuki hai!
-      </div>
-      <div style="font-size: 12px; color: var(--text-muted);">
-        Agla attendance punch kal subah 06:00 AM par open hoga. Have a good evening!
-      </div>
-    </div>
+    <!-- Day Completed Container (Cleaned up as per preference) -->
+    <div id="shift-completed-controls" style="display: none;"></div>
 
     <div class="toast" id="toast-msg"></div>
   </div>
@@ -764,6 +759,30 @@
 
   // Unified State Engine for Staff (Check-In -> On-Duty -> Check-Out -> Completed)
   function applyStaff(staff, isAuto) {
+    if (!staff) return;
+
+    // Merge today's instant local punch state if available
+    try {
+      var dateKey = new Date().toISOString().slice(0, 10);
+      var localPunchRaw = localStorage.getItem("vassa_local_punch_" + staff.id + "_" + dateKey);
+      if (localPunchRaw) {
+        var lp = JSON.parse(localPunchRaw);
+        if (lp) {
+          if (lp.hasCheckedIn) {
+            staff.hasCheckedIn = true;
+            staff.hasPunchedToday = true;
+            if (!staff.checkInTime || staff.checkInTime === "-") staff.checkInTime = lp.checkInTime;
+            if (!staff.checkInStatus) staff.checkInStatus = lp.checkInStatus;
+          }
+          if (lp.hasCheckedOut) {
+            staff.hasCheckedOut = true;
+            if (!staff.checkOutTime || staff.checkOutTime === "-") staff.checkOutTime = lp.checkOutTime;
+            if (!staff.workDuration || staff.workDuration === "-") staff.workDuration = lp.workDuration;
+          }
+        }
+      }
+    } catch(e) {}
+
     currentStaff = staff;
 
     if (isAuto && staff && staff.id) {
@@ -806,19 +825,23 @@
       if (livePingInterval) { clearInterval(livePingInterval); livePingInterval = null; }
       bannerEl.className = "already-punched-card completed";
       bannerEl.style.display = "block";
-      titleEl.innerText = "🏁 Shift Completed (Checked-Out)";
-      timeEl.innerText = "🕒 In: " + (staff.checkInTime || staff.punchTime || "-") + "  |  Out: " + (staff.checkOutTime || "-");
+      bannerEl.style.marginTop = "28px";
+      titleEl.innerText = "Shift Completed";
+      timeEl.innerText = "In: " + (staff.checkInTime || staff.punchTime || "-") + "  |  Out: " + (staff.checkOutTime || "-");
       if (staff.workDuration && staff.workDuration !== "-") {
-        durationEl.innerText = "⏱️ Total Duty: " + staff.workDuration;
+        durationEl.innerText = "Total Duty: " + staff.workDuration;
         durationEl.style.display = "block";
       } else {
         durationEl.style.display = "none";
       }
-      warnEl.innerText = "✅ Aaj ka din complete ho chuka hai. Agla check-in kal subah open hoga.";
-      warnEl.style.color = "#0369A1";
+      warnEl.innerText = "";
+      warnEl.style.display = "none";
+
+      var bannerCutoff = document.getElementById("banner-evening-cutoff");
+      if (bannerCutoff) bannerCutoff.style.display = "none";
 
       punchControls.style.display = "none";
-      shiftCompletedControls.style.display = "block";
+      if (shiftCompletedControls) shiftCompletedControls.style.display = "none";
       if (pingContainer) pingContainer.style.display = "none";
       return;
     }
@@ -947,6 +970,16 @@
     var radarDesc = document.getElementById("radar-desc");
     var punchBtn = document.getElementById("punch-btn");
 
+    var isCheckedIn = currentStaff && (currentStaff.hasCheckedIn || currentStaff.hasPunchedToday);
+    var isCheckedOut = currentStaff && (currentStaff.hasCheckedOut || currentStaff.status === "checked_out");
+
+    // Once shift is completed, suppress evening cutoff banner completely
+    if (isCheckedIn && isCheckedOut) {
+      var bannerCutoff = document.getElementById("banner-evening-cutoff");
+      if (bannerCutoff) bannerCutoff.style.display = "none";
+      return;
+    }
+
     var isCheckInMode = (currentPunchMode === "Check-In");
 
     // Morning Check-In Open Window (Opens strictly at 06:00 AM)
@@ -1015,17 +1048,27 @@
     submitPunch(currentPunchMode);
   }
 
-  // Universal Robust API Request Dispatcher (Dual-Transport: fetch + JSONP Fallback)
+  // Universal Robust API Request Dispatcher (Dual-Transport with 4.5s Timeout + JSONP fallback)
   function sendPunchApiRequest(payload) {
     return new Promise(function(resolve, reject) {
       var fetchUrl = getApiUrl();
+      var hasResolved = false;
+
+      var controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
+      var fetchTimeout = setTimeout(function() {
+        if (controller) {
+          try { controller.abort(); } catch(e) {}
+        }
+      }, 4500);
 
       fetch(fetchUrl, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller ? controller.signal : undefined
       })
       .then(function(resp) {
+        clearTimeout(fetchTimeout);
         if (resp.ok) {
           return resp.json();
         } else {
@@ -1033,16 +1076,24 @@
         }
       })
       .then(function(data) {
-        resolve(data);
+        if (!hasResolved) {
+          hasResolved = true;
+          resolve(data);
+        }
       })
       .catch(function(fetchErr) {
-        console.warn("Direct POST fetch failed, falling back to JSONP bridge...", fetchErr);
+        clearTimeout(fetchTimeout);
+        if (hasResolved) return;
+        console.warn("Direct POST fetch failed/timed out, racing JSONP bridge...", fetchErr);
 
         var cbName = "vassa_punch_cb_" + Math.floor(Math.random() * 1000000);
         var timeoutId = setTimeout(function() {
           cleanup();
-          reject(new Error("Request timed out (15s). Check internet connection."));
-        }, 15000);
+          if (!hasResolved) {
+            hasResolved = true;
+            reject(new Error("Request timed out (8s). Saved locally for offline sync."));
+          }
+        }, 8000);
 
         function cleanup() {
           clearTimeout(timeoutId);
@@ -1053,7 +1104,10 @@
 
         window[cbName] = function(res) {
           cleanup();
-          resolve(res);
+          if (!hasResolved) {
+            hasResolved = true;
+            resolve(res);
+          }
         };
 
         var script = document.createElement("script");
@@ -1068,12 +1122,49 @@
         script.src = fetchUrl + sep + queryParts.join("&");
         script.onerror = function() {
           cleanup();
-          reject(new Error("Network Error: Could not connect to Google Apps Script."));
+          if (!hasResolved) {
+            hasResolved = true;
+            reject(new Error("Network Error: Could not connect to Google Apps Script."));
+          }
         };
         document.head.appendChild(script);
       });
     });
   }
+
+  // Offline Sync Queue Support
+  function queueOfflinePunch(payload) {
+    try {
+      var queue = JSON.parse(localStorage.getItem("vassa_offline_punches") || "[]");
+      queue.push({ payload: payload, queuedAt: Date.now() });
+      localStorage.setItem("vassa_offline_punches", JSON.stringify(queue));
+    } catch(e) {}
+  }
+
+  function flushOfflinePunches() {
+    try {
+      var raw = localStorage.getItem("vassa_offline_punches");
+      if (!raw) return;
+      var queue = JSON.parse(raw);
+      if (!queue || !queue.length) return;
+      var item = queue.shift();
+      localStorage.setItem("vassa_offline_punches", JSON.stringify(queue));
+      sendPunchApiRequest(item.payload).then(function(res) {
+        console.log("Offline punch auto-synced successfully:", res);
+        var syncBadge = document.getElementById("punched-sync-badge");
+        if (syncBadge) {
+          syncBadge.style.background = "#D1FAE5";
+          syncBadge.style.color = "#047857";
+          syncBadge.innerHTML = "✓ Cloud Synced";
+        }
+      }).catch(function(e) {
+        queue.unshift(item);
+        localStorage.setItem("vassa_offline_punches", JSON.stringify(queue));
+      });
+    } catch(e) {}
+  }
+  window.addEventListener("online", flushOfflinePunches);
+  setInterval(flushOfflinePunches, 30000);
 
   function submitPunch(type) {
     if (!currentStaff) {
@@ -1118,66 +1209,134 @@
       remarks: (type === "Check-Out" ? "Mobile Check-Out Exit" : "Mobile GPS Check-In") + " (" + Math.round(distanceToTarget) + "m)"
     };
 
+    // ============================================================================
+    // 0ms INSTANT OPTIMISTIC FEEDBACK (Zero Waiting Time for Staff)
+    // ============================================================================
+    var instantTimeStr = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    var instantStatus = "Present (On-Time)";
+    var now = new Date();
+    var totalMins = (now.getHours() * 60) + now.getMinutes();
+    var lateThreshold = (SETTINGS.startHour * 60 + SETTINGS.startMin) + (SETTINGS.graceMins || 15);
+    if (totalMins > lateThreshold) {
+      instantStatus = "Late Mark";
+    }
+
+    // Immediate physical tactile haptic vibration
+    if (navigator.vibrate) {
+      try { navigator.vibrate([120, 50, 120]); } catch(e) {}
+    }
+
+    // Optimistically update current staff state in 0ms
+    if (type === "Check-In") {
+      currentStaff.hasCheckedIn = true;
+      currentStaff.hasPunchedToday = true;
+      currentStaff.checkInTime = instantTimeStr;
+      currentStaff.checkInStatus = instantStatus;
+      applyStaff(currentStaff, true);
+      startLiveTracking();
+    } else {
+      currentStaff.hasCheckedOut = true;
+      currentStaff.checkOutTime = instantTimeStr;
+      if (currentStaff.checkInTime) {
+        currentStaff.workDuration = calculateWorkDuration(currentStaff.checkInTime, instantTimeStr);
+      }
+      applyStaff(currentStaff, true);
+    }
+
+    // Save immediate punch state in local storage so page reload preserves state
+    try {
+      var dateKey = new Date().toISOString().slice(0, 10);
+      localStorage.setItem("vassa_local_punch_" + currentStaff.id + "_" + dateKey, JSON.stringify({
+        hasCheckedIn: currentStaff.hasCheckedIn,
+        checkInTime: currentStaff.checkInTime,
+        checkInStatus: currentStaff.checkInStatus,
+        hasCheckedOut: currentStaff.hasCheckedOut,
+        checkOutTime: currentStaff.checkOutTime,
+        workDuration: currentStaff.workDuration
+      }));
+    } catch(e) {}
+
+    // Instant Visual Toast & Sync Badge
     var toast = document.getElementById("toast-msg");
-    var punchBtn = document.getElementById("punch-btn");
-    punchBtn.disabled = true;
-    punchBtn.innerText = "⏳ Recording " + type + "...";
+    var syncBadge = document.getElementById("punched-sync-badge");
 
-    toast.className = "toast success";
-    toast.innerText = "⏳ Saving " + type + " to Google Sheet...";
+    if (toast) {
+      toast.className = "toast success";
+      toast.style.display = "block";
+      toast.innerHTML = "⚡ <b>" + type + " Recorded!</b> (" + instantTimeStr + ")<br><span style='font-size:11px;opacity:0.9;'>☁️ Syncing with Google Sheet in background...</span>";
+    }
 
+    if (syncBadge) {
+      syncBadge.style.display = "inline-flex";
+      syncBadge.style.background = "#E0F2FE";
+      syncBadge.style.color = "#0369A1";
+      syncBadge.innerHTML = "⚡ Syncing to Sheet...";
+    }
+
+    // ============================================================================
+    // BACKGROUND ASYNC SYNC (Google Apps Script)
+    // ============================================================================
     function handleSuccess(res) {
       if (res && res.isProxyBlocked) {
-        toast.className = "toast error";
-        toast.innerText = res.message;
+        // Revert optimistic punch if proxy punch is rejected by server
+        if (type === "Check-In") {
+          currentStaff.hasCheckedIn = false;
+          currentStaff.hasPunchedToday = false;
+        } else {
+          currentStaff.hasCheckedOut = false;
+        }
+        applyStaff(currentStaff, false);
+        if (toast) {
+          toast.className = "toast error";
+          toast.innerText = res.message;
+        }
         alert(res.message);
-        punchBtn.disabled = true;
-        punchBtn.innerText = "⛔ Proxy Punch Blocked";
         return;
       }
 
       if (res && res.isDuplicate) {
-        toast.className = "toast error";
-        toast.innerText = "⚠️ " + res.message;
-        alert(res.message);
-        if (type === "Check-In") {
-          currentStaff.hasCheckedIn = true;
-          currentStaff.hasPunchedToday = true;
-        } else {
-          currentStaff.hasCheckedOut = true;
+        if (syncBadge) {
+          syncBadge.style.background = "#D1FAE5";
+          syncBadge.style.color = "#047857";
+          syncBadge.innerHTML = "✓ Confirmed in Sheet";
         }
-        applyStaff(currentStaff, true);
+        if (toast) {
+          toast.className = "toast success";
+          toast.innerHTML = "ℹ️ " + res.message;
+          setTimeout(function() { toast.style.display = "none"; }, 3500);
+        }
         return;
       }
 
-      if (type === "Check-In") {
+      // Success confirmation from Google Sheets
+      if (syncBadge) {
+        syncBadge.style.background = "#D1FAE5";
+        syncBadge.style.color = "#047857";
+        syncBadge.innerHTML = "✓ Cloud Synced (" + (res.time || res.punchTime || instantTimeStr) + ")";
+      }
+
+      if (toast) {
         toast.className = "toast success";
-        toast.innerText = "✅ Check-In Recorded Successfully for " + currentStaff.name + "! Status: " + (res.status || res.punchStatus || "Present");
-        currentStaff.hasCheckedIn = true;
-        currentStaff.hasPunchedToday = true;
-        currentStaff.checkInTime = res.time || res.punchTime || new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
-        currentStaff.checkInStatus = res.status || res.punchStatus || "Present";
-        setTimeout(function() {
-          applyStaff(currentStaff, true);
-          startLiveTracking();
-        }, 500);
-      } else {
-        toast.className = "toast success";
-        toast.innerText = "🏁 Check-Out Recorded Successfully for " + currentStaff.name + "! Have a good evening.";
-        currentStaff.hasCheckedOut = true;
-        currentStaff.checkOutTime = res.time || res.punchTime || new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
-        currentStaff.workDuration = res.duration || res.workDuration || "Completed";
-        setTimeout(function() {
-          applyStaff(currentStaff, true);
-        }, 500);
+        toast.innerHTML = "✅ <b>" + type + " Saved to Sheet!</b> Status: " + (res.status || res.punchStatus || instantStatus);
+        setTimeout(function() { toast.style.display = "none"; }, 3500);
       }
     }
 
     function handleFailure(err) {
-      toast.className = "toast error";
-      toast.innerText = "❌ Error: " + (err.message || err);
-      punchBtn.disabled = false;
-      punchBtn.innerText = "Try " + type + " Again";
+      console.warn("Direct punch sync failed/delayed, queued offline:", err);
+      queueOfflinePunch(payload);
+
+      if (syncBadge) {
+        syncBadge.style.background = "#FEF3C7";
+        syncBadge.style.color = "#92400E";
+        syncBadge.innerHTML = "💾 Saved on Device (Offline) • Auto-syncing...";
+      }
+
+      if (toast) {
+        toast.className = "toast success";
+        toast.innerHTML = "💾 <b>" + type + " Saved on Phone!</b><br><span style='font-size:11px;'>Will auto-sync to Google Sheet when online.</span>";
+        setTimeout(function() { toast.style.display = "none"; }, 4500);
+      }
     }
 
     sendPunchApiRequest(payload)
