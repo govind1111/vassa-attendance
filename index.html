@@ -339,7 +339,8 @@
     }
     .toast.success { display: block; background: #ECFDF5; color: #047857; border: 1.5px solid #10B981; }
     .toast.error { display: block; background: #FEF2F2; color: #991B1B; border: 1.5px solid #EF4444; }
-  </style>
+    button, .btn, .punch-btn { text-align: center !important; justify-content: center !important; }
+</style>
 </head>
 <body>
 
@@ -354,7 +355,7 @@
     <div class="clock-box" id="live-clock">--:--:--</div>
     <div class="date-box" id="live-date">--</div>
     <div style="margin-top: 6px;">
-      <span class="shift-tag">🕒 Shift: 10:00 AM — 07:00 PM</span>
+      <span class="shift-tag">Shift: 10:00 AM — 07:00 PM</span>
     </div>
   </div>
 
@@ -380,16 +381,16 @@
 
     <!-- Live Punch Status Banner (NO REMARK LINE) -->
     <div class="already-punched-card" id="banner-already-punched" style="display: none;">
-      <div class="punched-title" id="punched-title-text">🟢 Check-In Recorded Today!</div>
+      <div class="punched-title" id="punched-title-text">Check-In Recorded Today!</div>
       <div class="punched-time" id="punched-time-text">Time: -</div>
       <div class="punched-sub" id="punched-duration-text" style="display: none;"></div>
       <div class="punched-warn" id="punched-warn-text"></div>
-      <div id="punched-sync-badge" style="display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; margin-top: 6px; padding: 3px 8px; border-radius: 6px; background: #E0F2FE; color: #0369A1;">⚡ Syncing with Google Sheet...</div>
+      <div id="punched-sync-badge" style="display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; margin-top: 6px; padding: 3px 8px; border-radius: 6px; background: #E0F2FE; color: #0369A1;">Syncing with Google Sheet...</div>
     </div>
 
     <!-- Evening Cutoff Banner -->
     <div class="already-punched-card" id="banner-evening-cutoff" style="display: none; background: #FEF2F2; border: 1.5px solid #EF4444;">
-      <div style="font-size: 20px; margin-bottom: 2px;">⛔</div>
+      <div style="font-size: 20px; margin-bottom: 2px;"></div>
       <div style="font-size: 15px; font-weight: 800; color: #991B1B;">Office Shift Closed</div>
       <div style="font-size: 12px; color: #B91C1C; margin-top: 3px;">Shift Out-Time ke baad check-in strictly block hai.</div>
       <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Agli attendance kal subah 06:00 AM par open hogi.</div>
@@ -411,7 +412,7 @@
 
       <!-- GPS Geofence Radar Card -->
       <div class="radar-card locating" id="radar-card">
-        <div class="radar-icon locating" id="radar-icon">📡</div>
+        <div class="radar-icon locating" id="radar-icon"></div>
         <div class="radar-info">
           <div class="radar-title" id="radar-title">Detecting GPS Location...</div>
           <div class="radar-desc" id="radar-desc">Checking 100m geofence radius</div>
@@ -420,7 +421,7 @@
 
       <!-- Dynamic Check-In / Check-Out Button -->
       <button class="btn btn-checkin" id="punch-btn" disabled onclick="handlePunchButtonClick()">
-        🔒 Check-In Blocked (Select Name)
+        Check-In Blocked (Select Name)
       </button>
 
       <!-- Ping My Location button removed (auto GPS sync still runs in background) -->
@@ -736,7 +737,7 @@
     if (!val) {
       currentStaff = null;
       document.getElementById("punch-btn").disabled = true;
-      document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
+      document.getElementById("punch-btn").innerText = "Check-In Blocked (Select Name)";
       document.getElementById("banner-already-punched").style.display = "none";
       var _pc = document.getElementById("live-ping-container"); if (_pc) _pc.style.display = "none";
       return;
@@ -749,7 +750,7 @@
         if (toast) {
           toast.className = "toast success";
           toast.style.display = "block";
-          toast.innerText = "🔒 Device permanently locked to " + STAFF_LIST[i].name + " (" + STAFF_LIST[i].id + ")";
+          toast.innerText = "Device permanently locked to " + STAFF_LIST[i].name + " (" + STAFF_LIST[i].id + ")";
           setTimeout(function() { toast.style.display = "none"; }, 3500);
         }
         break;
@@ -850,7 +851,7 @@
     if (isCheckedIn && !isCheckedOut) {
       bannerEl.className = "already-punched-card on-duty";
       bannerEl.style.display = "block";
-      titleEl.innerText = "🟢 Check-In Recorded (On Duty)";
+      titleEl.innerText = "Check-In Recorded (On Duty)";
       var inStatus = staff.checkInStatus || staff.status || "Present";
       timeEl.innerText = "Check-In Time: " + (staff.checkInTime || staff.punchTime || "-") + " (" + inStatus + ")";
       durationEl.style.display = "none"; // NO REMARK
@@ -897,11 +898,11 @@
       var _pc = document.getElementById("live-ping-container"); if (_pc) _pc.style.display = "none";
       document.getElementById("punch-btn").disabled = true;
       document.getElementById("punch-btn").className = "btn btn-checkin";
-      document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
+      document.getElementById("punch-btn").innerText = "Check-In Blocked (Select Name)";
       syncLiveStaffFromSheet();
-      alert("✅ Device successfully unlocked by Admin! Ab list me se apna sahi Staff Name select karein — select karte hi wo permanently lock ho jayega.");
+      alert("Device successfully unlocked by Admin! Ab list me se apna sahi Staff Name select karein — select karte hi wo permanently lock ho jayega.");
     } else if (pin !== null) {
-      alert("❌ Galat Admin PIN! Staff members ek doosre ka name switch nahi kar sakte.");
+      alert("Galat Admin PIN! Staff members ek doosre ka name switch nahi kar sakte.");
     }
   }
 
@@ -930,7 +931,7 @@
           var radarDesc = document.getElementById("radar-desc");
           radarCard.className = "radar-card outside";
           radarIcon.className = "radar-icon outside";
-          radarIcon.innerText = "❌";
+          radarIcon.innerText = "";
           radarTitle.innerText = "GPS Permission Required";
           radarDesc.innerText = "Please enable GPS/Location in mobile settings.";
         },
@@ -991,7 +992,7 @@
       }
       punchBtn.disabled = true;
       punchBtn.className = "btn btn-checkin";
-      punchBtn.innerText = "⛔ Check-In Opens at 06:00 AM";
+      punchBtn.innerText = "Check-In Opens at 06:00 AM";
       return;
     }
 
@@ -1000,11 +1001,11 @@
       var bannerCutoff = document.getElementById("banner-evening-cutoff");
       if (bannerCutoff) {
         bannerCutoff.style.display = "block";
-        bannerCutoff.innerText = "⛔ Shift Over: Aaj ka check-in samapt ho chuka hai. Agla check-in kal subah 06:00 AM ko open hoga.";
+        bannerCutoff.innerText = "Shift Over: Aaj ka check-in samapt ho chuka hai. Agla check-in kal subah 06:00 AM ko open hoga.";
       }
       punchBtn.disabled = true;
       punchBtn.className = "btn btn-checkin";
-      punchBtn.innerText = "⛔ Shift Over (Check-In Closed)";
+      punchBtn.innerText = "Shift Over (Check-In Closed)";
       return;
     } else {
       var bannerCutoff = document.getElementById("banner-evening-cutoff");
@@ -1016,7 +1017,7 @@
     if (distanceToTarget <= 100) {
       radarCard.className = "radar-card inside";
       radarIcon.className = "radar-icon inside";
-      radarIcon.innerText = "🟢";
+      radarIcon.innerText = "";
       radarTitle.innerText = "Within Geofence (" + Math.round(distanceToTarget) + "m away)";
       radarDesc.innerText = "Location Verified: " + selectedOption.text.split(":")[1];
 
@@ -1024,23 +1025,23 @@
         punchBtn.disabled = false;
         if (isCheckInMode) {
           punchBtn.className = "btn btn-checkin";
-          punchBtn.innerText = "✅ Check-In Now (" + Math.round(distanceToTarget) + "m)";
+          punchBtn.innerText = "Check-In Now (" + Math.round(distanceToTarget) + "m)";
         } else {
           punchBtn.className = "btn btn-checkout";
-          punchBtn.innerText = "🚪 Check-Out Now (" + Math.round(distanceToTarget) + "m)";
+          punchBtn.innerText = "Check-Out Now (" + Math.round(distanceToTarget) + "m)";
         }
       } else {
         punchBtn.disabled = true;
-        punchBtn.innerText = "🔒 Select Name to " + currentPunchMode;
+        punchBtn.innerText = "Select Name to " + currentPunchMode;
       }
     } else {
       radarCard.className = "radar-card outside";
       radarIcon.className = "radar-icon outside";
-      radarIcon.innerText = "🔴";
+      radarIcon.innerText = "";
       radarTitle.innerText = "Outside 100m Range (" + Math.round(distanceToTarget) + "m away)";
       radarDesc.innerText = "You must be within 100 meters of site pin";
       punchBtn.disabled = true;
-      punchBtn.innerText = "🔒 " + currentPunchMode + " Blocked (" + Math.round(distanceToTarget) + "m Away)";
+      punchBtn.innerText = "" + currentPunchMode + " Blocked (" + Math.round(distanceToTarget) + "m Away)";
     }
   }
 
@@ -1173,22 +1174,22 @@
     }
 
     if (type === "Check-In" && isBeforeMorningOpen()) {
-      alert("⛔ Check-In Blocked: Check-in subah 06:00 AM se open hota hai. 06:00 AM se pehle check-in allowed nahi hai.");
+      alert("Check-In Blocked: Check-in subah 06:00 AM se open hota hai. 06:00 AM se pehle check-in allowed nahi hai.");
       return;
     }
 
     if (type === "Check-In" && isAfterEveningCutoff()) {
-      alert("⛔ Check-In Blocked: Aaj ki shift ka check-in samay samapt ho chuka hai. Agla check-in kal subah 06:00 AM ko open hoga.");
+      alert("Check-In Blocked: Aaj ki shift ka check-in samay samapt ho chuka hai. Agla check-in kal subah 06:00 AM ko open hoga.");
       return;
     }
 
     if (type === "Check-In" && (currentStaff.hasCheckedIn || currentStaff.hasPunchedToday)) {
-      alert("⚠️ Aap aaj pehle hi check-in kar chuke hain!");
+      alert("Aap aaj pehle hi check-in kar chuke hain!");
       return;
     }
 
     if (type === "Check-Out" && currentStaff.hasCheckedOut) {
-      alert("⚠️ Aap aaj pehle hi check-out kar chuke hain!");
+      alert("Aap aaj pehle hi check-out kar chuke hain!");
       return;
     }
 
@@ -1263,14 +1264,14 @@
     if (toast) {
       toast.className = "toast success";
       toast.style.display = "block";
-      toast.innerHTML = "⚡ <b>" + type + " Recorded!</b> (" + instantTimeStr + ")<br><span style='font-size:11px;opacity:0.9;'>☁️ Syncing with Google Sheet in background...</span>";
+      toast.innerHTML = "<b>" + type + " Recorded!</b> (" + instantTimeStr + ")<br><span style='font-size:11px;opacity:0.9;'>Syncing with Google Sheet in background...</span>";
     }
 
     if (syncBadge) {
       syncBadge.style.display = "inline-flex";
       syncBadge.style.background = "#E0F2FE";
       syncBadge.style.color = "#0369A1";
-      syncBadge.innerHTML = "⚡ Syncing to Sheet...";
+      syncBadge.innerHTML = "Syncing to Sheet...";
     }
 
     // ============================================================================
@@ -1302,7 +1303,7 @@
         }
         if (toast) {
           toast.className = "toast success";
-          toast.innerHTML = "ℹ️ " + res.message;
+          toast.innerHTML = "" + res.message;
           setTimeout(function() { toast.style.display = "none"; }, 3500);
         }
         return;
@@ -1317,7 +1318,7 @@
 
       if (toast) {
         toast.className = "toast success";
-        toast.innerHTML = "✅ <b>" + type + " Saved to Sheet!</b> Status: " + (res.status || res.punchStatus || instantStatus);
+        toast.innerHTML = "<b>" + type + " Saved to Sheet!</b> Status: " + (res.status || res.punchStatus || instantStatus);
         setTimeout(function() { toast.style.display = "none"; }, 3500);
       }
     }
@@ -1329,12 +1330,12 @@
       if (syncBadge) {
         syncBadge.style.background = "#FEF3C7";
         syncBadge.style.color = "#92400E";
-        syncBadge.innerHTML = "💾 Saved on Device (Offline) • Auto-syncing...";
+        syncBadge.innerHTML = "Saved on Device (Offline) • Auto-syncing...";
       }
 
       if (toast) {
         toast.className = "toast success";
-        toast.innerHTML = "💾 <b>" + type + " Saved on Phone!</b><br><span style='font-size:11px;'>Will auto-sync to Google Sheet when online.</span>";
+        toast.innerHTML = "<b>" + type + " Saved on Phone!</b><br><span style='font-size:11px;'>Will auto-sync to Google Sheet when online.</span>";
         setTimeout(function() { toast.style.display = "none"; }, 4500);
       }
     }
@@ -1389,10 +1390,10 @@
     if (!currentStaff) return;
     var statusMsgEl = document.getElementById("live-ping-status-msg");
 
-    if (isManual && statusMsgEl) statusMsgEl.innerText = "📡 Acquiring high-accuracy GPS...";
+    if (isManual && statusMsgEl) statusMsgEl.innerText = "Acquiring high-accuracy GPS...";
 
     if (!navigator.geolocation) {
-      if (statusMsgEl) statusMsgEl.innerText = "❌ Geolocation not supported";
+      if (statusMsgEl) statusMsgEl.innerText = "Geolocation not supported";
       return;
     }
 
@@ -1428,7 +1429,7 @@
 
         if (navigator.getBattery) {
           navigator.getBattery().then(function(battery) {
-            payload.battery = Math.round(battery.level * 100) + "%" + (battery.charging ? " ⚡" : "");
+            payload.battery = Math.round(battery.level * 100) + "%" + (battery.charging ? " " : "");
             dispatchLivePingPayload(payload, isManual);
           }).catch(function() {
             dispatchLivePingPayload(payload, isManual);
@@ -1438,7 +1439,7 @@
         }
       },
       function(err) {
-        if (statusMsgEl) statusMsgEl.innerText = "⚠️ GPS notice: " + err.message;
+        if (statusMsgEl) statusMsgEl.innerText = "GPS notice: " + err.message;
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 }
     );
@@ -1449,10 +1450,10 @@
 
     sendPunchApiRequest(payload).then(function() {
       var tNow = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
-      if (statusMsgEl) statusMsgEl.innerText = "🟢 Location synced with Google Sheet (" + tNow + ")";
-      if (isManual) alert("✅ Live Location Ping Sent!\nCoordinates Google Sheets me 'Live_Tracking' tab par save ho chuke hain.");
+      if (statusMsgEl) statusMsgEl.innerText = "Location synced with Google Sheet (" + tNow + ")";
+      if (isManual) alert("Live Location Ping Sent!\nCoordinates Google Sheets me 'Live_Tracking' tab par save ho chuke hain.");
     }).catch(function(err) {
-      if (statusMsgEl) statusMsgEl.innerText = "⚠️ Sync notice: Retrying in background";
+      if (statusMsgEl) statusMsgEl.innerText = "Sync notice: Retrying in background";
     });
   }
 
@@ -1466,7 +1467,7 @@
     setTimeout(function() {
       if (btn) {
         btn.disabled = false;
-        btn.innerText = "📍 Ping My Location Now";
+        btn.innerText = "Ping My Location Now";
       }
     }, 3500);
   }
