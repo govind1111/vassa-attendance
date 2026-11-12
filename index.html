@@ -362,7 +362,7 @@
     <!-- Locked Staff Profile Badge (Anti-Proxy) -->
     <div class="profile-card" id="profile-box" style="display: none;">
       <div class="profile-info">
-        <div class="profile-label"><span>🔒</span> Device Locked to Staff</div>
+        <div class="profile-label">Device Locked to Staff</div>
         <div class="profile-name" id="display-profile-name">-</div>
         <div class="profile-meta" id="display-profile-meta">-</div>
       </div>
@@ -829,7 +829,7 @@
       bannerEl.style.display = "block";
       titleEl.innerText = "🟢 Check-In Recorded (On Duty)";
       var inStatus = staff.checkInStatus || staff.status || "Present";
-      timeEl.innerText = "🕒 Check-In Time: " + (staff.checkInTime || staff.punchTime || "-") + " (" + inStatus + ")";
+      timeEl.innerText = "Check-In Time: " + (staff.checkInTime || staff.punchTime || "-") + " (" + inStatus + ")";
       durationEl.style.display = "none"; // NO REMARK
       warnEl.style.display = "none";
 
