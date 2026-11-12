@@ -911,7 +911,7 @@
           radarTitle.innerText = "GPS Permission Required";
           radarDesc.innerText = "Please enable GPS/Location in mobile settings.";
         },
-        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+        { enableHighAccuracy: true, maximumAge: 30000, timeout: 6000 }
       );
     }
   }
@@ -1160,7 +1160,7 @@
         setTimeout(function() {
           applyStaff(currentStaff, true);
           startLiveTracking();
-        }, 1200);
+        }, 500);
       } else {
         toast.className = "toast success";
         toast.innerText = "🏁 Check-Out Recorded Successfully for " + currentStaff.name + "! Have a good evening.";
@@ -1169,7 +1169,7 @@
         currentStaff.workDuration = res.duration || res.workDuration || "Completed";
         setTimeout(function() {
           applyStaff(currentStaff, true);
-        }, 1200);
+        }, 500);
       }
     }
 
