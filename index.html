@@ -12,19 +12,19 @@
 <meta name="theme-color" content="#0284C7">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif !important; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif !important; }
     
     :root {
       --bg-body: #F1F5F9;
       --card-bg: #FFFFFF;
       --card-border: #E2E8F0;
       --card-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
-      --text-main: #0F172A;
-      --text-secondary: #334155;
-      --text-muted: #64748B;
+      --text-main: #000000;
+      --text-secondary: #000000;
+      --text-muted: #000000;
       --input-bg: #F8FAFC;
       --input-border: #CBD5E1;
-      --input-text: #0F172A;
+      --input-text: #000000;
       --brand-gradient: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
       --pill-bg: #E0F2FE;
       --pill-text: #0369A1;
@@ -174,7 +174,7 @@
       border: 1.5px solid var(--input-border);
       color: var(--text-secondary);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: normal;
       padding: 6px 12px;
       border-radius: 8px;
       cursor: pointer;
@@ -204,9 +204,9 @@
     .on-duty .punched-title { color: #047857; }
     .completed .punched-title { color: #0369A1; }
     
-    .punched-time { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
-    .punched-sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-weight: 700; }
-    .punched-warn { font-size: 11px; font-weight: 700; margin-top: 6px; }
+    .punched-time { font-size: 13px; font-weight: normal; color: var(--text-main); margin-bottom: 6px; }
+    .punched-sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-weight: normal; }
+    .punched-warn { font-size: 11px; font-weight: normal; margin-top: 6px; }
 
     /* GPS Geofence Radar Card */
     .radar-card {
@@ -263,7 +263,7 @@
       padding: 14px;
       border-radius: 12px;
       font-size: 14px;
-      font-weight: 800;
+      font-weight: normal;
       border: none;
       cursor: pointer;
       display: flex;
@@ -296,7 +296,7 @@
       border: 1.5px solid #0284C7;
       color: #0284C7;
       font-size: 12px;
-      font-weight: 800;
+      font-weight: normal;
       padding: 10px 14px;
       border-radius: 10px;
       display: flex;
@@ -341,25 +341,65 @@
     .toast.error { display: block; background: #FEF2F2; color: #991B1B; border: 1.5px solid #EF4444; }
     button, .btn, .punch-btn { text-align: center !important; justify-content: center !important; }
 
+    /* ============================================================
+       GLOBAL TYPOGRAPHY & COLOR SYSTEM
+       Font: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif
+       Weights: Only Titles are Bold; All other text & Button labels are Normal
+       Colors: All text is Black (#000000); Buttons strictly keep their own styling
+       ============================================================ */
     * {
-      font-family: Arial, Helvetica, sans-serif !important;
-    }
-    body {
-      font-family: Arial, Helvetica, sans-serif !important;
+      font-family: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif !important;
       font-weight: normal;
-    }
-    p, span, div, select, input {
-      font-weight: normal;
-    }
-    h1, h2, h3, h4, .brand-name, .card-title, b, strong, label {
-      font-weight: bold !important;
-    }
-    button, .btn, .punch-btn {
-      text-align: center !important;
-      justify-content: center !important;
     }
 
-</style>
+    body {
+      font-family: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif !important;
+      font-weight: normal !important;
+      color: #000000 !important;
+    }
+
+    /* All text elements normal weight & black color */
+    body, p, label, input, select, textarea,
+    th, td, tr, table,
+    b, strong, small, em, a, li, ul, ol,
+    .date-box, .radar-desc,
+    .punched-time, .punched-sub, .punched-warn,
+    .badge, .admin-badge, .shift-pill, .pill {
+      font-weight: normal !important;
+      color: #000000 !important;
+    }
+
+    /* Spans and Divs not inside buttons: black and normal */
+    span:not(button *):not(.btn *):not(.punch-btn *):not(.btn-switch *):not(.btn-checkin *),
+    div:not(button):not(.btn):not(.punch-btn):not(.btn-switch):not(.btn-checkin):not(button *):not(.btn *):not(.punch-btn *):not(.btn-switch *):not(.btn-checkin *) {
+      font-weight: normal !important;
+      color: #000000 !important;
+    }
+
+    /* ONLY TITLES ARE BOLD AND BLACK */
+    h1, h2, h3, h4, h5, h6,
+    .brand-name,
+    .card-title,
+    .punched-title,
+    .radar-title {
+      font-weight: bold !important;
+      color: #000000 !important;
+    }
+
+    /* BUTTONS: STRICTLY PRESERVE COLOR & REMOVE BOLDNESS FROM LABELS */
+    button, .btn, .punch-btn, .btn-switch, .btn-checkin {
+      font-weight: normal !important;
+      text-align: center !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    button *, .btn *, .punch-btn *, .btn-switch *, .btn-checkin * {
+      font-weight: normal !important;
+      color: inherit !important;
+    }
+
+  </style>
 </head>
 <body>
 

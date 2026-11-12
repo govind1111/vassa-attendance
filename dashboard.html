@@ -5,24 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vassa Properties — Live Attendance Command Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif; }
 
     :root {
       --bg-body: #F1F5F9;
-      --text-main: #0F172A;
-      --text-secondary: #334155;
-      --text-muted: #64748B;
+      --text-main: #000000;
+      --text-secondary: #000000;
+      --text-muted: #000000;
       --card-bg: #FFFFFF;
       --card-border: #E2E8F0;
       --card-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
       --input-bg: #F8FAFC;
       --input-border: #CBD5E1;
-      --input-text: #0F172A;
+      --input-text: #000000;
       --table-header-bg: #F8FAFC;
-      --table-header-text: #475569;
+      --table-header-text: #000000;
       --table-row-border: #F1F5F9;
       --table-row-hover: #F8FAFC;
-      --table-td-text: #1E293B;
+      --table-td-text: #000000;
       --brand-gradient: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
       --brand-shadow: none;
       --pill-bg: #E0F2FE;
@@ -30,7 +30,7 @@
       --pill-border: #BAE6FD;
       --sync-bar-bg: #FFFFFF;
       --sync-bar-border: #E2E8F0;
-      --sync-bar-text: #475569;
+      --sync-bar-text: #000000;
       --filter-tabs-bg: #F1F5F9;
       --filter-tabs-border: #E2E8F0;
       --filter-btn-text: #F7CA14;
@@ -53,7 +53,7 @@
       --theme-btn-border: #CBD5E1;
       --search-bg: #F8FAFC;
       --search-border: #CBD5E1;
-      --search-text: #0F172A;
+      --search-text: #000000;
       --emp-id-color: #0284C7;
       --checkin-color: #059669;
       --checkout-color: #0284C7;
@@ -241,7 +241,7 @@
       padding: 8px 14px;
       border-radius: 8px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: normal;
       color: #F7CA14;
       cursor: pointer;
       transition: all 0.2s;
@@ -267,7 +267,7 @@
       padding: 9px 16px;
       border-radius: 8px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: normal;
       border: none;
       cursor: pointer;
       display: inline-flex;
@@ -366,7 +366,7 @@
       padding: 6px 10px;
       border-radius: 6px;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: normal;
       border: none;
       cursor: pointer;
       white-space: nowrap;
@@ -379,7 +379,7 @@
       padding: 6px 10px;
       border-radius: 6px;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: normal;
       border: none;
       cursor: pointer;
       white-space: nowrap;
@@ -475,7 +475,7 @@
       justify-content: center !important;
       padding: 11px 14px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: normal;
       border-radius: 10px;
       box-sizing: border-box;
       display: flex;
@@ -505,43 +505,111 @@
     }
 
 
-    /* Global Typography: Arial, Titles Bold, Rest Normal */
+    /* ============================================================
+       GLOBAL TYPOGRAPHY & COLOR SYSTEM
+       Font: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif
+       Weights: Only Titles are Bold; All other text & Button labels are Normal
+       Colors: All text is Black (#000000); Buttons strictly keep their own styling
+       ============================================================ */
     * {
-      font-family: Arial, Helvetica, sans-serif !important;
+      font-family: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif !important;
+      font-weight: normal;
     }
+
     body {
-      font-family: Arial, Helvetica, sans-serif !important;
-      font-weight: normal;
+      font-family: "Segoe UI", Segoe, Tahoma, Geneva, Verdana, sans-serif !important;
+      font-weight: normal !important;
+      color: #000000 !important;
     }
-    p, span, td, input, select, textarea, div {
-      font-weight: normal;
+
+    /* All general text: normal weight & black color */
+    body, p, label, input, select, textarea,
+    th, td, tr, table,
+    b, strong, small, em, a, li, ul, ol,
+    .kpi-label, .kpi-value, .kpi-number, .date-box, .radar-desc,
+    .punched-time, .punched-sub, .punched-warn,
+    .badge, .admin-badge, .shift-pill, .pill,
+    .sync-bar-text, .table-card, .table-card th, .table-card td,
+    .card-subtitle, .help-text, .info-note, .stat-label, .stat-value {
+      font-weight: normal !important;
+      color: #000000 !important;
     }
-    /* Titles & Headings are Bold */
+
+    /* Spans and Divs not inside buttons: black and normal */
+    span:not(button *):not(.btn *):not(.filter-btn *):not(.sidebar-nav-btn *):not(.punch-btn *):not(.btn-switch *):not(.btn-checkin *):not(.btn-act-manual *):not(.btn-act-leave *):not(.modal-close *):not(.att-status-btn *),
+    div:not(button):not(.btn):not(.filter-btn):not(.sidebar-nav-btn):not(.punch-btn):not(.btn-switch):not(.btn-checkin):not(.btn-act-manual):not(.btn-act-leave):not(.modal-close):not(.att-status-btn):not(button *):not(.btn *):not(.filter-btn *):not(.sidebar-nav-btn *):not(.punch-btn *):not(.btn-switch *):not(.btn-checkin *) {
+      font-weight: normal !important;
+      color: #000000 !important;
+    }
+
+    /* ONLY TITLES ARE BOLD AND BLACK */
     h1, h2, h3, h4, h5, h6,
     .brand-name,
     .modal-title,
-    .kpi-label,
-    .table-card thead th,
-    table thead th,
-    th,
-    label,
     .box-title,
     .section-title,
     .card-title,
+    .table-card-title,
+    .page-title,
     #mon-register-heading,
     .print-header h2,
-    b, strong {
+    .punched-title,
+    .radar-title {
       font-weight: bold !important;
+      color: #000000 !important;
     }
-    /* Metrics numbers bold for clarity */
-    .kpi-value, .kpi-number {
-      font-weight: bold !important;
-    }
-    /* Button labels: normal / clean weight, center aligned */
-    button, .btn, .filter-btn {
-      font-weight: normal;
+
+    /* BUTTONS: STRICTLY PRESERVE COLOR & REMOVE BOLDNESS FROM LABELS */
+    button, .btn, .filter-btn, .sidebar-nav-btn, .punch-btn, .btn-switch, .btn-checkin, .btn-act-manual, .btn-act-leave, .modal-close, .att-status-btn, a.btn {
+      font-weight: normal !important;
       text-align: center !important;
       justify-content: center !important;
+      align-items: center !important;
+    }
+
+    button *, .btn *, .filter-btn *, .sidebar-nav-btn *, .punch-btn *, .btn-switch *, .btn-checkin *, .btn-act-manual *, .btn-act-leave *, .modal-close *, .att-status-btn *, a.btn * {
+      font-weight: normal !important;
+      color: inherit !important;
+    }
+
+    /* Graceful dark mode text contrast if user toggles dark mode */
+    body.dark-mode,
+    body.dark-mode p,
+    body.dark-mode label,
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea,
+    body.dark-mode th,
+    body.dark-mode td,
+    body.dark-mode b,
+    body.dark-mode strong,
+    body.dark-mode small,
+    body.dark-mode em,
+    body.dark-mode a,
+    body.dark-mode li,
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode h4,
+    body.dark-mode h5,
+    body.dark-mode h6,
+    body.dark-mode .brand-name,
+    body.dark-mode .modal-title,
+    body.dark-mode .box-title,
+    body.dark-mode .section-title,
+    body.dark-mode .card-title,
+    body.dark-mode .table-card-title,
+    body.dark-mode .page-title,
+    body.dark-mode #mon-register-heading,
+    body.dark-mode .kpi-label,
+    body.dark-mode .kpi-value,
+    body.dark-mode .kpi-number,
+    body.dark-mode .date-box,
+    body.dark-mode .radar-desc,
+    body.dark-mode .sync-bar-text,
+    body.dark-mode span:not(button *):not(.btn *):not(.filter-btn *):not(.sidebar-nav-btn *):not(.punch-btn *),
+    body.dark-mode div:not(button):not(.btn):not(.filter-btn):not(.sidebar-nav-btn):not(.punch-btn):not(button *):not(.btn *) {
+      color: #F8FAFC !important;
     }
 
   </style>
