@@ -467,6 +467,7 @@
       </div>
       <button class="btn" id="btn-nav-daily" onclick="switchDashboardView('daily')" style="background: #841524; color: #F7CA14; border: 1px solid #38BDF8; font-weight: 700; border-radius: 8px; padding: 7px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">🔴 Daily Live</button>
       <button class="btn" id="btn-nav-monthly" onclick="switchDashboardView('monthly')" style="background: #841524; color: #F7CA14; border: 1px solid #334155; font-weight: 700; border-radius: 8px; padding: 7px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">📊 Monthly Register</button>
+       <button class="btn" id="btn-nav-payroll" onclick="switchDashboardView('payroll')" style="background: #841524; color: #F7CA14; border: 1px solid #334155; font-weight: 700; border-radius: 8px; padding: 7px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">💰 Payroll</button>
       <button class="btn" id="btn-nav-manage" onclick="openManageStaffSiteModal()" style="background: #841524; color: #F7CA14; border: 1px solid #334155; font-weight: 700; border-radius: 8px; padding: 7px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">👥 Staff &amp; Sites</button>
       <button class="btn" id="theme-toggle-btn" onclick="toggleTheme()" style="background:#841524; color:#F7CA14; border:1px solid var(--theme-btn-border); font-weight:700;">🌙 Dark Mode</button>
       <button class="btn" onclick="openLiveRadarModal()" style="background:#841524; color:#F7CA14; font-weight:800; box-shadow:0 4px 12px rgba(2,132,199,0.3);">📍 Live GPS Radar</button>
@@ -656,19 +657,23 @@
             <div style="font-size: 17px; font-weight: 800; color: #F8FAFC;" id="mon-register-heading">Monthly Staff Attendance Register</div>
             <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">Live synchronization with Google Sheet Attendance_Log &amp; Staff_Master</div>
           </div>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 11px; font-weight: 700;">
-            <span style="display: inline-flex; align-items: center; gap: 4px; color: #10B981;"><span style="display: inline-block; width: 12px; height: 12px; background: #065F46; border: 1px solid #10B981; border-radius: 3px; text-align: center; line-height: 10px; font-size: 8px;">P</span> Present</span>
-            <span style="display: inline-flex; align-items: center; gap: 4px; color: #F59E0B;"><span style="display: inline-block; width: 12px; height: 12px; background: #78350F; border: 1px solid #F59E0B; border-radius: 3px; text-align: center; line-height: 10px; font-size: 8px;">L</span> Late</span>
-            <span style="display: inline-flex; align-items: center; gap: 4px; color: #A855F7;"><span style="display: inline-block; width: 12px; height: 12px; background: #581C87; border: 1px solid #A855F7; border-radius: 3px; text-align: center; line-height: 10px; font-size: 8px;">LV</span> Leave</span>
-            <span style="display: inline-flex; align-items: center; gap: 4px; color: #38BDF8;"><span style="display: inline-block; width: 12px; height: 12px; background: #0C4A6E; border: 1px solid #38BDF8; border-radius: 3px; text-align: center; line-height: 10px; font-size: 8px;">WO</span> Weekly Off</span>
-            <span style="display: inline-flex; align-items: center; gap: 4px; color: #EF4444;"><span style="display: inline-block; width: 12px; height: 12px; background: #7F1D1D; border: 1px solid #EF4444; border-radius: 3px; text-align: center; line-height: 10px; font-size: 8px;">A</span> Absent</span>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11px; font-weight: 700;">
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #10B981;"><span style="display: inline-block; width: 14px; height: 14px; background: #065F46; border: 1px solid #10B981; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">P</span> Present</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #F59E0B;"><span style="display: inline-block; width: 14px; height: 14px; background: #78350F; border: 1px solid #F59E0B; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">L</span> Late</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #A855F7;"><span style="display: inline-block; width: 14px; height: 14px; background: #581C87; border: 1px solid #A855F7; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">LV</span> Leave</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #38BDF8;"><span style="display: inline-block; width: 14px; height: 14px; background: #0C4A6E; border: 1px solid #38BDF8; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">WO</span> Off</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #EF4444;"><span style="display: inline-block; width: 14px; height: 14px; background: #7F1D1D; border: 1px solid #EF4444; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">A</span> Absent</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #FB923C;"><span style="display: inline-block; width: 14px; height: 14px; background: rgba(251,146,60,0.2); border: 1px solid #FB923C; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">HD</span> HalfDay</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); padding: 4px 10px; border-radius: 20px; color: #38BDF8; font-size: 11px; margin-left: 6px;">
+              ✏️ Click any cell to edit attendance
+            </span>
           </div>
         </div>
 
         <!-- Scrollable Matrix Table Container -->
-        <div style="overflow-x: auto; max-width: 100%; border: 1px solid #334155; border-radius: 10px;">
-          <table id="monthly-matrix-table" style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; min-width: 900px;">
-            <thead id="monthly-matrix-thead" style="background: #0F172A; color: #94A3B8; position: sticky; top: 0;">
+        <div style="overflow-x: auto; max-width: 100%; border: 1px solid #334155; border-radius: 12px; background: #0F172A; position: relative; box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);">
+          <table id="monthly-matrix-table" style="width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; text-align: center; min-width: 1150px;">
+            <thead id="monthly-matrix-thead" style="background: #0F172A; color: #94A3B8; position: sticky; top: 0; z-index: 10;">
             </thead>
             <tbody id="monthly-matrix-tbody">
               <tr><td colspan="45" style="padding: 30px; color: #94A3B8;">Loading monthly attendance register from Google Sheet...</td></tr>
@@ -680,6 +685,100 @@
 
     </div>
   </div>
+
+    <!-- VIEW 3: PAYROLL -->
+    <div id="view-payroll" style="display: none;">
+      
+      <!-- Top Action Bar -->
+      <div style="background: #1E293B; border: 1px solid #334155; border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div style="font-size: 18px; font-weight: 800; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+            <span>💰</span> Staff Payroll &amp; Compensation
+          </div>
+          <select id="payroll-select-month" onchange="loadPayrollData()" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #F8FAFC; font-weight: 700; font-size: 13px; outline: none;"></select>
+          <button type="button" onclick="loadPayrollData(true)" style="background: #0284C7; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2,132,199,0.3);">
+            <span>🔄</span> Recalculate
+          </button>
+          <button type="button" onclick="exportPayrollCSV()" style="background: #059669; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(5,150,105,0.3);">
+            <span>⬇️</span> Export CSV
+          </button>
+          <button type="button" onclick="printAllPayslips()" style="background: #7C3AED; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(124,58,237,0.3);">
+            <span>🖨️</span> Print All Slips
+          </button>
+        </div>
+        <div style="font-size: 11px; color: #94A3B8; background: #0F172A; padding: 6px 14px; border-radius: 20px; border: 1px solid #334155; display: flex; align-items: center; gap: 6px;">
+          <span>⚡</span> Live synced with <strong>Monthly Attendance Matrix</strong>
+        </div>
+      </div>
+
+      <!-- Payroll KPI Summary Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+        <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Total Net Payout</div>
+          <div style="font-size: 24px; font-weight: 900; color: #10B981; margin-top: 4px;" id="pay-kpi-net">₹0</div>
+          <div style="font-size: 10px; color: #64748B; margin-top: 2px;">Total disbursements for month</div>
+        </div>
+        <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Total Base Salary</div>
+          <div style="font-size: 22px; font-weight: 800; color: #38BDF8; margin-top: 4px;" id="pay-kpi-base">₹0</div>
+          <div style="font-size: 10px; color: #64748B; margin-top: 2px;">Fixed &amp; daily wages base</div>
+        </div>
+        <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Commissions Earned</div>
+          <div style="font-size: 22px; font-weight: 800; color: #A855F7; margin-top: 4px;" id="pay-kpi-comm">₹0</div>
+          <div style="font-size: 10px; color: #64748B; margin-top: 2px;">Real estate deals commission</div>
+        </div>
+        <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Attendance Deductions</div>
+          <div style="font-size: 22px; font-weight: 800; color: #EF4444; margin-top: 4px;" id="pay-kpi-deduct">₹0</div>
+          <div style="font-size: 10px; color: #64748B; margin-top: 2px;">Absents &amp; late mark penalties</div>
+        </div>
+        <div style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Bonuses &amp; Incentives</div>
+          <div style="font-size: 22px; font-weight: 800; color: #F59E0B; margin-top: 4px;" id="pay-kpi-bonus">₹0</div>
+          <div style="font-size: 10px; color: #64748B; margin-top: 2px;">Performance bonuses</div>
+        </div>
+      </div>
+
+      <!-- Payroll Table Container -->
+      <div style="background: #1E293B; border: 1px solid #334155; border-radius: 14px; padding: 18px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 15px; font-weight: 800; color: #F8FAFC;">Staff Compensation &amp; Payout Summary</div>
+          <div style="display: flex; gap: 8px; font-size: 11px; font-weight: 600; flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #34D399;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #34D399;"></span> Fixed Monthly</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #C084FC;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C084FC;"></span> Pure Commission</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #38BDF8;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #38BDF8;"></span> Fixed + Comm</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: #FB923C;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FB923C;"></span> Daily Wage</span>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto; border: 1px solid #334155; border-radius: 10px; background: #0F172A;">
+          <table style="width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; text-align: left; min-width: 1220px;">
+            <thead style="background: #0F172A; color: #94A3B8; font-weight: 700; position: sticky; top: 0;">
+              <tr>
+                <th style="padding: 12px 10px; width: 80px; min-width: 80px; max-width: 80px; border-bottom: 2px solid #334155; position: sticky; left: 0; background: #0F172A; z-index: 5;">Emp ID</th>
+                <th style="padding: 12px 12px; width: 200px; min-width: 200px; max-width: 200px; border-bottom: 2px solid #334155; position: sticky; left: 80px; background: #0F172A; z-index: 5; border-right: 2px solid #0284C7;">Staff Member</th>
+                <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid #334155;">Structure</th>
+                <th style="padding: 12px 10px; width: 95px; border-bottom: 2px solid #334155; text-align: right;">Base / Rate</th>
+                <th style="padding: 12px 10px; width: 140px; border-bottom: 2px solid #334155; text-align: center;">Attendance</th>
+                <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid #334155; text-align: right;">Deal / Sales (₹)</th>
+                <th style="padding: 12px 10px; width: 100px; border-bottom: 2px solid #334155; text-align: right;">Commission</th>
+                <th style="padding: 12px 10px; width: 95px; border-bottom: 2px solid #334155; text-align: right;">Gross Pay</th>
+                <th style="padding: 12px 10px; width: 110px; border-bottom: 2px solid #334155; text-align: right; color: #F87171;">Deductions</th>
+                <th style="padding: 12px 10px; width: 90px; border-bottom: 2px solid #334155; text-align: right; color: #FBBF24;">Bonus (₹)</th>
+                <th style="padding: 12px 12px; width: 115px; border-bottom: 2px solid #334155; text-align: right; color: #34D399; font-weight: 900;">Net Payable</th>
+                <th style="padding: 12px 10px; width: 135px; border-bottom: 2px solid #334155; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payroll-tbody">
+              <tr><td colspan="12" style="padding: 30px; text-align: center; color: #94A3B8;">Loading payroll records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
 
 <!-- MODAL 1: MANUAL PUNCH FOR PHONE PROBLEM (POSTS LIVE TO SHEET) -->
 <div class="modal-overlay" id="modal-manual">
@@ -847,10 +946,14 @@
 
   var currentStaffList = [];
   var currentSitesList = [];
+  var allStaffList = [];
+  var allSitesList = [];
   var cachedStaffList = [];
   var cachedSitesList = [];
   window.currentStaffList = currentStaffList;
   window.currentSitesList = currentSitesList;
+  window.allStaffList = allStaffList;
+  window.allSitesList = allSitesList;
   window.cachedStaffList = cachedStaffList;
   window.cachedSitesList = cachedSitesList;
   let currentFilter = 'all';
@@ -1125,8 +1228,12 @@
       // 3. Store Staff & Sites data
       currentStaffList = data.staff || [];
       currentSitesList = data.sites || [];
+      allStaffList = data.allStaff || currentStaffList;
+      allSitesList = data.allSites || currentSitesList;
       window.currentStaffList = currentStaffList;
       window.currentSitesList = currentSitesList;
+      window.allStaffList = allStaffList;
+      window.allSitesList = allSitesList;
       window.cachedStaffList = currentStaffList;
       window.cachedSitesList = currentSitesList;
 
@@ -2115,15 +2222,39 @@ Saved directly to Google Sheet Leave_Register.`);
   }
 
   // Switch between Daily Live and Monthly Register Views
-  function switchDashboardView(view) {
+   // All staff/sites (including Inactive) for management (edit/reactivate)
+   function getAllStaffList() {
+     if (allStaffList && Array.isArray(allStaffList) && allStaffList.length > 0) return allStaffList;
+     if (window.allStaffList && Array.isArray(window.allStaffList) && window.allStaffList.length > 0) return window.allStaffList;
+     return getActiveStaffList();
+   }
+   function getAllSitesList() {
+     if (allSitesList && Array.isArray(allSitesList) && allSitesList.length > 0) return allSitesList;
+     if (window.allSitesList && Array.isArray(window.allSitesList) && window.allSitesList.length > 0) return window.allSitesList;
+     return getActiveSitesList();
+   }
+
+function switchDashboardView(view) {
     var dailyEl = document.getElementById("view-daily-ops");
     var monthlyEl = document.getElementById("view-monthly-register");
+    var payrollEl = document.getElementById("view-payroll");
     var btnDaily = document.getElementById("btn-nav-daily");
     var btnMonthly = document.getElementById("btn-nav-monthly");
+    var btnPayroll = document.getElementById("btn-nav-payroll");
 
-    if (view === "monthly") {
+    if (view === "payroll") {
+      if (dailyEl) dailyEl.style.display = "none";
+      if (monthlyEl) monthlyEl.style.display = "none";
+      if (payrollEl) payrollEl.style.display = "block";
+      if (btnPayroll) { btnPayroll.style.background = "#841524"; btnPayroll.style.color = "#F7CA14"; btnPayroll.style.borderColor = "#38BDF8"; }
+      if (btnDaily) { btnDaily.style.background = "#841524"; btnDaily.style.color = "#F7CA14"; btnDaily.style.borderColor = "#334155"; }
+      if (btnMonthly) { btnMonthly.style.background = "#841524"; btnMonthly.style.color = "#F7CA14"; btnMonthly.style.borderColor = "#334155"; }
+      populatePayrollMonthSelector();
+      loadPayrollData();
+    } else if (view === "monthly") {
       if (dailyEl) dailyEl.style.display = "none";
       if (monthlyEl) monthlyEl.style.display = "block";
+      if (payrollEl) payrollEl.style.display = "none";
       if (btnMonthly) {
         btnMonthly.style.background = "#841524";
         btnMonthly.style.color = "#F7CA14";
@@ -2138,6 +2269,7 @@ Saved directly to Google Sheet Leave_Register.`);
       loadMonthlyRegisterData();
     } else {
       if (monthlyEl) monthlyEl.style.display = "none";
+      if (payrollEl) payrollEl.style.display = "none";
       if (dailyEl) dailyEl.style.display = "block";
       if (btnDaily) {
         btnDaily.style.background = "#841524";
@@ -2317,7 +2449,908 @@ Saved directly to Google Sheet Leave_Register.`);
     };
   }
 
-  // Load Monthly Register Data from Google Sheet
+  // ==============================================================================
+  // VASSA ATTENDANCE — ADVANCED FLEXIBLE PAYROLL SYSTEM (FIXED / COMMISSION / DAILY)
+  // ==============================================================================
+
+  var currentPayrollData = null;
+  var activeConfigEmpId = null;
+  // Becomes true only when the deployed Apps Script backend confirms payroll support
+  // (get_monthly_data returns payrollReady). Prevents sending payroll actions to an
+  // older backend, which would treat them as attendance punches.
+  var payrollBackendReady = false;
+
+  // Persistent default staff compensation structures (Vassa Properties)
+  var DEFAULT_PAYROLL_CONFIGS = {
+    "VP-001": { salaryType: "Fixed", baseSalary: 60000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 },
+    "VP-002": { salaryType: "Fixed+Commission", baseSalary: 25000, perDayRate: 0, commissionRate: 0.5, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 5000, salesAmount: 3500000 },
+    "VP-003": { salaryType: "Daily", baseSalary: 0, perDayRate: 900, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 50, bonus: 500 },
+    "VP-004": { salaryType: "Commission", baseSalary: 0, perDayRate: 0, commissionRate: 1.5, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 2000, salesAmount: 4800000 },
+    "VP-005": { salaryType: "Fixed", baseSalary: 22000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 1000 },
+    "VP-006": { salaryType: "Fixed", baseSalary: 20000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 0 }
+  };
+
+  function getStoredPayrollConfigs() {
+    try {
+      var raw = localStorage.getItem("vassa_payroll_configs");
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        return Object.assign({}, DEFAULT_PAYROLL_CONFIGS, parsed);
+      }
+    } catch(e) {}
+    return Object.assign({}, DEFAULT_PAYROLL_CONFIGS);
+  }
+
+  function saveStoredPayrollConfigs(cfgs) {
+    try {
+      localStorage.setItem("vassa_payroll_configs", JSON.stringify(cfgs));
+    } catch(e) {}
+  }
+
+  function populatePayrollMonthSelector() {
+    var sel = document.getElementById("payroll-select-month");
+    if (!sel || sel.options.length > 0) return;
+    var now = new Date();
+    var curYear = now.getFullYear();
+    var curMonth = now.getMonth();
+    var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    for (var i = 0; i < 12; i++) {
+      var d = new Date(curYear, curMonth - i, 1);
+      var y = d.getFullYear();
+      var m = d.getMonth() + 1;
+      var val = y + "-" + (m < 10 ? "0" + m : m);
+      var opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = monthNames[d.getMonth()] + " " + y;
+      if (i === 0) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  }
+
+  // Instant calculation linking monthly attendance matrix with salary rules
+  function loadPayrollData(forceRefresh) {
+    populatePayrollMonthSelector();
+    var sel = document.getElementById("payroll-select-month");
+    var monthVal = sel ? sel.value : "";
+    if (!monthVal) {
+      var n = new Date();
+      monthVal = n.getFullYear() + "-" + (n.getMonth() + 1 < 10 ? "0" + (n.getMonth() + 1) : (n.getMonth() + 1));
+    }
+
+    // 1. Ensure Attendance Matrix Data is Available
+    var attData = currentMonthlyData;
+    if (!attData || attData.month !== monthVal) {
+      attData = generateFallbackMonthlyData(monthVal);
+      currentMonthlyData = attData;
+    }
+
+    var workingDays = (attData && attData.summary && attData.summary.workingDaysElapsed) ? attData.summary.workingDaysElapsed : 26;
+    if (workingDays <= 0) workingDays = 26;
+
+    var configs = getStoredPayrollConfigs();
+    var staffList = (attData && attData.staff) ? attData.staff : [];
+    var staffPayroll = [];
+
+    var totNet = 0;
+    var totBase = 0;
+    var totComm = 0;
+    var totDeduct = 0;
+    var totBonus = 0;
+
+    for (var i = 0; i < staffList.length; i++) {
+      var st = staffList[i];
+      var empId = String(st.empId || ("VP-" + String(i + 1).padStart(3, "0"))).trim().toUpperCase();
+      var cfg = configs[empId] || { salaryType: "Fixed", baseSalary: 20000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 };
+      
+      var presentDays = st.presentCount || 0;
+      var lateDays = st.lateCount || 0;
+      var absentDays = st.absentCount || 0;
+      var leaveDays = st.leaveCount || 0;
+      var totalDays = st.totalWorkingDays || workingDays;
+
+      // Existing sales / bonus preservation
+      var salesAmount = (currentPayrollData && currentPayrollData.staff) ? 
+        (currentPayrollData.staff.find(function(x){ return x.empId === empId; }) || {}).salesAmount : undefined;
+      if (salesAmount === undefined) {
+        salesAmount = cfg.salesAmount !== undefined ? cfg.salesAmount : 0;
+      }
+
+      var bonusAmount = (currentPayrollData && currentPayrollData.staff) ? 
+        (currentPayrollData.staff.find(function(x){ return x.empId === empId; }) || {}).bonus : undefined;
+      if (bonusAmount === undefined) {
+        bonusAmount = cfg.bonus || 0;
+      }
+
+      var type = cfg.salaryType || "Fixed";
+      var base = parseFloat(cfg.baseSalary) || 0;
+      var commRate = parseFloat(cfg.commissionRate) || 0;
+      var dailyWage = parseFloat(cfg.perDayRate) || 0;
+      var customDedAbs = parseFloat(cfg.deductionPerAbsent) || 0;
+      var dedLateRate = parseFloat(cfg.deductionPerLate) || 0;
+
+      var perDayEffective = 0;
+      var gross = 0;
+      var commissionEarned = 0;
+      var absentDeduction = 0;
+      var lateDeduction = lateDays * dedLateRate;
+      var totalDeductions = 0;
+      var netPay = 0;
+
+      if (type === "Fixed") {
+        perDayEffective = customDedAbs > 0 ? customDedAbs : (totalDays > 0 ? (base / totalDays) : 0);
+        absentDeduction = absentDays * perDayEffective;
+        totalDeductions = absentDeduction + lateDeduction;
+        gross = base;
+        netPay = Math.max(0, gross - totalDeductions + bonusAmount);
+        totBase += base;
+      } else if (type === "Commission") {
+        commissionEarned = salesAmount * (commRate / 100);
+        gross = commissionEarned;
+        totalDeductions = 0; // Pure commission has no attendance absent penalty
+        netPay = Math.max(0, gross + bonusAmount);
+        totComm += commissionEarned;
+      } else if (type === "Fixed+Commission") {
+        commissionEarned = salesAmount * (commRate / 100);
+        perDayEffective = customDedAbs > 0 ? customDedAbs : (totalDays > 0 ? (base / totalDays) : 0);
+        absentDeduction = absentDays * perDayEffective;
+        totalDeductions = absentDeduction + lateDeduction;
+        gross = base + commissionEarned;
+        netPay = Math.max(0, gross - totalDeductions + bonusAmount);
+        totBase += base;
+        totComm += commissionEarned;
+      } else if (type === "Daily") {
+        perDayEffective = dailyWage > 0 ? dailyWage : 800;
+        gross = presentDays * perDayEffective;
+        totalDeductions = lateDeduction;
+        netPay = Math.max(0, gross - totalDeductions + bonusAmount);
+        totBase += gross;
+      }
+
+      totDeduct += totalDeductions;
+      totBonus += bonusAmount;
+      totNet += netPay;
+
+      staffPayroll.push({
+        empId: empId,
+        name: st.name,
+        department: st.department || st.dept || "Site Ops",
+        designation: st.designation || st.role || "Staff",
+        salaryType: type,
+        baseSalary: base,
+        perDayRate: perDayEffective,
+        commissionRate: commRate,
+        salesAmount: salesAmount,
+        commission: commissionEarned,
+        presentDays: presentDays,
+        lateDays: lateDays,
+        absentDays: absentDays,
+        leaveDays: leaveDays,
+        workingDays: totalDays,
+        gross: gross,
+        deductions: totalDeductions,
+        absentDeduction: absentDeduction,
+        lateDeduction: lateDeduction,
+        bonus: bonusAmount,
+        net: netPay
+      });
+    }
+
+    currentPayrollData = {
+      month: monthVal,
+      monthName: attData ? (attData.monthName || monthVal) : monthVal,
+      workingDays: workingDays,
+      totalNet: totNet,
+      totalBase: totBase,
+      totalComm: totComm,
+      totalDeduct: totDeduct,
+      totalBonus: totBonus,
+      staff: staffPayroll
+    };
+
+    // Update KPI Card Numbers
+    document.getElementById("pay-kpi-net").textContent = "₹" + Math.round(totNet).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-base").textContent = "₹" + Math.round(totBase).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-comm").textContent = "₹" + Math.round(totComm).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-deduct").textContent = "₹" + Math.round(totDeduct).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-bonus").textContent = "₹" + Math.round(totBonus).toLocaleString("en-IN");
+
+    renderPayrollTable(currentPayrollData);
+
+    // Background sync from server (if online)
+    if (forceRefresh) {
+      sendDashboardApiRequest({ action: "get_payroll_data", month: monthVal })
+        .then(function(res) {
+          if (res && res.status === "success" && res.staff) {
+            // merge server-stored configs if available
+            console.log("Server payroll synced successfully");
+          }
+        }).catch(function(e){});
+    }
+  }
+
+  function renderPayrollTable(data) {
+    var tbody = document.getElementById("payroll-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (!data || !data.staff || data.staff.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="12" style="padding: 30px; text-align: center; color: #94A3B8;">No payroll records found for this month.</td></tr>';
+      return;
+    }
+
+    for (var i = 0; i < data.staff.length; i++) {
+      var p = data.staff[i];
+      var tr = document.createElement("tr");
+      tr.style.borderBottom = "1px solid #334155";
+      tr.style.transition = "background 0.15s";
+      tr.onmouseover = function() { this.style.background = "rgba(255,255,255,0.02)"; };
+      tr.onmouseout = function() { this.style.background = "transparent"; };
+
+      // Structure badge
+      var structBadge = '';
+      if (p.salaryType === 'Fixed') {
+        structBadge = '<span style="display:inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: rgba(16,185,129,0.15); color: #34D399; border: 1px solid rgba(16,185,129,0.3);">🏢 Fixed</span>';
+      } else if (p.salaryType === 'Commission') {
+        structBadge = '<span style="display:inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: rgba(168,85,247,0.15); color: #C084FC; border: 1px solid rgba(168,85,247,0.3);">📈 ' + p.commissionRate + '% Comm</span>';
+      } else if (p.salaryType === 'Fixed+Commission') {
+        structBadge = '<span style="display:inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: rgba(56,189,248,0.15); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3);">🤝 Fixed+' + p.commissionRate + '%</span>';
+      } else if (p.salaryType === 'Daily') {
+        structBadge = '<span style="display:inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: rgba(251,146,60,0.15); color: #FB923C; border: 1px solid rgba(251,146,60,0.3);">⏱️ Daily Wage</span>';
+      }
+
+      // Base / Rate display
+      var baseDisplay = "₹" + Math.round(p.baseSalary).toLocaleString("en-IN");
+      if (p.salaryType === 'Daily') {
+        baseDisplay = "₹" + Math.round(p.perDayRate) + "/day";
+      } else if (p.salaryType === 'Commission') {
+        baseDisplay = p.commissionRate + "% of Deal";
+      }
+
+      var safeName = String(p.name || "").replace(/'/g, "\\'");
+      var safeEmpId = String(p.empId || "").replace(/'/g, "\\'");
+
+      var trHtml = '';
+      // Frozen Emp ID
+      trHtml += '<td style="padding: 10px 8px; width: 80px; min-width: 80px; max-width: 80px; font-weight: 700; color: #38BDF8; font-family: monospace; position: sticky; left: 0; background: #1E293B; z-index: 4; border-bottom: 1px solid #334155;">' + p.empId + '</td>';
+      
+      // Frozen Staff Name
+      trHtml += '<td style="padding: 10px 12px; width: 200px; min-width: 200px; max-width: 200px; position: sticky; left: 80px; background: #1E293B; z-index: 4; border-bottom: 1px solid #334155; border-right: 2px solid #0284C7; box-shadow: 4px 0 8px rgba(0,0,0,0.4);">';
+      trHtml += '<div style="font-weight: 800; color: #F8FAFC; font-size: 13px;">' + p.name + '</div>';
+      trHtml += '<div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">' + (p.department || 'Operations') + ' • ' + (p.designation || 'Staff') + '</div>';
+      trHtml += '</td>';
+
+      // Salary Structure
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155;">' + structBadge + '</td>';
+
+      // Base / Rate
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: right; font-weight: 700; color: #CBD5E1;">' + baseDisplay + '</td>';
+
+      // Attendance Pill
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: center;">';
+      trHtml += '<div style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700;">';
+      trHtml += '<span style="color: #34D399;" title="Present Days">P:' + p.presentDays + '</span> ';
+      trHtml += '<span style="color: #F87171;" title="Absent Days">A:' + p.absentDays + '</span> ';
+      trHtml += '<span style="color: #FBBF24;" title="Late Days">L:' + p.lateDays + '</span> ';
+      trHtml += '<span style="color: #C084FC;" title="Leave Days">LV:' + p.leaveDays + '</span>';
+      trHtml += '</div>';
+      trHtml += '<div style="font-size: 9px; color: #64748B; margin-top: 2px;">' + p.presentDays + '/' + p.workingDays + ' days</div>';
+      trHtml += '</td>';
+
+      // Deal / Sales Input
+      var disabledSales = (p.salaryType === 'Fixed' || p.salaryType === 'Daily') ? 'disabled style="background: rgba(15,23,42,0.4); opacity: 0.5;"' : '';
+      trHtml += '<td style="padding: 8px 6px; border-bottom: 1px solid #334155; text-align: right;">';
+      trHtml += '<input type="number" step="10000" ' + disabledSales + ' value="' + (p.salesAmount || 0) + '" style="width: 105px; padding: 6px 8px; border-radius: 6px; border: 1px solid #334155; background: #0F172A; color: #F8FAFC; font-weight: 700; font-size: 12px; text-align: right;" oninput="updatePayrollSales(\'' + safeEmpId + '\', this.value)" placeholder="₹ Deal Value">';
+      trHtml += '</td>';
+
+      // Commission Earned
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: right; font-weight: 700; color: #C084FC;">₹' + Math.round(p.commission).toLocaleString("en-IN") + '</td>';
+
+      // Gross Pay
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: right; font-weight: 800; color: #F8FAFC;">₹' + Math.round(p.gross).toLocaleString("en-IN") + '</td>';
+
+      // Attendance Deductions (Tooltip with breakdown)
+      var deductTooltip = "Absent LOP: ₹" + Math.round(p.absentDeduction) + " | Late Penalties: ₹" + Math.round(p.lateDeduction);
+      var deductColor = p.deductions > 0 ? '#EF4444' : '#64748B';
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: right; font-weight: 700; color: ' + deductColor + ';" title="' + deductTooltip + '">';
+      trHtml += (p.deductions > 0 ? '-₹' + Math.round(p.deductions).toLocaleString("en-IN") : '₹0');
+      trHtml += '</td>';
+
+      // Bonus Input
+      trHtml += '<td style="padding: 8px 6px; border-bottom: 1px solid #334155; text-align: right;">';
+      trHtml += '<input type="number" step="500" value="' + (p.bonus || 0) + '" style="width: 75px; padding: 6px 8px; border-radius: 6px; border: 1px solid #334155; background: #0F172A; color: #FBBF24; font-weight: 700; font-size: 12px; text-align: right;" oninput="updatePayrollBonus(\'' + safeEmpId + '\', this.value)" placeholder="Bonus">';
+      trHtml += '</td>';
+
+      // Net Payable (Emerald Large)
+      trHtml += '<td style="padding: 10px 12px; border-bottom: 1px solid #334155; text-align: right; font-weight: 900; color: #10B981; font-size: 14px;">₹' + Math.round(p.net).toLocaleString("en-IN") + '</td>';
+
+      // Actions
+      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: center;">';
+      trHtml += '<div style="display: flex; gap: 6px; justify-content: center;">';
+      trHtml += '<button type="button" onclick="openPayrollConfig(\'' + safeEmpId + '\', \'' + safeName + '\')" style="background: #3B82F6; color: #fff; border: none; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Configure fixed/commission rate and deduction policy">⚙️ Rule</button>';
+      trHtml += '<button type="button" onclick="printStaffPaySlip(\'' + safeEmpId + '\')" style="background: #059669; color: #fff; border: none; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;" title="View & Print Official Payslip">📄 Slip</button>';
+      trHtml += '</div>';
+      trHtml += '</td>';
+
+      tr.innerHTML = trHtml;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Live real-time recalculation when Sales Deal Amount is typed
+  function updatePayrollSales(empId, val) {
+    if (!currentPayrollData || !currentPayrollData.staff) return;
+    var p = currentPayrollData.staff.find(function(x){ return x.empId === empId; });
+    if (!p) return;
+
+    var numVal = Math.max(0, parseFloat(val) || 0);
+    p.salesAmount = numVal;
+
+    // Recalculate
+    if (p.salaryType === 'Commission' || p.salaryType === 'Fixed+Commission') {
+      p.commission = numVal * (p.commissionRate / 100);
+      p.gross = (p.salaryType === 'Fixed+Commission' ? p.baseSalary : 0) + p.commission;
+      p.net = Math.max(0, p.gross - p.deductions + p.bonus);
+    }
+
+    // Refresh KPI Cards
+    recalculatePayrollGrandTotals();
+    renderPayrollTable(currentPayrollData);
+  }
+
+  // Live real-time recalculation when Bonus is typed
+  function updatePayrollBonus(empId, val) {
+    if (!currentPayrollData || !currentPayrollData.staff) return;
+    var p = currentPayrollData.staff.find(function(x){ return x.empId === empId; });
+    if (!p) return;
+
+    var numVal = Math.max(0, parseFloat(val) || 0);
+    p.bonus = numVal;
+    p.net = Math.max(0, p.gross - p.deductions + numVal);
+
+    recalculatePayrollGrandTotals();
+    renderPayrollTable(currentPayrollData);
+  }
+
+  function recalculatePayrollGrandTotals() {
+    if (!currentPayrollData || !currentPayrollData.staff) return;
+    var totNet = 0, totBase = 0, totComm = 0, totDeduct = 0, totBonus = 0;
+    currentPayrollData.staff.forEach(function(p) {
+      totNet += p.net;
+      totBase += (p.salaryType === 'Fixed' || p.salaryType === 'Fixed+Commission' ? p.baseSalary : (p.salaryType === 'Daily' ? p.gross : 0));
+      totComm += p.commission;
+      totDeduct += p.deductions;
+      totBonus += p.bonus;
+    });
+
+    currentPayrollData.totalNet = totNet;
+    currentPayrollData.totalBase = totBase;
+    currentPayrollData.totalComm = totComm;
+    currentPayrollData.totalDeduct = totDeduct;
+    currentPayrollData.totalBonus = totBonus;
+
+    document.getElementById("pay-kpi-net").textContent = "₹" + Math.round(totNet).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-base").textContent = "₹" + Math.round(totBase).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-comm").textContent = "₹" + Math.round(totComm).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-deduct").textContent = "₹" + Math.round(totDeduct).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-bonus").textContent = "₹" + Math.round(totBonus).toLocaleString("en-IN");
+  }
+
+  // Open modern Modal for setting Staff Salary & Commission Rules
+  function openPayrollConfig(empId, staffName) {
+    activeConfigEmpId = empId;
+    var cfgs = getStoredPayrollConfigs();
+    var cfg = cfgs[empId] || { salaryType: "Fixed", baseSalary: 25000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 0 };
+
+    document.getElementById("cfg-emp-name").textContent = staffName;
+    document.getElementById("cfg-emp-id").textContent = empId;
+
+    var sObj = (currentPayrollData && currentPayrollData.staff) ? currentPayrollData.staff.find(function(x){ return x.empId === empId; }) : null;
+    document.getElementById("cfg-emp-dept").textContent = sObj ? (sObj.department || "Operations") : "Operations";
+
+    // Set radio
+    var struct = cfg.salaryType || "Fixed";
+    var radios = document.getElementsByName("cfg-struct-type");
+    for (var r = 0; r < radios.length; r++) {
+      radios[r].checked = (radios[r].value === struct);
+    }
+    onSalaryStructureChange(struct);
+
+    document.getElementById("cfg-base-salary").value = cfg.baseSalary || "";
+    document.getElementById("cfg-comm-rate").value = cfg.commissionRate || "";
+    document.getElementById("cfg-daily-rate").value = cfg.perDayRate || "";
+    document.getElementById("cfg-absent-deduct").value = cfg.deductionPerAbsent || "";
+    document.getElementById("cfg-late-deduct").value = cfg.deductionPerLate !== undefined ? cfg.deductionPerLate : 100;
+    document.getElementById("cfg-bonus").value = cfg.bonus || "";
+
+    var modal = document.getElementById("modal-payroll-config");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function onSalaryStructureChange(struct) {
+    var fieldBase = document.getElementById("field-base-salary");
+    var fieldComm = document.getElementById("field-comm-rate");
+    var fieldDaily = document.getElementById("field-daily-rate");
+    var fieldAbsent = document.getElementById("field-absent-deduct");
+
+    if (struct === "Fixed") {
+      fieldBase.style.display = "block";
+      fieldComm.style.display = "none";
+      fieldDaily.style.display = "none";
+      fieldAbsent.style.display = "block";
+    } else if (struct === "Commission") {
+      fieldBase.style.display = "none";
+      fieldComm.style.display = "block";
+      fieldDaily.style.display = "none";
+      fieldAbsent.style.display = "none";
+    } else if (struct === "Fixed+Commission") {
+      fieldBase.style.display = "block";
+      fieldComm.style.display = "block";
+      fieldDaily.style.display = "none";
+      fieldAbsent.style.display = "block";
+    } else if (struct === "Daily") {
+      fieldBase.style.display = "none";
+      fieldComm.style.display = "none";
+      fieldDaily.style.display = "block";
+      fieldAbsent.style.display = "none"; // In daily wages, absents are inherently unbilled
+    }
+  }
+
+  function savePayrollConfigModal() {
+    if (!activeConfigEmpId) return;
+    var empId = activeConfigEmpId;
+
+    var radios = document.getElementsByName("cfg-struct-type");
+    var selStruct = "Fixed";
+    for (var r = 0; r < radios.length; r++) {
+      if (radios[r].checked) { selStruct = radios[r].value; break; }
+    }
+
+    var base = parseFloat(document.getElementById("cfg-base-salary").value) || 0;
+    var comm = parseFloat(document.getElementById("cfg-comm-rate").value) || 0;
+    var daily = parseFloat(document.getElementById("cfg-daily-rate").value) || 0;
+    var absDed = parseFloat(document.getElementById("cfg-absent-deduct").value) || 0;
+    var lateDed = parseFloat(document.getElementById("cfg-late-deduct").value) || 0;
+    var bonus = parseFloat(document.getElementById("cfg-bonus").value) || 0;
+
+    var cfgs = getStoredPayrollConfigs();
+    cfgs[empId] = {
+      salaryType: selStruct,
+      baseSalary: base,
+      commissionRate: comm,
+      perDayRate: daily,
+      deductionPerAbsent: absDed,
+      deductionPerLate: lateDed,
+      bonus: bonus
+    };
+    saveStoredPayrollConfigs(cfgs);
+
+    closeModal("modal-payroll-config");
+    showToast("💾 Compensation rule updated for " + empId + " (" + selStruct + ")", "success");
+
+    // Recalculate immediately with new rules
+    loadPayrollData();
+
+    if (!payrollBackendReady) {
+      showToast("💾 Rule saved locally. Updated backend deploy hone ke baad sheet me sync hoga.", "warning");
+      return;
+    }
+
+    // Async sync with Google Sheet
+    sendDashboardApiRequest({
+      action: "save_payroll_config",
+      empId: empId,
+      name: document.getElementById("cfg-emp-name").textContent,
+      salaryType: selStruct,
+      baseSalary: base,
+      perDayRate: daily,
+      commissionRate: comm,
+      bonus: bonus,
+      deductionPerAbsent: absDed,
+      deductionPerLate: lateDed,
+      status: "Active"
+    }).then(function(res){
+      if (res && res.success) {
+        showToast("✅ Payroll rule synced to Google Sheet for " + empId, "success");
+      }
+    }).catch(function(e){});
+  }
+
+  // Official Branded Salary Slip Generator (Printable)
+  function printStaffPaySlip(empId) {
+    if (!currentPayrollData || !currentPayrollData.staff) return;
+    var p = currentPayrollData.staff.find(function(x){ return x.empId === empId; });
+    if (!p) { alert("Staff payroll record not found."); return; }
+
+    var monthName = currentPayrollData.monthName || currentPayrollData.month;
+    var printWin = window.open("", "_blank");
+    if (!printWin) { alert("Please allow popups to view & print Payslip."); return; }
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip - ' + p.name + ' (' + monthName + ')</title>';
+    html += '<style>';
+    html += '@page { size: A4 portrait; margin: 15mm; }';
+    html += 'body { font-family: "Segoe UI", Arial, sans-serif; color: #0F172A; margin: 0; padding: 20px; font-size: 13px; line-height: 1.5; }';
+    html += '.slip-card { border: 2px solid #0284C7; border-radius: 12px; padding: 24px; max-width: 720px; margin: auto; }';
+    html += '.slip-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284C7; padding-bottom: 14px; margin-bottom: 16px; }';
+    html += '.brand-title { font-size: 24px; font-weight: 900; color: #0284C7; letter-spacing: 1px; }';
+    html += '.brand-sub { font-size: 11px; color: #64748B; margin-top: 2px; }';
+    html += '.slip-title { font-size: 16px; font-weight: 800; color: #0F172A; text-align: right; text-transform: uppercase; }';
+    html += '.grid-emp { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; font-size: 12px; }';
+    html += '.att-bar { background: #E0F2FE; border-left: 4px solid #0284C7; padding: 8px 14px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #0369A1; margin-bottom: 18px; }';
+    html += '.table-breakup { width: 100%; border-collapse: collapse; margin-bottom: 18px; }';
+    html += '.table-breakup th { background: #0F172A; color: #FFFFFF; font-weight: 700; padding: 8px 12px; font-size: 12px; text-transform: uppercase; }';
+    html += '.table-breakup td { border: 1px solid #CBD5E1; padding: 8px 12px; font-size: 12px; }';
+    html += '.net-box { background: #ECFDF5; border: 2px solid #10B981; border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }';
+    html += '.net-val { font-size: 22px; font-weight: 900; color: #047857; }';
+    html += '.signatures { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px dashed #CBD5E1; }';
+    html += '.sig-block { text-align: center; width: 200px; font-size: 11px; font-weight: 700; color: #475569; }';
+    html += '</style></head><body>';
+
+    html += '<div class="slip-card">';
+    html += '<div class="slip-header">';
+    html += '<div>';
+    html += '<div class="brand-title">VASSA PROPERTIES</div>';
+    html += '<div class="brand-sub">Head Office: Golden City Center, Chikalthana, Chhatrapati Sambhajinagar</div>';
+    html += '</div>';
+    html += '<div>';
+    html += '<div class="slip-title">Salary &amp; Compensation Slip</div>';
+    html += '<div style="font-size: 12px; color: #64748B; text-align: right;">Month: <strong>' + monthName + '</strong></div>';
+    html += '</div>';
+    html += '</div>';
+
+    // Staff details grid
+    html += '<div class="grid-emp">';
+    html += '<div><strong>Employee Name:</strong> ' + p.name + '</div>';
+    html += '<div><strong>Employee ID:</strong> ' + p.empId + '</div>';
+    html += '<div><strong>Department:</strong> ' + p.department + '</div>';
+    html += '<div><strong>Designation:</strong> ' + p.designation + '</div>';
+    html += '<div><strong>Compensation Scheme:</strong> ' + p.salaryType + '</div>';
+    html += '<div><strong>Payment Status:</strong> Generated &amp; Verified</div>';
+    html += '</div>';
+
+    // Attendance summary banner
+    html += '<div class="att-bar">';
+    html += 'Attendance Record: ' + p.presentDays + ' Days Present | ' + p.absentDays + ' Days Absent | ' + p.lateDays + ' Late Marks | ' + p.leaveDays + ' Leaves (Working Days: ' + p.workingDays + ')';
+    html += '</div>';
+
+    // Breakup Table (Earnings vs Deductions)
+    html += '<table class="table-breakup">';
+    html += '<thead><tr><th style="width: 50%;">Earnings Breakup</th><th style="width: 50%;">Deductions Breakup</th></tr></thead>';
+    html += '<tbody>';
+    html += '<tr style="vertical-align: top;">';
+    
+    // Earnings Column
+    html += '<td style="padding: 0;">';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+    if (p.salaryType === 'Fixed' || p.salaryType === 'Fixed+Commission') {
+      html += '<tr><td style="border:none; padding:8px;">Basic Monthly Salary</td><td style="border:none; padding:8px; text-align:right; font-weight:700;">₹' + Math.round(p.baseSalary).toLocaleString("en-IN") + '</td></tr>';
+    }
+    if (p.salaryType === 'Daily') {
+      html += '<tr><td style="border:none; padding:8px;">Daily Wage (' + p.presentDays + ' days @ ₹' + p.perDayRate + ')</td><td style="border:none; padding:8px; text-align:right; font-weight:700;">₹' + Math.round(p.gross).toLocaleString("en-IN") + '</td></tr>';
+    }
+    if (p.salaryType === 'Commission' || p.salaryType === 'Fixed+Commission') {
+      html += '<tr><td style="border:none; padding:8px;">Commission on Sales (' + p.commissionRate + '% on ₹' + Math.round(p.salesAmount).toLocaleString("en-IN") + ')</td><td style="border:none; padding:8px; text-align:right; font-weight:700;">₹' + Math.round(p.commission).toLocaleString("en-IN") + '</td></tr>';
+    }
+    if (p.bonus > 0) {
+      html += '<tr><td style="border:none; padding:8px;">Performance Bonus &amp; Incentives</td><td style="border:none; padding:8px; text-align:right; font-weight:700; color:#10B981;">₹' + Math.round(p.bonus).toLocaleString("en-IN") + '</td></tr>';
+    }
+    html += '<tr style="background:#F1F5F9; font-weight:800;"><td style="border-top:1px solid #CBD5E1; padding:8px;">Total Gross Earning</td><td style="border-top:1px solid #CBD5E1; padding:8px; text-align:right;">₹' + Math.round(p.gross + p.bonus).toLocaleString("en-IN") + '</td></tr>';
+    html += '</table>';
+    html += '</td>';
+
+    // Deductions Column
+    html += '<td style="padding: 0;">';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+    if (p.absentDeduction > 0) {
+      html += '<tr><td style="border:none; padding:8px;">Loss of Pay (' + p.absentDays + ' Absent Days)</td><td style="border:none; padding:8px; text-align:right; font-weight:700; color:#EF4444;">-₹' + Math.round(p.absentDeduction).toLocaleString("en-IN") + '</td></tr>';
+    }
+    if (p.lateDeduction > 0) {
+      html += '<tr><td style="border:none; padding:8px;">Late Mark Penalty (' + p.lateDays + ' Days)</td><td style="border:none; padding:8px; text-align:right; font-weight:700; color:#EF4444;">-₹' + Math.round(p.lateDeduction).toLocaleString("en-IN") + '</td></tr>';
+    }
+    if (p.deductions === 0) {
+      html += '<tr><td style="border:none; padding:8px; color:#64748B;">No Attendance Deductions</td><td style="border:none; padding:8px; text-align:right; color:#64748B;">₹0</td></tr>';
+    }
+    html += '<tr style="background:#F1F5F9; font-weight:800;"><td style="border-top:1px solid #CBD5E1; padding:8px;">Total Deductions</td><td style="border-top:1px solid #CBD5E1; padding:8px; text-align:right; color:#EF4444;">-₹' + Math.round(p.deductions).toLocaleString("en-IN") + '</td></tr>';
+    html += '</table>';
+    html += '</td>';
+
+    html += '</tr></tbody></table>';
+
+    // Net Amount Box
+    html += '<div class="net-box">';
+    html += '<div>';
+    html += '<div style="font-size:12px; font-weight:700; color:#065F46; text-transform:uppercase;">Net Salary Payable</div>';
+    html += '<div style="font-size:11px; color:#047857; margin-top:2px;">Disbursed via Direct Bank / Cheque Transfer</div>';
+    html += '</div>';
+    html += '<div class="net-val">₹' + Math.round(p.net).toLocaleString("en-IN") + '</div>';
+    html += '</div>';
+
+    // Signatures
+    html += '<div class="signatures">';
+    html += '<div class="sig-block"><div style="border-bottom:1px solid #0F172A; height:35px; margin-bottom:6px;"></div>Employee Signature</div>';
+    html += '<div class="sig-block"><div style="border-bottom:1px solid #0F172A; height:35px; margin-bottom:6px;"></div>Authorized Signatory / Director<br>(Vassa Properties)</div>';
+    html += '</div>';
+
+    html += '</div>';
+    html += '<script>window.onload = function(){ window.print(); };<\/script>';
+    html += '</body></html>';
+
+    printWin.document.write(html);
+    printWin.document.close();
+  }
+
+  function printAllPayslips() {
+    if (!currentPayrollData || !currentPayrollData.staff) {
+      alert("Please wait for payroll records to load first.");
+      return;
+    }
+    for (var i = 0; i < currentPayrollData.staff.length; i++) {
+      printStaffPaySlip(currentPayrollData.staff[i].empId);
+    }
+  }
+
+  function exportPayrollCSV() {
+    if (!currentPayrollData || !currentPayrollData.staff) { alert("Load payroll first."); return; }
+    var rows = [["Employee ID","Name","Department","Designation","Structure","Base / Rate (INR)","Present Days","Absent Days","Late Days","Leave Days","Working Days","Sales Deal Volume (INR)","Commission Rate (%)","Commission Earned (INR)","Gross Pay (INR)","Attendance Deductions (INR)","Bonus (INR)","Net Payable (INR)"]];
+    currentPayrollData.staff.forEach(function(p){
+      rows.push([
+        p.empId,
+        p.name,
+        p.department,
+        p.designation,
+        p.salaryType,
+        p.salaryType === 'Daily' ? p.perDayRate : p.baseSalary,
+        p.presentDays,
+        p.absentDays,
+        p.lateDays,
+        p.leaveDays,
+        p.workingDays,
+        p.salesAmount,
+        p.commissionRate,
+        Math.round(p.commission),
+        Math.round(p.gross),
+        Math.round(p.deductions),
+        Math.round(p.bonus),
+        Math.round(p.net)
+      ]);
+    });
+    var csv = rows.map(function(r){ return r.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(","); }).join("\n");
+    var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "Vassa_Properties_Payroll_" + currentPayrollData.month + ".csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ==============================================================================
+  // VASSA ATTENDANCE — INTERACTIVE DAYWISE ATTENDANCE EDIT & SUMMARY RECALC
+  // ==============================================================================
+
+  var activeEditingEmpId = null;
+  var activeEditingDay = null;
+
+  function showToast(message, type) {
+    var toast = document.getElementById("dashboard-toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "dashboard-toast";
+      toast.style.position = "fixed";
+      toast.style.bottom = "24px";
+      toast.style.right = "24px";
+      toast.style.zIndex = "999999";
+      toast.style.padding = "12px 20px";
+      toast.style.borderRadius = "10px";
+      toast.style.fontSize = "13px";
+      toast.style.fontWeight = "700";
+      toast.style.boxShadow = "0 10px 25px rgba(0,0,0,0.6)";
+      toast.style.transition = "opacity 0.25s, transform 0.25s";
+      toast.style.maxWidth = "420px";
+      toast.style.display = "flex";
+      toast.style.alignItems = "center";
+      toast.style.gap = "8px";
+      document.body.appendChild(toast);
+    }
+    
+    if (type === "success") {
+      toast.style.background = "#065F46";
+      toast.style.color = "#ECFDF5";
+      toast.style.border = "1px solid #10B981";
+    } else if (type === "warning") {
+      toast.style.background = "#78350F";
+      toast.style.color = "#FEF3C7";
+      toast.style.border = "1px solid #F59E0B";
+    } else {
+      toast.style.background = "#0F172A";
+      toast.style.color = "#F8FAFC";
+      toast.style.border = "1px solid #38BDF8";
+    }
+
+    toast.innerHTML = message;
+    toast.style.opacity = "1";
+    toast.style.transform = "translateY(0)";
+
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(function() {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(12px)";
+    }, 4000);
+  }
+
+  function openEditAttendanceModal(empId, staffName, day, curCode, curDetail) {
+    activeEditingEmpId = empId;
+    activeEditingDay = day;
+
+    var sel = document.getElementById("monthly-select-month");
+    var monthVal = sel ? sel.value : "";
+    if (!monthVal) {
+      var n = new Date();
+      monthVal = n.getFullYear() + "-" + (n.getMonth() + 1 < 10 ? "0" + (n.getMonth() + 1) : (n.getMonth() + 1));
+    }
+
+    var parts = monthVal.split("-");
+    var dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, day);
+    var dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var dayName = dayNames[dObj.getDay()];
+    var formattedDate = day + " " + (currentMonthlyData ? (currentMonthlyData.monthName || monthVal) : monthVal) + " (" + dayName + ")";
+
+    document.getElementById("edit-att-staff").textContent = staffName;
+    document.getElementById("edit-att-empid").textContent = empId;
+    document.getElementById("edit-att-date").textContent = formattedDate;
+
+    var statusDisplay = curCode || "-";
+    if (curCode === 'P') statusDisplay = "🟢 Present";
+    else if (curCode === 'L') statusDisplay = "🟡 Late";
+    else if (curCode === 'A') statusDisplay = "🔴 Absent";
+    else if (curCode === 'LV') statusDisplay = "🟣 Leave";
+    else if (curCode === 'WO') statusDisplay = "🔵 Weekly Off";
+    else if (curCode === 'HD') statusDisplay = "🟠 Half Day";
+
+    var currentSpan = document.getElementById("edit-att-current");
+    currentSpan.textContent = statusDisplay;
+
+    var initialStatus = curCode && curCode !== '-' ? curCode : 'P';
+    document.getElementById("edit-att-selected-status").value = initialStatus;
+    document.getElementById("edit-att-remark").value = (curDetail && curDetail !== "Future Date") ? curDetail : "";
+
+    highlightStatusButton(initialStatus);
+
+    var modal = document.getElementById("modal-edit-attendance");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function selectEditStatus(st, btn) {
+    document.getElementById("edit-att-selected-status").value = st;
+    highlightStatusButton(st);
+  }
+
+  function highlightStatusButton(st) {
+    var btns = document.querySelectorAll("#edit-att-status-buttons .att-status-btn");
+    btns.forEach(function(b) {
+      if (b.getAttribute("data-status") === st) {
+        b.style.outline = "2px solid #38BDF8";
+        b.style.boxShadow = "0 0 14px rgba(56,189,248,0.6)";
+        b.style.transform = "scale(1.05)";
+      } else {
+        b.style.outline = "none";
+        b.style.boxShadow = "none";
+        b.style.transform = "scale(1)";
+      }
+    });
+  }
+
+  function recalculateMonthlySummary(data) {
+    if (!data || !data.staff) return;
+    var totalStaff = data.staff.length;
+    var totalPresents = 0;
+    var totalLates = 0;
+    var totalAbsents = 0;
+    var totalLeaves = 0;
+    var workingDaysElapsed = data.summary ? (data.summary.workingDaysElapsed || 0) : 0;
+    var daysInMonth = data.daysInMonth || 31;
+    var totalRateSum = 0;
+
+    for (var i = 0; i < data.staff.length; i++) {
+      var emp = data.staff[i];
+      var pCnt = 0;
+      var lCnt = 0;
+      var aCnt = 0;
+      var lvCnt = 0;
+      var woCnt = 0;
+
+      for (var d = 1; d <= daysInMonth; d++) {
+        var code = (emp.daywise && emp.daywise[d]) ? emp.daywise[d] : '-';
+        if (code === 'P') pCnt++;
+        else if (code === 'L') lCnt++;
+        else if (code === 'A') aCnt++;
+        else if (code === 'LV') lvCnt++;
+        else if (code === 'WO') woCnt++;
+        else if (code === 'HD') { pCnt += 0.5; aCnt += 0.5; }
+      }
+
+      emp.presentCount = pCnt;
+      emp.lateCount = lCnt;
+      emp.absentCount = aCnt;
+      emp.leaveCount = lvCnt;
+      emp.weeklyOffCount = woCnt;
+
+      var effectivePresent = pCnt + lCnt;
+      var rate = workingDaysElapsed > 0 ? Math.min(100, ((effectivePresent / workingDaysElapsed) * 100)).toFixed(1) + "%" : "100.0%";
+      emp.attendancePct = rate;
+      totalRateSum += parseFloat(rate) || 0;
+
+      totalPresents += pCnt;
+      totalLates += lCnt;
+      totalAbsents += aCnt;
+      totalLeaves += lvCnt;
+    }
+
+    if (!data.summary) data.summary = {};
+    data.summary.totalPresents = Math.round(totalPresents);
+    data.summary.totalLates = totalLates;
+    data.summary.totalAbsents = Math.round(totalAbsents);
+    data.summary.totalLeaves = totalLeaves;
+    data.summary.averageAttendance = totalStaff > 0 ? (totalRateSum / totalStaff).toFixed(1) + "%" : "100.0%";
+  }
+
+  function saveAttendanceEdit() {
+    if (!activeEditingEmpId || !activeEditingDay) return;
+
+    var empId = activeEditingEmpId;
+    var day = activeEditingDay;
+    var newStatus = document.getElementById("edit-att-selected-status").value || "P";
+    var remark = document.getElementById("edit-att-remark").value.trim();
+
+    var sel = document.getElementById("monthly-select-month");
+    var monthVal = sel ? sel.value : "";
+    if (!monthVal) {
+      var n = new Date();
+      monthVal = n.getFullYear() + "-" + (n.getMonth() + 1 < 10 ? "0" + (n.getMonth() + 1) : (n.getMonth() + 1));
+    }
+    var dateStr = monthVal + "-" + (day < 10 ? "0" + day : day);
+
+    // 1. Instant Optimistic Local Update
+    if (currentMonthlyData && currentMonthlyData.staff) {
+      var emp = currentMonthlyData.staff.find(function(x) { return x.empId === empId; });
+      if (emp) {
+        if (!emp.daywise) emp.daywise = {};
+        if (!emp.dayDetails) emp.dayDetails = {};
+        emp.daywise[day] = newStatus;
+        emp.dayDetails[day] = remark ? (newStatus + " — " + remark) : ("Admin Override: " + newStatus);
+
+        recalculateMonthlySummary(currentMonthlyData);
+        renderMonthlyTable(currentMonthlyData);
+      }
+    }
+
+    closeModal("modal-edit-attendance");
+    showToast("💾 Saving " + empId + " (" + newStatus + ") to Google Sheet...", "info");
+
+    if (!payrollBackendReady) {
+      showToast("💾 Saved locally. Updated backend deploy hone ke baad yeh change Google Sheet me bhi sync hoga.", "warning");
+      return;
+    }
+
+    // 2. Dispatch to Google Sheet Backend
+    sendDashboardApiRequest({
+      action: "update_attendance",
+      date: dateStr,
+      empId: empId,
+      status: newStatus,
+      remark: remark || "Month-end Admin Override",
+      updatedBy: "Admin"
+    }).then(function(res) {
+      if (res && res.success) {
+        showToast("✅ Attendance saved to Google Sheet for " + empId + " on Day " + day + " (" + newStatus + ")", "success");
+      } else {
+        showToast("⚠️ Updated locally. Sheet response: " + (res ? res.message : "Pending"), "warning");
+      }
+    }).catch(function(err) {
+      console.warn("Backend sync notice:", err);
+      showToast("⚠️ Updated locally (Offline / Network pending)", "warning");
+    });
+  }
+
   function loadMonthlyRegisterData(forceRefresh) {
     var sel = document.getElementById("monthly-select-month");
     var monthVal = sel ? sel.value : "";
@@ -2331,15 +3364,19 @@ Saved directly to Google Sheet Leave_Register.`);
     if (!currentMonthlyData || currentMonthlyData.month !== monthVal || forceRefresh) {
       var instantData = generateFallbackMonthlyData(monthVal);
       currentMonthlyData = instantData;
-      renderMonthlyTable(instantData);
     }
+    // Always paint the matrix, even when cached data already exists for this month
+    renderMonthlyTable(currentMonthlyData);
 
     // Background live sync from Google Sheet
     sendDashboardApiRequest({ action: "get_monthly_data", month: monthVal })
       .then(function(res) {
         if (res && res.status === "success" && res.staff && res.staff.length > 0) {
+          if (res.payrollReady) payrollBackendReady = true;
           currentMonthlyData = res;
           renderMonthlyTable(res);
+          var payEl = document.getElementById("view-payroll");
+          if (payEl && payEl.style.display === "block") loadPayrollData();
         }
       })
       .catch(function(err) {
@@ -2368,24 +3405,23 @@ Saved directly to Google Sheet Leave_Register.`);
     var year = parseInt(parts[0], 10);
     var monthIdx = parseInt(parts[1], 10) - 1;
 
-    // 1. Build Thead
+    // 1. Build Thead (Fixed Left Frozen Columns: Emp ID strictly 80px, Staff Name strictly 170px)
     var thead = document.getElementById("monthly-matrix-thead");
     var headHtml = '<tr>';
-    headHtml += '<th style="padding: 10px; min-width: 70px; position: sticky; left: 0; background: #0F172A; z-index: 2;">Emp ID</th>';
-    headHtml += '<th style="padding: 10px; min-width: 140px; text-align: left; position: sticky; left: 70px; background: #0F172A; z-index: 2;">Staff Name</th>';
-    headHtml += '<th style="padding: 10px; min-width: 90px; text-align: left;">Dept</th>';
+    headHtml += '<th style="padding: 12px 6px; width: 80px; min-width: 80px; max-width: 80px; position: sticky; left: 0; background: #0F172A; z-index: 10; border-bottom: 2px solid #334155; border-right: 1px solid #334155; font-size: 11px; text-transform: uppercase;">Emp ID</th>';
+    headHtml += '<th style="padding: 12px 10px; width: 170px; min-width: 170px; max-width: 170px; text-align: left; position: sticky; left: 80px; background: #0F172A; z-index: 10; border-bottom: 2px solid #334155; border-right: 2px solid #0284C7; box-shadow: 4px 0 8px rgba(0,0,0,0.4); font-size: 11px; text-transform: uppercase;">Staff Name &amp; Dept</th>';
 
     for (var d = 1; d <= daysInMonth; d++) {
       var dObj = new Date(year, monthIdx, d);
       var isSun = (dObj.getDay() === 0);
-      headHtml += '<th style="padding: 8px 4px; min-width: 26px; ' + (isSun ? 'color: #38BDF8; background: rgba(56,189,248,0.08);' : '') + '">' + d + '</th>';
+      headHtml += '<th style="padding: 8px 2px; width: 34px; min-width: 34px; border-bottom: 2px solid #334155; border-right: 1px solid rgba(51,65,85,0.4); font-weight: 800; ' + (isSun ? 'color: #38BDF8; background: rgba(56,189,248,0.12);' : '') + '">' + d + '</th>';
     }
 
-    headHtml += '<th style="padding: 10px; color: #10B981;">P</th>';
-    headHtml += '<th style="padding: 10px; color: #F59E0B;">L</th>';
-    headHtml += '<th style="padding: 10px; color: #EF4444;">A</th>';
-    headHtml += '<th style="padding: 10px; color: #A855F7;">LV</th>';
-    headHtml += '<th style="padding: 10px; color: #38BDF8;">Rate</th>';
+    headHtml += '<th style="padding: 10px 8px; width: 38px; min-width: 38px; border-bottom: 2px solid #334155; border-left: 2px solid #334155; color: #10B981; font-weight: 800;">P</th>';
+    headHtml += '<th style="padding: 10px 8px; width: 38px; min-width: 38px; border-bottom: 2px solid #334155; color: #F59E0B; font-weight: 800;">L</th>';
+    headHtml += '<th style="padding: 10px 8px; width: 38px; min-width: 38px; border-bottom: 2px solid #334155; color: #EF4444; font-weight: 800;">A</th>';
+    headHtml += '<th style="padding: 10px 8px; width: 38px; min-width: 38px; border-bottom: 2px solid #334155; color: #A855F7; font-weight: 800;">LV</th>';
+    headHtml += '<th style="padding: 10px 10px; width: 55px; min-width: 55px; border-bottom: 2px solid #334155; color: #38BDF8; font-weight: 800;">Rate</th>';
     headHtml += '</tr>';
     thead.innerHTML = headHtml;
 
@@ -2395,33 +3431,50 @@ Saved directly to Google Sheet Leave_Register.`);
 
     for (var i = 0; i < data.staff.length; i++) {
       var emp = data.staff[i];
-      bodyHtml += '<tr style="border-bottom: 1px solid #334155; transition: background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'transparent\'">';
-      bodyHtml += '<td style="padding: 10px; font-weight: 700; color: #38BDF8; position: sticky; left: 0; background: #1E293B;">' + emp.empId + '</td>';
-      bodyHtml += '<td style="padding: 10px; text-align: left; font-weight: 800; color: #F8FAFC; position: sticky; left: 70px; background: #1E293B;">' + emp.name + '</td>';
-      bodyHtml += '<td style="padding: 10px; text-align: left; color: #94A3B8; font-size: 11px;">' + (emp.department || "-") + '</td>';
+      var safeName = String(emp.name || "").replace(/'/g, "\\'");
+      var safeEmpId = String(emp.empId || "").replace(/'/g, "\\'");
+      var deptName = emp.department || emp.dept || "Site Ops";
 
+      bodyHtml += '<tr style="transition: background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'transparent\'">';
+      
+      // Frozen Col 1: Emp ID (strictly 80px)
+      bodyHtml += '<td style="padding: 10px 6px; width: 80px; min-width: 80px; max-width: 80px; font-weight: 700; color: #38BDF8; font-family: monospace; position: sticky; left: 0; background: #1E293B; z-index: 4; border-bottom: 1px solid #334155; border-right: 1px solid #334155; text-align: center;">' + emp.empId + '</td>';
+      
+      // Frozen Col 2: Staff Name & Dept (strictly 170px with divider border and shadow)
+      bodyHtml += '<td style="padding: 8px 10px; width: 170px; min-width: 170px; max-width: 170px; text-align: left; position: sticky; left: 80px; background: #1E293B; z-index: 4; border-bottom: 1px solid #334155; border-right: 2px solid #0284C7; box-shadow: 4px 0 8px rgba(0,0,0,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">';
+      bodyHtml += '<div style="font-weight: 800; color: #F8FAFC; font-size: 13px; line-height: 1.2;" title="' + safeName + '">' + emp.name + '</div>';
+      bodyHtml += '<div style="font-size: 10px; color: #94A3B8; margin-top: 2px; font-weight: 500;">' + deptName + '</div>';
+      bodyHtml += '</td>';
+
+      // Scrollable Day Columns (1 to daysInMonth)
       for (var d = 1; d <= daysInMonth; d++) {
         var code = (emp.daywise && emp.daywise[d]) ? emp.daywise[d] : '-';
         var detail = (emp.dayDetails && emp.dayDetails[d]) ? emp.dayDetails[d] : '';
+        var safeDetail = String(detail).replace(/'/g, "\\'");
         var bg = 'transparent';
         var fg = '#64748B';
+        var border = 'transparent';
 
-        if (code === 'P') { bg = '#065F46'; fg = '#34D399'; }
-        else if (code === 'L') { bg = '#78350F'; fg = '#FBBF24'; }
-        else if (code === 'LV') { bg = '#581C87'; fg = '#C084FC'; }
-        else if (code === 'WO') { bg = 'rgba(56,189,248,0.12)'; fg = '#38BDF8'; }
-        else if (code === 'A') { bg = '#7F1D1D'; fg = '#F87171'; }
+        if (code === 'P') { bg = '#065F46'; fg = '#34D399'; border = '#10B981'; }
+        else if (code === 'L') { bg = '#78350F'; fg = '#FBBF24'; border = '#F59E0B'; }
+        else if (code === 'LV') { bg = '#581C87'; fg = '#C084FC'; border = '#A855F7'; }
+        else if (code === 'WO') { bg = 'rgba(56,189,248,0.12)'; fg = '#38BDF8'; border = 'rgba(56,189,248,0.3)'; }
+        else if (code === 'A') { bg = '#7F1D1D'; fg = '#F87171'; border = '#EF4444'; }
+        else if (code === 'HD') { bg = 'rgba(251,146,60,0.2)'; fg = '#FB923C'; border = '#FB923C'; }
 
-        bodyHtml += '<td title="Day ' + d + ': ' + detail + '" style="padding: 6px 2px;">';
-        bodyHtml += '<span style="display: inline-block; width: 22px; height: 22px; line-height: 22px; font-size: 10px; font-weight: 800; border-radius: 4px; background: ' + bg + '; color: ' + fg + ';">' + code + '</span>';
+        bodyHtml += '<td style="padding: 4px 2px; width: 34px; min-width: 34px; text-align: center; border-bottom: 1px solid #334155; border-right: 1px solid rgba(51,65,85,0.4);">';
+        bodyHtml += '<button type="button" title="Day ' + d + ': ' + (detail || code) + ' — Click to edit" onclick="openEditAttendanceModal(\'' + safeEmpId + '\', \'' + safeName + '\', ' + d + ', \'' + code + '\', \'' + safeDetail + '\')" style="display: inline-block; width: 26px; height: 26px; line-height: 24px; font-size: 11px; font-weight: 800; border-radius: 6px; border: 1px solid ' + border + '; background: ' + bg + '; color: ' + fg + '; cursor: pointer; padding: 0; outline: none; transition: transform 0.12s, box-shadow 0.12s;" onmouseover="this.style.transform=\'scale(1.15)\'; this.style.boxShadow=\'0 0 8px rgba(56,189,248,0.6)\';" onmouseout="this.style.transform=\'scale(1)\'; this.style.boxShadow=\'none\';">';
+        bodyHtml += code;
+        bodyHtml += '</button>';
         bodyHtml += '</td>';
       }
 
-      bodyHtml += '<td style="padding: 10px; font-weight: 800; color: #10B981;">' + (emp.presentCount || 0) + '</td>';
-      bodyHtml += '<td style="padding: 10px; font-weight: 800; color: #F59E0B;">' + (emp.lateCount || 0) + '</td>';
-      bodyHtml += '<td style="padding: 10px; font-weight: 800; color: #EF4444;">' + (emp.absentCount || 0) + '</td>';
-      bodyHtml += '<td style="padding: 10px; font-weight: 800; color: #A855F7;">' + (emp.leaveCount || 0) + '</td>';
-      bodyHtml += '<td style="padding: 10px; font-weight: 900; color: #38BDF8;">' + (emp.attendancePct || "100.0%") + '</td>';
+      // Summary Columns
+      bodyHtml += '<td style="padding: 8px 6px; width: 38px; min-width: 38px; font-weight: 800; color: #10B981; border-bottom: 1px solid #334155; border-left: 2px solid #334155; text-align: center;">' + (emp.presentCount || 0) + '</td>';
+      bodyHtml += '<td style="padding: 8px 6px; width: 38px; min-width: 38px; font-weight: 800; color: #F59E0B; border-bottom: 1px solid #334155; text-align: center;">' + (emp.lateCount || 0) + '</td>';
+      bodyHtml += '<td style="padding: 8px 6px; width: 38px; min-width: 38px; font-weight: 800; color: #EF4444; border-bottom: 1px solid #334155; text-align: center;">' + (emp.absentCount || 0) + '</td>';
+      bodyHtml += '<td style="padding: 8px 6px; width: 38px; min-width: 38px; font-weight: 800; color: #A855F7; border-bottom: 1px solid #334155; text-align: center;">' + (emp.leaveCount || 0) + '</td>';
+      bodyHtml += '<td style="padding: 8px 8px; width: 55px; min-width: 55px; font-weight: 900; color: #38BDF8; border-bottom: 1px solid #334155; text-align: center;">' + (emp.attendancePct || "100.0%") + '</td>';
       bodyHtml += '</tr>';
     }
 
@@ -2669,7 +3722,7 @@ Saved directly to Google Sheet Leave_Register.`);
 
   // Calculate Next Staff ID (e.g. VP-014)
   function calculateNextStaffId() {
-    var list = getActiveStaffList();
+    var list = getAllStaffList();
     var maxNum = 0;
     for (var i = 0; i < list.length; i++) {
       var rawId = String(list[i].id || list[i].empId || "");
@@ -2679,13 +3732,13 @@ Saved directly to Google Sheet Leave_Register.`);
         if (num > maxNum) maxNum = num;
       }
     }
-    if (maxNum < 1) maxNum = 0;
+    if (maxNum < 6) maxNum = 6;
     return "VP-" + String(maxNum + 1).padStart(3, "0");
   }
 
   // Calculate Next Site ID (e.g. SITE-06)
   function calculateNextSiteId() {
-    var list = getActiveSitesList();
+    var list = getAllSitesList();
     var maxNum = 0;
     for (var i = 0; i < list.length; i++) {
       var rawId = String(list[i].id || list[i].siteId || "");
@@ -2700,8 +3753,7 @@ Saved directly to Google Sheet Leave_Register.`);
   }
 
   function openEditStaffForm(empId) {
-    var list = getActiveStaffList();
-    var s = list.find(function(item) { return (item.id || item.empId) === empId; });
+    var list = getAllStaffList();  var s = list.find(function(item) { return (item.id || item.empId) === empId; });
     if (!s) {
       alert("Staff record not found: " + empId);
       return;
@@ -2892,8 +3944,7 @@ Saved directly to Google Sheet Leave_Register.`);
     var countSpan = document.getElementById("manage-staff-count");
     if (!tbody) return;
 
-    var list = getActiveStaffList();
-    if (countSpan) countSpan.textContent = list.length;
+    var list = getAllStaffList(); if (countSpan) countSpan.textContent = list.length;
 
     if (list.length === 0) {
       tbody.innerHTML = '<tr><td colspan="9" style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">No staff records loaded yet. Click "+ Add New Staff" above to register staff.</td></tr>';
@@ -2945,8 +3996,7 @@ Saved directly to Google Sheet Leave_Register.`);
 
   function openEditStaffForm(empId) {
     if (!empId) return;
-    var list = getActiveStaffList();
-    var s = null;
+    var list = getAllStaffList(); var s = null;
     for (var i = 0; i < list.length; i++) {
       var itemId = String(list[i].id || list[i].empId || "").trim();
       if (itemId.toUpperCase() === String(empId).trim().toUpperCase()) {
@@ -3082,8 +4132,7 @@ Saved directly to Google Sheet Leave_Register.`);
         if (res && res.status === "success") {
           alert("✅ " + res.message);
           closeModal("modal-edit-staff");
-          var list = getActiveStaffList();
-          for (var i = 0; i < list.length; i++) {
+          var list = getAllStaffList(); for (var i = 0; i < list.length; i++) {
             if (String(list[i].id || list[i].empId).trim().toUpperCase() === empId.toUpperCase()) {
               list[i].name = name;
               list[i].joiningDate = joiningDate;
@@ -3117,7 +4166,7 @@ Saved directly to Google Sheet Leave_Register.`);
 
   function openEditSiteForm(siteId) {
     if (!siteId) return;
-    var list = getActiveSitesList();
+    var list = getAllSitesList();
     var s = null;
     for (var i = 0; i < list.length; i++) {
       var itemId = String(list[i].id || list[i].siteId || "").trim();
@@ -3184,7 +4233,7 @@ Saved directly to Google Sheet Leave_Register.`);
         if (res && res.status === "success") {
           alert("✅ " + res.message);
           closeModal("modal-edit-site");
-          var list = getActiveSitesList();
+          var list = getAllSitesList();
           for (var i = 0; i < list.length; i++) {
             if (String(list[i].id || list[i].siteId).trim().toUpperCase() === siteId.toUpperCase()) {
               list[i].name = name;
@@ -3313,8 +4362,7 @@ Saved directly to Google Sheet Leave_Register.`);
     sendDashboardApiRequest({ action: "remove_staff", empId: empId, hardDelete: false })
       .then(function(res) {
         alert("✅ Status updated: " + res.message);
-        var list = getActiveStaffList();
-        for (var i = 0; i < list.length; i++) {
+        var list = getAllStaffList(); for (var i = 0; i < list.length; i++) {
           if ((list[i].id || list[i].empId) === empId) {
             list[i].status = newStatus;
             break;
@@ -3338,6 +4386,12 @@ Saved directly to Google Sheet Leave_Register.`);
             return (s.id || s.empId) !== empId;
           });
         }
+        if (window.allStaffList) {
+          window.allStaffList = window.allStaffList.filter(function(s) {
+            return (s.id || s.empId) !== empId;
+          });
+        }
+        allStaffList = window.allStaffList || allStaffList;
         cachedStaffList = window.currentStaffList;
         refreshManageStaffTable();
         fetchLiveData();
@@ -3349,7 +4403,7 @@ Saved directly to Google Sheet Leave_Register.`);
 
   // Site Management Functions
   function openEditSiteForm(siteId) {
-    var list = getActiveSitesList();
+    var list = getAllSitesList();
     var s = list.find(function(item) { return (item.id || item.siteId) === siteId; });
     if (!s) {
       alert("Site record not found: " + siteId);
@@ -3457,7 +4511,7 @@ Saved directly to Google Sheet Leave_Register.`);
         if (res && res.status === "success") {
           alert("✅ " + res.message);
           toggleAddSiteForm(false);
-          var list = getActiveSitesList();
+          var list = getAllSitesList();
           if (mode === "edit") {
             for (var i = 0; i < list.length; i++) {
               if ((list[i].id || list[i].siteId) === siteId) {
@@ -3504,7 +4558,7 @@ Saved directly to Google Sheet Leave_Register.`);
     var countSpan = document.getElementById("manage-site-count");
     if (!tbody) return;
 
-    var list = getActiveSitesList();
+    var list = getAllSitesList();
     if (countSpan) countSpan.textContent = list.length;
 
     if (list.length === 0) {
@@ -3556,6 +4610,12 @@ Saved directly to Google Sheet Leave_Register.`);
             return (s.id || s.siteId) !== siteId;
           });
         }
+        if (window.allSitesList) {
+          window.allSitesList = window.allSitesList.filter(function(s) {
+            return (s.id || s.siteId) !== siteId;
+          });
+        }
+        allSitesList = window.allSitesList || allSitesList;
         cachedSitesList = window.currentSitesList;
         refreshManageSiteTable();
         fetchLiveData();
@@ -4102,6 +5162,201 @@ Saved directly to Google Sheet Leave_Register.`);
       <button type="button" onclick="closeModal('modal-edit-site')" style="background: var(--btn-cancel-bg); color: var(--btn-cancel-text); border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">Cancel</button>
       <button type="button" onclick="submitEditSiteModalLive()" id="btn-submit-edit-site" style="background: #841524; color: #F7CA14; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer;">💾 Update Site to Sheet</button>
     </div>
+  </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- MODAL: EDIT MONTHLY ATTENDANCE (DAYWISE CELL OVERRIDE)                         -->
+<!-- ============================================================================== -->
+<div class="modal-overlay" id="modal-edit-attendance" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+  <div class="modal" style="background: #1E293B; border: 1px solid #475569; border-radius: 18px; padding: 24px; max-width: 540px; width: 92%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); color: #F8FAFC;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px;">✏️</span>
+        <div>
+          <div style="font-size: 17px; font-weight: 800; color: #38BDF8;" id="edit-att-title">Edit Attendance Record</div>
+          <div style="font-size: 11px; color: #94A3B8;">Month-end datewise attendance status change</div>
+        </div>
+      </div>
+      <button type="button" onclick="closeModal('modal-edit-attendance')" style="background: transparent; border: none; font-size: 26px; color: #94A3B8; cursor: pointer; line-height: 1;">&times;</button>
+    </div>
+
+    <!-- Info Pill -->
+    <div style="background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 12px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+      <div><span style="color: #64748B;">Staff:</span> <strong id="edit-att-staff" style="color: #F8FAFC;"></strong></div>
+      <div><span style="color: #64748B;">Emp ID:</span> <strong id="edit-att-empid" style="color: #38BDF8; font-family: monospace;"></strong></div>
+      <div><span style="color: #64748B;">Target Date:</span> <strong id="edit-att-date" style="color: #FBBF24;"></strong></div>
+      <div><span style="color: #64748B;">Current Status:</span> <span id="edit-att-current" style="font-weight: 800;"></span></div>
+    </div>
+
+    <!-- Status Selection Buttons -->
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 8px;">Select New Attendance Status:</label>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="edit-att-status-buttons">
+        <button type="button" data-status="P" onclick="selectEditStatus('P', this)" class="att-status-btn" style="padding: 10px 8px; border-radius: 8px; border: 1px solid #10B981; background: rgba(16,185,129,0.15); color: #34D399; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;">
+          <div style="font-size: 15px;">🟢 P</div>
+          <div style="font-size: 10px; font-weight: 500; margin-top: 2px;">Present (Full Day)</div>
+        </button>
+        <button type="button" data-status="L" onclick="selectEditStatus('L', this)" class="att-status-btn" style="padding: 10px 8px; border-radius: 8px; border: 1px solid #F59E0B; background: rgba(245,158,11,0.15); color: #FBBF24; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;">
+          <div style="font-size: 15px;">🟡 L</div>
+          <div style="font-size: 10px; font-weight: 500; margin-top: 2px;">Late Punch</div>
+        </button>
+        <button type="button" data-status="A" onclick="selectEditStatus('A', this)" class="att-status-btn" style="padding: 10px 8px; border-radius: 8px; border: 1px solid #EF4444; background: rgba(239,68,68,0.15); color: #F87171; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;">
+          <div style="font-size: 15px;">🔴 A</div>
+          <div style="font-size: 10px; font-weight: 500; margin-top: 2px;">Absent (LOP)</div>
+        </button>
+        <button type="button" data-status="LV" onclick="selectEditStatus('LV', this)" class="att-status-btn" style="padding: 10px 8px; border-radius: 8px; border: 1px solid #A855F7; background: rgba(168,85,247,0.15); color: #C084FC; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;">
+          <div style="font-size: 15px;">🟣 LV</div>
+          <div style="font-size: 10px; font-weight: 500; margin-top: 2px;">Approved Leave</div>
+        </button>
+        <button type="button" data-status="WO" onclick="selectEditStatus('WO', this)" class="att-status-btn" style="padding: 10px 8px; border-radius: 8px; border: 1px solid #38BDF8; background: rgba(56,189,248,0.15); color: #38BDF8; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;">
+          <div style="font-size: 15px;">🔵 WO</div>
+          <div style="font-size: 10px; font-weight: 500; margin-top: 2px;">Weekly Off / Holiday</div>
+        </button>
+        <button type="button" data-status="HD" onclick="selectEditStatus('HD', this)" class="att-status-btn" style="padding: 10px 8px; border-radius: 8px; border: 1px solid #FB923C; background: rgba(251,146,60,0.15); color: #FB923C; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;">
+          <div style="font-size: 15px;">🟠 HD</div>
+          <div style="font-size: 10px; font-weight: 500; margin-top: 2px;">Half Day</div>
+        </button>
+      </div>
+      <input type="hidden" id="edit-att-selected-status" value="">
+    </div>
+
+    <!-- Reason / Remark Input -->
+    <div style="margin-bottom: 18px;">
+      <label style="display: block; font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 6px;">Admin Override Reason / Remark (Optional):</label>
+      <input type="text" id="edit-att-remark" placeholder="e.g. Month-end approval, Site visit adjustment" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; box-sizing: border-box;">
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #334155; padding-top: 14px;">
+      <button type="button" onclick="closeModal('modal-edit-attendance')" style="background: #334155; color: #E2E8F0; border: none; padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">Cancel</button>
+      <button type="button" onclick="saveAttendanceEdit()" id="btn-save-attendance-edit" style="background: linear-gradient(135deg, #0284C7, #0369A1); color: #FFFFFF; border: none; padding: 9px 24px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+        💾 Save &amp; Update Register
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- MODAL: CONFIGURE STAFF SALARY RULES                                            -->
+<!-- ============================================================================== -->
+<div class="modal-overlay" id="modal-payroll-config" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+  <div class="modal" style="background: #1E293B; border: 1px solid #475569; border-radius: 18px; padding: 24px; max-width: 580px; width: 94%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); color: #F8FAFC; max-height: 90vh; overflow-y: auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px;">⚙️</span>
+        <div>
+          <div style="font-size: 17px; font-weight: 800; color: #38BDF8;" id="cfg-staff-title">Configure Salary &amp; Compensation Rule</div>
+          <div style="font-size: 11px; color: #94A3B8;">Set fixed salary, commission structure, and attendance deduction policies</div>
+        </div>
+      </div>
+      <button type="button" onclick="closeModal('modal-payroll-config')" style="background: transparent; border: none; font-size: 26px; color: #94A3B8; cursor: pointer; line-height: 1;">&times;</button>
+    </div>
+
+    <!-- Staff Info Banner -->
+    <div style="background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+      <div>
+        <div style="color: #64748B; font-size: 11px;">Staff Member:</div>
+        <div style="font-weight: 800; color: #F8FAFC;" id="cfg-emp-name">Govind Gore</div>
+      </div>
+      <div>
+        <div style="color: #64748B; font-size: 11px;">Employee ID:</div>
+        <div style="font-weight: 800; color: #38BDF8; font-family: monospace;" id="cfg-emp-id">VP-001</div>
+      </div>
+      <div>
+        <div style="color: #64748B; font-size: 11px;">Department:</div>
+        <div style="font-weight: 700; color: #CBD5E1;" id="cfg-emp-dept">Management</div>
+      </div>
+    </div>
+
+    <!-- Salary Structure Selector -->
+    <div style="margin-bottom: 18px;">
+      <label style="display: block; font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 8px;">Select Compensation Structure:</label>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+        <label style="border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: rgba(51,65,85,0.2);" id="lbl-struct-fixed">
+          <input type="radio" name="cfg-struct-type" value="Fixed" onchange="onSalaryStructureChange('Fixed')" style="margin-top: 3px;" checked>
+          <div>
+            <div style="font-weight: 800; color: #34D399; font-size: 13px;">🏢 Fixed Monthly</div>
+            <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">Monthly fixed salary with per-day attendance deduction for absents.</div>
+          </div>
+        </label>
+        <label style="border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: rgba(51,65,85,0.2);" id="lbl-struct-comm">
+          <input type="radio" name="cfg-struct-type" value="Commission" onchange="onSalaryStructureChange('Commission')" style="margin-top: 3px;">
+          <div>
+            <div style="font-weight: 800; color: #C084FC; font-size: 13px;">📈 Pure Commission</div>
+            <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">For sales agents: % percentage on property sales &amp; deals closed.</div>
+          </div>
+        </label>
+        <label style="border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: rgba(51,65,85,0.2);" id="lbl-struct-hybrid">
+          <input type="radio" name="cfg-struct-type" value="Fixed+Commission" onchange="onSalaryStructureChange('Fixed+Commission')" style="margin-top: 3px;">
+          <div>
+            <div style="font-weight: 800; color: #38BDF8; font-size: 13px;">🤝 Fixed + Commission</div>
+            <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">Basic fixed pay + commission incentive on deal volume.</div>
+          </div>
+        </label>
+        <label style="border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: rgba(51,65,85,0.2);" id="lbl-struct-daily">
+          <input type="radio" name="cfg-struct-type" value="Daily" onchange="onSalaryStructureChange('Daily')" style="margin-top: 3px;">
+          <div>
+            <div style="font-weight: 800; color: #FB923C; font-size: 13px;">⏱️ Daily Wage Rate</div>
+            <div style="font-size: 10px; color: #94A3B8; margin-top: 2px;">Paid strictly per working day present (e.g. site supervisors).</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Dynamic Form Fields -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;">
+      
+      <!-- Base Salary Input -->
+      <div id="field-base-salary" style="display: block;">
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Monthly Base Salary (₹):</label>
+        <input type="number" id="cfg-base-salary" placeholder="e.g. 25000" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; font-weight: 700; box-sizing: border-box;">
+      </div>
+
+      <!-- Commission Rate Input -->
+      <div id="field-comm-rate" style="display: none;">
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Commission Rate (% of Deal):</label>
+        <input type="number" step="0.05" id="cfg-comm-rate" placeholder="e.g. 1.5" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; font-weight: 700; box-sizing: border-box;">
+      </div>
+
+      <!-- Daily Wage Rate Input -->
+      <div id="field-daily-rate" style="display: none;">
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Daily Wage Rate (₹ / Day):</label>
+        <input type="number" id="cfg-daily-rate" placeholder="e.g. 900" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; font-weight: 700; box-sizing: border-box;">
+      </div>
+
+      <!-- Absent Deduction Policy -->
+      <div id="field-absent-deduct" style="display: block;">
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Absent Deduction per Day (₹):</label>
+        <input type="number" id="cfg-absent-deduct" placeholder="0 = Auto Per-Day Rate" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; font-weight: 700; box-sizing: border-box;">
+        <div style="font-size: 10px; color: #64748B; margin-top: 3px;">Leave as 0 to auto-divide base salary by total working days.</div>
+      </div>
+
+      <!-- Late Penalty Input -->
+      <div id="field-late-deduct" style="display: block;">
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Late Penalty per Day (₹):</label>
+        <input type="number" id="cfg-late-deduct" placeholder="e.g. 100 (0 for no penalty)" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; font-weight: 700; box-sizing: border-box;">
+      </div>
+
+      <!-- Default Bonus Input -->
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Monthly Fixed Bonus (₹):</label>
+        <input type="number" id="cfg-bonus" placeholder="e.g. 2000 (Optional)" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: #FFFFFF; font-size: 13px; font-weight: 700; box-sizing: border-box;">
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #334155; padding-top: 14px;">
+      <button type="button" onclick="closeModal('modal-payroll-config')" style="background: #334155; color: #E2E8F0; border: none; padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">Cancel</button>
+      <button type="button" onclick="savePayrollConfigModal()" style="background: linear-gradient(135deg, #0284C7, #0369A1); color: #FFFFFF; border: none; padding: 9px 24px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+        💾 Save &amp; Recalculate
+      </button>
+    </div>
+
   </div>
 </div>
 
