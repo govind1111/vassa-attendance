@@ -421,15 +421,7 @@
         🔒 Check-In Blocked (Select Name)
       </button>
 
-      <!-- Compact Location Ping Button (Replaces bulky GPS tracking box) -->
-      <div id="live-ping-container" style="display: none;">
-        <button type="button" class="btn-ping" id="btn-manual-ping" onclick="triggerManualLivePing()">
-          <span>📍</span> Ping My Location Now
-        </button>
-        <div id="live-ping-status-msg" style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 5px; font-weight: 500;">
-          Live GPS auto-sync active in background
-        </div>
-      </div>
+      <!-- Ping My Location button removed (auto GPS sync still runs in background) -->
 
       <!-- shift-notice removed for compact single-screen layout -->
     </div>
@@ -751,7 +743,7 @@
       document.getElementById("punch-btn").disabled = true;
       document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
       document.getElementById("banner-already-punched").style.display = "none";
-      document.getElementById("live-ping-container").style.display = "none";
+      var _pc = document.getElementById("live-ping-container"); if (_pc) _pc.style.display = "none";
       return;
     }
     for (var i = 0; i < STAFF_LIST.length; i++) {
@@ -827,7 +819,7 @@
 
       punchControls.style.display = "none";
       shiftCompletedControls.style.display = "block";
-      pingContainer.style.display = "none";
+      if (pingContainer) pingContainer.style.display = "none";
       return;
     }
 
@@ -843,7 +835,7 @@
 
       punchControls.style.display = "block";
       shiftCompletedControls.style.display = "none";
-      pingContainer.style.display = "block";
+      if (pingContainer) pingContainer.style.display = "block";
       currentPunchMode = "Check-Out";
 
       startLiveTracking();
@@ -855,7 +847,7 @@
     bannerEl.style.display = "none";
     punchControls.style.display = "block";
     shiftCompletedControls.style.display = "none";
-    pingContainer.style.display = "none";
+    if (pingContainer) pingContainer.style.display = "none";
     currentPunchMode = "Check-In";
     calculateDistance();
   }
@@ -879,7 +871,7 @@
       document.getElementById("banner-already-punched").style.display = "none";
       document.getElementById("active-punch-controls").style.display = "block";
       document.getElementById("shift-completed-controls").style.display = "none";
-      document.getElementById("live-ping-container").style.display = "none";
+      var _pc = document.getElementById("live-ping-container"); if (_pc) _pc.style.display = "none";
       document.getElementById("punch-btn").disabled = true;
       document.getElementById("punch-btn").className = "btn btn-checkin";
       document.getElementById("punch-btn").innerText = "🔒 Check-In Blocked (Select Name)";
