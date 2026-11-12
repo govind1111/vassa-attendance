@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vassa Properties — Live Attendance Command Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
 
     :root {
       --bg-body: #F1F5F9;
@@ -504,6 +504,46 @@
       align-items: center !important;
     }
 
+
+    /* Global Typography: Arial, Titles Bold, Rest Normal */
+    * {
+      font-family: Arial, Helvetica, sans-serif !important;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif !important;
+      font-weight: normal;
+    }
+    p, span, td, input, select, textarea, div {
+      font-weight: normal;
+    }
+    /* Titles & Headings are Bold */
+    h1, h2, h3, h4, h5, h6,
+    .brand-name,
+    .modal-title,
+    .kpi-label,
+    .table-card thead th,
+    table thead th,
+    th,
+    label,
+    .box-title,
+    .section-title,
+    .card-title,
+    #mon-register-heading,
+    .print-header h2,
+    b, strong {
+      font-weight: bold !important;
+    }
+    /* Metrics numbers bold for clarity */
+    .kpi-value, .kpi-number {
+      font-weight: bold !important;
+    }
+    /* Button labels: normal / clean weight, center aligned */
+    button, .btn, .filter-btn {
+      font-weight: normal;
+      text-align: center !important;
+      justify-content: center !important;
+    }
+
   </style>
 </head>
 <body>
@@ -753,8 +793,7 @@
 
       </div>
 
-    </div>
-  </div>
+    </div> <!-- End #view-monthly-register -->
 
     <!-- VIEW 3: PAYROLL -->
     <div id="view-payroll" style="display: none;">
@@ -1927,7 +1966,7 @@ Saved directly to Google Sheet Leave_Register.`);
     document.getElementById('wa-modal-time').innerText = timeStr;
     
     var shiftPill = document.querySelector('.shift-pill');
-    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace('', '') : '10:00 AM – 07:00 PM';
+    document.getElementById('wa-modal-shift').innerText = shiftPill ? shiftPill.innerText.replace(/^[🕒\s]*Shift:\s*/i, '').trim() : '10:00 AM – 07:00 PM';
     
     var linkInput = document.getElementById('wa-pdf-drive-link');
     if (linkInput) {
@@ -1953,7 +1992,7 @@ Saved directly to Google Sheet Leave_Register.`);
     var currentTime = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     var todayStr = document.getElementById('live-date-str').innerText || now.toLocaleDateString('en-IN');
     var shiftPill = document.querySelector('.shift-pill');
-    var shiftText = shiftPill ? shiftPill.innerText.replace('', '') : '10:00 AM – 07:00 PM';
+    var shiftText = shiftPill ? shiftPill.innerText.replace(/^[🕒\s]*Shift:\s*/i, '').trim() : '10:00 AM – 07:00 PM';
 
     var total = document.getElementById('kpi-total').innerText;
     var onDuty = document.getElementById('kpi-onduty').innerText;
@@ -5212,12 +5251,12 @@ function switchDashboardView(view) {
     </div>
 
     <div class="form-group" style="background:var(--highlight-box-bg); padding:12px; border-radius:10px; border:1px solid var(--highlight-box-border); margin-bottom:14px;">
-      <label style="color:var(--highlight-box-text); font-weight:800;">Recipient WhatsApp Mobile Number:</label>
+      <label style="color:var(--highlight-box-text); font-weight:800;">WhatsApp Number</label>
       <div style="display:flex; gap:8px;">
         <input type="tel" id="wa-modal-recipient" placeholder="Enter 10-digit mobile or with country code" style="font-size:14px; font-weight:700; color:var(--input-text); background:var(--input-bg); flex:1;">
         <button type="button" class="btn" style="background:#841524; color:#F7CA14; padding:8px 12px; font-size:11px;" onclick="saveQuickBossWhatsapp()">Set Default</button>
       </div>
-      <p style="font-size:11px; color:var(--text-muted); margin-top:4px;">Aap is number ko kabhi bhi change kar sakte hain (e.g. Director, Partner ya Manager).</p>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:4px;">You can change this number anytime (e.g. Director, Partner or Manager).</p>
     </div>
 
     <!-- Flexible Real-Time Timing Indicator -->
@@ -5233,7 +5272,7 @@ function switchDashboardView(view) {
         <button type="button" class="btn" style="padding:4px 8px; font-size:10px; background:#841524; color:#F7CA14;" onclick="refreshLivePdfLinkFromApp()">Generate Fresh Drive Link</button>
       </div>
       <input type="text" id="wa-pdf-drive-link" placeholder="https://drive.google.com/file/d/.../view" style="font-size:11px; font-family:monospace; background:var(--input-bg); color:var(--input-text); border:1px solid var(--input-border); width:100%; padding:8px 10px; border-radius:6px;">
-      <p style="font-size:10px; color:var(--text-muted); margin-top:4px;">Ye direct Google Drive link WhatsApp message me jayega taaki recipient ek click me Google Drive me PDF dekh sake.</p>
+      <p style="font-size:10px; color:var(--text-muted); margin-top:4px;">This direct Google Drive link will be included in the WhatsApp message so the recipient can view the PDF with a single click.</p>
     </div>
 
     <!-- PDF Attachment & Sharing Guide -->
@@ -5243,7 +5282,7 @@ function switchDashboardView(view) {
         <span style="font-size:11px; color:#059669; font-weight:700;">Live Drive Link Embedded</span>
       </div>
       <p style="font-size:11px; color:var(--text-muted); line-height:1.4;">
-        WhatsApp message me <b>Official PDF ka Google Drive direct link</b> jud kar jayega. Agar aapko WhatsApp chat me <b>actual .pdf file document attach</b> karni hai, toh pehle neeche <b>"Save PDF File"</b> dabakar PDF download karein aur chat me attach karein.
+        The direct Google Drive link for the <b>Official PDF</b> will be included in the WhatsApp message. If you want to attach the actual <b>.pdf file document</b> in the WhatsApp chat, first click <b>"Save/Print PDF File"</b> below to download the PDF, then attach it in the chat.
       </p>
       <div style="margin-top:10px; display:flex; gap:8px;">
         <button type="button" class="btn btn-pdf" style="flex:1; font-size:11px; padding:7px 10px; background:#841524; color:#F7CA14;" onclick="generatePdfReport()">1. Save/Print PDF File</button>
