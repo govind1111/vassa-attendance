@@ -3980,9 +3980,9 @@ function switchDashboardView(view) {
       var cleanEmpId = String(empId).replace(/'/g, "");
       var cleanName = String(s.name || empId).replace(/'/g, "");
       html += '<td style="padding: 10px 12px; text-align: right; white-space: nowrap;">';
-      html += '<button type="button" class="btn-edit-staff" data-id="' + cleanEmpId + '" onclick="openEditStaffForm(\'' + cleanEmpId + '\')" style="background: #0284C7; color: #FFFFFF; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; margin-right: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">✏️ Edit</button>';
-      html += '<button type="button" class="btn-toggle-staff" data-id="' + cleanEmpId + '" data-status="' + curSt + '" onclick="toggleStaffStatusLive(\'' + cleanEmpId + '\', \'' + curSt + '\')" style="background: #841524; color: #F7CA14; border: none; padding: 5px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; margin-right: 4px;">' + btnLabel + '</button>';
-      html += '<button type="button" class="btn-delete-staff" data-id="' + cleanEmpId + '" data-name="' + cleanName.replace(/"/g, '&quot;') + '" onclick="deleteStaffLive(\'' + cleanEmpId + '\', \'' + cleanName + '\')" style="background: #841524; color: #F7CA14; border: none; padding: 5px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Delete</button>';
+      html += '<button type="button" class="btn-edit-staff" data-id="' + cleanEmpId + '" style="background: #0284C7; color: #FFFFFF; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; margin-right: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">✏️ Edit</button>';
+      html += '<button type="button" class="btn-toggle-staff" data-id="' + cleanEmpId + '" data-status="' + curSt + '" style="background: #841524; color: #F7CA14; border: none; padding: 5px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; margin-right: 4px;">' + btnLabel + '</button>';
+      html += '<button type="button" class="btn-delete-staff" data-id="' + cleanEmpId + '" data-name="' + cleanName.replace(/"/g, '&quot;') + '" style="background: #841524; color: #F7CA14; border: none; padding: 5px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Delete</button>';
       html += '</td>';
       html += '</tr>';
     }
@@ -4309,59 +4309,20 @@ function switchDashboardView(view) {
     initTableDelegation();
   }
 
-    var staffTbody = document.getElementById("manage-staff-tbody");
-    if (staffTbody) {
-      staffTbody.addEventListener("click", function(e) {
-        var editBtn = e.target.closest(".btn-edit-staff");
-        if (editBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          openEditStaffForm(editBtn.getAttribute("data-id"));
-          return;
-        }
-        var toggleBtn = e.target.closest(".btn-toggle-staff");
-        if (toggleBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleStaffStatusLive(toggleBtn.getAttribute("data-id"), toggleBtn.getAttribute("data-status"));
-          return;
-        }
-        var delBtn = e.target.closest(".btn-delete-staff");
-        if (delBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          deleteStaffLive(delBtn.getAttribute("data-id"), delBtn.getAttribute("data-name"));
-          return;
-        }
-      });
-    }
-
-    var siteTbody = document.getElementById("manage-site-tbody");
-    if (siteTbody) {
-      siteTbody.addEventListener("click", function(e) {
-        var editBtn = e.target.closest(".btn-edit-site");
-        if (editBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          openEditSiteForm(editBtn.getAttribute("data-id"));
-          return;
-        }
-        var delBtn = e.target.closest(".btn-delete-site");
-        if (delBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          deleteSiteLive(delBtn.getAttribute("data-id"), delBtn.getAttribute("data-name"));
-          return;
-        }
-      });
-    }
-
   function toggleStaffStatusLive(empId, curStatus) {
-    var newStatus = (curStatus === "Active") ? "Inactive" : "Active";
-    if (!confirm("Are you sure you want to change status of " + empId + " to " + newStatus + "?")) return;
-    sendDashboardApiRequest({ action: "remove_staff", empId: empId, hardDelete: false })
+    var cur = String(curStatus || "").trim().toLowerCase();
+    var isActive = (cur === "active" || cur === "present");
+    var newStatus = isActive ? "Inactive" : "Active";
+    var actionWord = isActive ? "deactivate" : "activate";
+    if (!confirm("Are you sure you want to " + actionWord + " staff " + empId + "?")) return;
+
+    sendDashboardApiRequest({ action: "edit_staff", empId: empId, status: newStatus })
       .then(function(res) {
-        alert("✅ Status updated: " + res.message);
+        if (!res || res.status !== "success") {
+          alert("Error: " + ((res && res.message) || "Status change failed"));
+          return;
+        }
+        showToast("Status updated: " + res.message, "success");
         var list = getAllStaffList(); for (var i = 0; i < list.length; i++) {
           if ((list[i].id || list[i].empId) === empId) {
             list[i].status = newStatus;
@@ -4372,7 +4333,7 @@ function switchDashboardView(view) {
         fetchLiveData();
       })
       .catch(function(err) {
-        alert("❌ Error: " + err.message);
+        showToast("Error: " + err.message, "error");
       });
   }
 
@@ -4592,8 +4553,8 @@ function switchDashboardView(view) {
       var cleanSiteId = String(siteId).replace(/'/g, "");
       var cleanSiteName = String(s.name || siteId).replace(/'/g, "");
       html += '<td style="padding: 10px 12px; text-align: right; white-space: nowrap;">';
-      html += '<button type="button" class="btn-edit-site" data-id="' + cleanSiteId + '" onclick="openEditSiteForm(\'' + cleanSiteId + '\')" style="background: #0284C7; color: #FFFFFF; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; margin-right: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">✏️ Edit</button>';
-      html += '<button type="button" class="btn-delete-site" data-id="' + cleanSiteId + '" data-name="' + cleanSiteName.replace(/"/g, '&quot;') + '" onclick="deleteSiteLive(\'' + cleanSiteId + '\', \'' + cleanSiteName + '\')" style="background: #841524; color: #F7CA14; border: none; padding: 5px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Delete</button>';
+      html += '<button type="button" class="btn-edit-site" data-id="' + cleanSiteId + '" style="background: #0284C7; color: #FFFFFF; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; margin-right: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">✏️ Edit</button>';
+      html += '<button type="button" class="btn-delete-site" data-id="' + cleanSiteId + '" data-name="' + cleanSiteName.replace(/"/g, '&quot;') + '" style="background: #841524; color: #F7CA14; border: none; padding: 5px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer;">Delete</button>';
       html += '</td>';
       html += '</tr>';
     }
