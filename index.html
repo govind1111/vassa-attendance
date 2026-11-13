@@ -538,6 +538,14 @@
     { "id": "SITE-05", "name": "Beed Bypass - Satara Parisar", "lat": 19.845012, "lon": 75.228045, "radius": 100 }
   ];
 
+    var SETTINGS = {
+    startHour: 10,
+    startMin: 0,
+    graceMins: 15,
+    cutoffHour: 21,
+    cutoffMin: 0,
+    adminPin: "25955"
+  };
   var INITIAL_STAFF_ID = "";
   var currentStaff = null;
   var currentLat = null;
@@ -601,16 +609,28 @@
     if (data.settings) {
       if (data.settings.shiftText) {
         var tag = document.querySelector(".shift-tag");
-        if (tag) tag.innerText = data.settings.shiftText;
+        if (tag) tag.innerText = String(data.settings.shiftText).replace(/[^\x00-\x7F]/g, "").trim();
+      }
+      if (data.settings.startHour !== undefined) {
+        SETTINGS.startHour = parseInt(data.settings.startHour, 10);
+      }
+      if (data.settings.startMin !== undefined) {
+        SETTINGS.startMin = parseInt(data.settings.startMin, 10);
+      }
+      if (data.settings.graceMins !== undefined) {
+        SETTINGS.graceMins = parseInt(data.settings.graceMins, 10);
       }
       if (data.settings.cutoffHour !== undefined) {
-        window.CONFIG_CUTOFF_HOUR = parseInt(data.settings.cutoffHour, 10);
+        SETTINGS.cutoffHour = parseInt(data.settings.cutoffHour, 10);
+        window.CONFIG_CUTOFF_HOUR = SETTINGS.cutoffHour;
       }
       if (data.settings.cutoffMin !== undefined) {
-        window.CONFIG_CUTOFF_MIN = parseInt(data.settings.cutoffMin, 10);
+        SETTINGS.cutoffMin = parseInt(data.settings.cutoffMin, 10);
+        window.CONFIG_CUTOFF_MIN = SETTINGS.cutoffMin;
       }
       if (data.settings.adminPin) {
-        window.CONFIG_ADMIN_PIN = String(data.settings.adminPin).trim();
+        SETTINGS.adminPin = String(data.settings.adminPin).trim();
+        window.CONFIG_ADMIN_PIN = SETTINGS.adminPin;
       }
     }
     if (data.staff && data.staff.length > 0) {
@@ -1227,6 +1247,7 @@
   setInterval(flushOfflinePunches, 30000);
 
   function submitPunch(type) {
+    try {
     if (!currentStaff) {
       alert("Please select your name first!");
       return;
@@ -1276,7 +1297,10 @@
     var instantStatus = "Present (On-Time)";
     var now = new Date();
     var totalMins = (now.getHours() * 60) + now.getMinutes();
-    var lateThreshold = (SETTINGS.startHour * 60 + SETTINGS.startMin) + (SETTINGS.graceMins || 15);
+    var sHour = (typeof SETTINGS !== "undefined" && SETTINGS && SETTINGS.startHour !== undefined) ? SETTINGS.startHour : 10;
+    var sMin = (typeof SETTINGS !== "undefined" && SETTINGS && SETTINGS.startMin !== undefined) ? SETTINGS.startMin : 0;
+    var sGrace = (typeof SETTINGS !== "undefined" && SETTINGS && SETTINGS.graceMins !== undefined) ? SETTINGS.graceMins : 15;
+    var lateThreshold = (sHour * 60 + sMin) + sGrace;
     if (totalMins > lateThreshold) {
       instantStatus = "Late Mark";
     }
@@ -1402,6 +1426,10 @@
     sendPunchApiRequest(payload)
       .then(handleSuccess)
       .catch(handleFailure);
+    } catch (punchErr) {
+      console.error("submitPunch fatal error:", punchErr);
+      alert("Check-In Error: " + punchErr.message);
+    }
   }
 
   // ==============================================================================
