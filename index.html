@@ -459,7 +459,7 @@
     <div id="active-punch-controls">
       <!-- 2. Site Selection -->
       <div class="field-group">
-        <label>2. Current Duty Location / Project Site:</label>
+        <label>2. Office/Site Location:</label>
         <select id="location-select" onchange="calculateDistance()">
           <option value="Golden City Center (Main Office)" data-lat="19.874668" data-lon="75.372983">SITE-01: Golden City Center (Main Office)</option>
           <option value="Waluj Mahanagar-1" data-lat="19.888512" data-lon="75.465034">SITE-02: Waluj Mahanagar-1</option>
@@ -906,7 +906,7 @@
       bannerEl.className = "already-punched-card completed";
       bannerEl.style.display = "block";
       bannerEl.style.marginTop = "28px";
-      titleEl.innerText = "Shift Completed";
+      titleEl.innerText = "Checked-Out";
       timeEl.innerText = "In: " + (staff.checkInTime || staff.punchTime || "-") + "  |  Out: " + (staff.checkOutTime || "-");
       if (staff.workDuration && staff.workDuration !== "-") {
         durationEl.innerText = "Total Duty: " + staff.workDuration;
@@ -930,7 +930,7 @@
     if (isCheckedIn && !isCheckedOut) {
       bannerEl.className = "already-punched-card on-duty";
       bannerEl.style.display = "block";
-      titleEl.innerText = "Check-In Recorded (On Duty)";
+      titleEl.innerText = "Checked-In";
       var inStatus = staff.checkInStatus || staff.status || "Present";
       timeEl.innerText = "Check-In Time: " + (staff.checkInTime || staff.punchTime || "-") + " (" + inStatus + ")";
       durationEl.style.display = "none"; // NO REMARK
@@ -1104,7 +1104,7 @@
         punchBtn.disabled = false;
         if (isCheckInMode) {
           punchBtn.className = "btn btn-checkin";
-          punchBtn.innerText = "Check-In Now (" + Math.round(distanceToTarget) + "m)";
+          punchBtn.innerText = "Check-In (" + Math.round(distanceToTarget) + "m)";
         } else {
           punchBtn.className = "btn btn-checkout";
           punchBtn.innerText = "Check-Out Now (" + Math.round(distanceToTarget) + "m)";

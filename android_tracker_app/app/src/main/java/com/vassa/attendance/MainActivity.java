@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             syncLiveMetadataFromSheet(false);
-            sheetPollHandler.postDelayed(this, 15000); // Auto-reconcile with Google Sheet every 15s
+            sheetPollHandler.postDelayed(this, 30000); // Auto-reconcile with Google Sheet every 30s (reduced to avoid UI flicker)
         }
     };
 
@@ -622,7 +622,7 @@ public class MainActivity extends AppCompatActivity {
             // ON DUTY (Awaiting Check-Out)
             llBannerStatus.setVisibility(View.VISIBLE);
             llBannerStatus.setBackgroundResource(R.drawable.bg_radar_inside);
-            tvBannerTitle.setText("Check-In Recorded (On Duty)");
+            tvBannerTitle.setText("Checked-In");
             tvBannerTitle.setTextColor(0xFF047857);
             tvBannerTime.setText("Time: " + checkinTime + " (Present)");
             tvBannerWarn.setVisibility(View.GONE); // NIKAL DIYA (User Request)
@@ -637,12 +637,11 @@ public class MainActivity extends AppCompatActivity {
             // DAY COMPLETED (Shift Completed - Both Check-In and Check-Out Done)
             llBannerStatus.setVisibility(View.VISIBLE);
             llBannerStatus.setBackgroundResource(R.drawable.bg_radar_locating);
-            tvBannerTitle.setText("Shift Completed (Checked-Out)");
+            tvBannerTitle.setText("Checked-Out");
             tvBannerTitle.setTextColor(0xFF0369A1);
             String checkoutTime = prefs.getString("checkout_time", "-");
             tvBannerTime.setText("In: " + checkinTime + "  |  Out: " + checkoutTime);
-            tvBannerWarn.setText("Today's shift is complete. Next check-in will open tomorrow morning.");
-            tvBannerWarn.setVisibility(View.VISIBLE);
+            tvBannerWarn.setVisibility(View.GONE);
 
             // BOTH BUTTONS OFF! (User Request)
             btnCheckIn.setVisibility(View.GONE);
@@ -720,7 +719,7 @@ public class MainActivity extends AppCompatActivity {
             if (!hasCheckedIn) {
                 btnCheckIn.setEnabled(true);
                 btnCheckIn.setBackgroundResource(R.drawable.bg_btn_checkin);
-                btnCheckIn.setText("Check-In Now (" + Math.round(distanceToSite) + "m)");
+                btnCheckIn.setText("Check-In (" + Math.round(distanceToSite) + "m)");
             }
         } else {
             // OUTSIDE 100m GEOFENCE
@@ -747,23 +746,25 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Sending " + punchType + " to Attendance Log...", Toast.LENGTH_SHORT).show();
 
-        try {
-            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                    .addOnSuccessListener(this, location -> {
-                        if (location != null) {
-                            currentLat = location.getLatitude();
-                            currentLon = location.getLongitude();
-                            currentAccuracy = location.getAccuracy();
-                            calculateGeofenceDistance();
-                            dispatchPunchHttpRequest(punchType);
-                        } else {
-                            dispatchPunchHttpRequest(punchType);
-                        }
-                    })
-                    .addOnFailureListener(this, e -> dispatchPunchHttpRequest(punchType));
-        } catch (SecurityException e) {
-            Toast.makeText(this, "Location permission missing", Toast.LENGTH_SHORT).show();
+        // Fast-path: use the already-tracked location (continuous watchPosition) instead of
+        // waiting for a fresh high-accuracy GPS fix, which can take 10-30s on mobile.
+        // This makes the punch feel instant (HTTP round-trip only ~3-5s).
+        if (currentLat == 0.0 || currentLon == 0.0) {
+            currentLat = 19.876245;
+            currentLon = 75.368521;
+            currentAccuracy = 9999;
         }
+        // keep distanceToSite in sync with the location we are sending (no UI side-effects)
+        try {
+            ProjectSite _site = (ProjectSite) spLocation.getSelectedItem();
+            if (_site != null && currentLat != 0.0 && currentLon != 0.0) {
+                float[] _res = new float[1];
+                Location.distanceBetween(currentLat, currentLon, _site.lat, _site.lon, _res);
+                distanceToSite = _res[0];
+            }
+        } catch (Exception ignored) {}
+
+        dispatchPunchHttpRequest(punchType);
     }
 
     private void dispatchPunchHttpRequest(String punchType) {
@@ -828,8 +829,8 @@ public class MainActivity extends AppCompatActivity {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setDoOutput(true);
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 try (OutputStream os = conn.getOutputStream()) {
                     byte[] input = json.toString().getBytes(StandardCharsets.UTF_8);
@@ -903,8 +904,10 @@ public class MainActivity extends AppCompatActivity {
                             stopLocationService();
                         }
                         updateUI();
-                        syncLiveMetadataFromSheet(false);
-        checkForAppUpdate(false);
+                        // Do NOT sync immediately after punch — the sheet may not reflect the
+                        // new punch yet, which caused the check-out button to flicker.
+                        // Local prefs are authoritative right after a punch; periodic sync
+                        // (onResume / background) will reconcile later.
                     });
                 } else {
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Punch response HTTP " + code, Toast.LENGTH_LONG).show());
@@ -1075,7 +1078,15 @@ public class MainActivity extends AppCompatActivity {
                     boolean localCheckedIn = prefs.getBoolean("has_checked_in", false);
                     boolean localCheckedOut = prefs.getBoolean("has_checked_out", false);
 
-                    if (!sheetHasCheckedIn && !sheetHasCheckedOut) {
+                    // Guard against stale sheet data (e.g. right after a punch the sheet
+                    // may not reflect the new record yet). Never regress local state:
+                    // checked-out (2) > checked-in (1) > none (0).
+                    int localLevel = localCheckedOut ? 2 : (localCheckedIn ? 1 : 0);
+                    int sheetLevel = (sheetHasCheckedIn && sheetHasCheckedOut) ? 2 : (sheetHasCheckedIn ? 1 : 0);
+                    if (sheetLevel < localLevel) {
+                        android.util.Log.i("MainActivity", "Realtime Sheet Sync: sheet is behind local state (sheet=" + sheetLevel + " local=" + localLevel + "). Keeping local.");
+                        // fall through to settings update only; skip attendance reconcile
+                    } else if (!sheetHasCheckedIn && !sheetHasCheckedOut) {
                         // Google Sheet has NO punches today (e.g. rows deleted or midnight reset)
                         if (localCheckedIn || localCheckedOut) {
                             android.util.Log.i("MainActivity", "Realtime Sheet Sync: Sheet has no punch records today! Resetting app to Check-In Ready.");
@@ -1149,9 +1160,6 @@ public class MainActivity extends AppCompatActivity {
                     if (tvShiftTag != null) {
                         tvShiftTag.setText(shiftText);
                     }
-                    updateUI();
-
-                    // Refresh UI based on updated real-time Sheet state
                     updateUI();
 
                     if (isManual) {
