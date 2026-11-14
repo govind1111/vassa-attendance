@@ -737,7 +737,7 @@
 
   function syncLiveStaffFromSheet() {
     // Skip if a punch just happened (backend may not have propagated yet)
-    if (window.lastPunchTime && (Date.now() - window.lastPunchTime) < 10000) return;
+    if (window.lastPunchTime && (Date.now() - window.lastPunchTime) < 15000) return;
     var base = getApiUrl();
     var fetchUrl = base + (base.includes("?") ? "&" : "?") + "api=true&_ts=" + Date.now();
 
@@ -862,6 +862,19 @@
   // Unified State Engine for Staff (Check-In -> On-Duty -> Check-Out -> Completed)
   function applyStaff(staff, isAuto) {
     if (!staff) return;
+
+    // Guard: don't regress state right after a confirmed punch (prevents flip)
+    if (window.lastPunchTime && (Date.now() - window.lastPunchTime) < 15000) {
+      if (currentStaff && currentStaff.hasCheckedIn && !staff.hasCheckedIn) {
+        staff.hasCheckedIn = true;
+        staff.hasPunchedToday = true;
+        if (!staff.checkInTime || staff.checkInTime === "-") staff.checkInTime = currentStaff.checkInTime;
+      }
+      if (currentStaff && currentStaff.hasCheckedOut && !staff.hasCheckedOut) {
+        staff.hasCheckedOut = true;
+        if (!staff.checkOutTime || staff.checkOutTime === "-") staff.checkOutTime = currentStaff.checkOutTime;
+      }
+    }
 
     // NOTE: local punch state (vassa_local_punch_*) is intentionally NOT merged here.
     // Google Sheet is the single source of truth; stale local optimistic state caused
@@ -1172,85 +1185,43 @@
 
   // Universal Robust API Request Dispatcher (Dual-Transport with 4.5s Timeout + JSONP fallback)
   function sendPunchApiRequest(payload) {
+    // GET/JSONP-only transport: more reliable across browsers than POST (no
+    // redirect/CORS race, no AbortController timeout). Backend handles GET punches.
     return new Promise(function(resolve, reject) {
       var fetchUrl = getApiUrl();
-      var hasResolved = false;
+      var cbName = "vassa_punch_cb_" + Math.floor(Math.random() * 1000000);
+      var timeoutId = setTimeout(function() {
+        cleanup();
+        reject(new Error("Request timed out (10s). Saved locally for offline sync."));
+      }, 10000);
 
-      var controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
-      var fetchTimeout = setTimeout(function() {
-        if (controller) {
-          try { controller.abort(); } catch(e) {}
+      function cleanup() {
+        clearTimeout(timeoutId);
+        try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
+        var scriptEl = document.getElementById(cbName);
+        if (scriptEl && scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+      }
+
+      window[cbName] = function(res) {
+        cleanup();
+        resolve(res);
+      };
+
+      var script = document.createElement("script");
+      script.id = cbName;
+      var sep = fetchUrl.includes("?") ? "&" : "?";
+      var queryParts = ["callback=" + cbName, "_ts=" + Date.now()];
+      for (var k in payload) {
+        if (payload[k] !== undefined && payload[k] !== null) {
+          queryParts.push(encodeURIComponent(k) + "=" + encodeURIComponent(payload[k]));
         }
-      }, 4500);
-
-      fetch(fetchUrl, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-        signal: controller ? controller.signal : undefined
-      })
-      .then(function(resp) {
-        clearTimeout(fetchTimeout);
-        if (resp.ok) {
-          return resp.json();
-        } else {
-          throw new Error("HTTP " + resp.status);
-        }
-      })
-      .then(function(data) {
-        if (!hasResolved) {
-          hasResolved = true;
-          resolve(data);
-        }
-      })
-      .catch(function(fetchErr) {
-        clearTimeout(fetchTimeout);
-        if (hasResolved) return;
-        console.warn("Direct POST fetch failed/timed out, racing JSONP bridge...", fetchErr);
-
-        var cbName = "vassa_punch_cb_" + Math.floor(Math.random() * 1000000);
-        var timeoutId = setTimeout(function() {
-          cleanup();
-          if (!hasResolved) {
-            hasResolved = true;
-            reject(new Error("Request timed out (8s). Saved locally for offline sync."));
-          }
-        }, 8000);
-
-        function cleanup() {
-          clearTimeout(timeoutId);
-          try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
-          var scriptEl = document.getElementById(cbName);
-          if (scriptEl && scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
-        }
-
-        window[cbName] = function(res) {
-          cleanup();
-          if (!hasResolved) {
-            hasResolved = true;
-            resolve(res);
-          }
-        };
-
-        var script = document.createElement("script");
-        script.id = cbName;
-        var sep = fetchUrl.includes("?") ? "&" : "?";
-        var queryParts = ["callback=" + cbName, "_ts=" + Date.now()];
-        for (var k in payload) {
-          if (payload[k] !== undefined && payload[k] !== null) {
-            queryParts.push(encodeURIComponent(k) + "=" + encodeURIComponent(payload[k]));
-          }
-        }
-        script.src = fetchUrl + sep + queryParts.join("&");
-        script.onerror = function() {
-          cleanup();
-          if (!hasResolved) {
-            hasResolved = true;
-            reject(new Error("Network Error: Could not connect to Google Apps Script."));
-          }
-        };
-        document.head.appendChild(script);
-      });
+      }
+      script.src = fetchUrl + sep + queryParts.join("&");
+      script.onerror = function() {
+        cleanup();
+        reject(new Error("Network Error: Could not connect to Google Apps Script."));
+      };
+      document.head.appendChild(script);
     });
   }
 
@@ -1438,6 +1409,17 @@
           workDuration: currentStaff.workDuration
         }));
       } catch(e) {}
+      // Ensure currentStaff is valid (fallback to STAFF_LIST / minimal object)
+      if (!currentStaff) {
+        for (var _i = 0; _i < (STAFF_LIST || []).length; _i++) {
+          if (String(STAFF_LIST[_i].id || "").trim().toUpperCase() === String(payload.empId || "").trim().toUpperCase()) {
+            currentStaff = STAFF_LIST[_i]; break;
+          }
+        }
+      }
+      if (!currentStaff) {
+        currentStaff = { id: payload.empId, name: payload.empName, hasCheckedIn: false, hasCheckedOut: false, checkInTime: "-", checkOutTime: "-", workDuration: "-", checkInStatus: "Present", role: "Staff", dept: "Office", defaultLocation: "" };
+      }
       applyStaff(currentStaff, true);
       window.lastPunchTime = Date.now();
 
