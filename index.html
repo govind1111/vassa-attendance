@@ -597,6 +597,16 @@
     syncLiveStaffFromSheet();
   };
 
+  // Periodic sync (every 15s) so sheet changes (e.g. deleted punches) propagate to the app
+  setInterval(function() {
+    if (currentStaff) syncLiveStaffFromSheet();
+  }, 15000);
+
+  // Sync on tab visibility resume (when user returns to the app)
+  document.addEventListener("visibilitychange", function() {
+    if (!document.hidden && currentStaff) syncLiveStaffFromSheet();
+  });
+
   window.isAdminUnlocked = false;
 
   function populateStaffSelectDropdown() {
@@ -726,6 +736,8 @@
   }
 
   function syncLiveStaffFromSheet() {
+    // Skip if a punch just happened (backend may not have propagated yet)
+    if (window.lastPunchTime && (Date.now() - window.lastPunchTime) < 10000) return;
     var base = getApiUrl();
     var fetchUrl = base + (base.includes("?") ? "&" : "?") + "api=true&_ts=" + Date.now();
 
@@ -1336,10 +1348,6 @@
       instantStatus = "Late Mark";
     }
 
-    // Immediate physical tactile haptic vibration
-    if (navigator.vibrate) {
-      try { navigator.vibrate([120, 50, 120]); } catch(e) {}
-    }
 
     var toast = document.getElementById("toast-msg");
     var syncBadge = document.getElementById("punched-sync-badge");
@@ -1431,6 +1439,7 @@
         }));
       } catch(e) {}
       applyStaff(currentStaff, true);
+      window.lastPunchTime = Date.now();
 
       // Success confirmation from Google Sheets
       if (syncBadge) {
