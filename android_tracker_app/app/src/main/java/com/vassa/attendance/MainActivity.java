@@ -106,11 +106,12 @@ public class MainActivity extends AppCompatActivity {
     private Runnable clockRunnable;
 
     private Handler sheetPollHandler = new Handler(Looper.getMainLooper());
+    private boolean forceSheetSync = false; // bypass stale-sheet guard on user-initiated sync
     private Runnable sheetPollRunnable = new Runnable() {
         @Override
         public void run() {
             syncLiveMetadataFromSheet(false);
-            sheetPollHandler.postDelayed(this, 30000); // Auto-reconcile with Google Sheet every 30s (reduced to avoid UI flicker)
+            sheetPollHandler.postDelayed(this, 15000); // Auto-reconcile with Google Sheet every 15s
         }
     };
 
@@ -191,6 +192,12 @@ public class MainActivity extends AppCompatActivity {
         // Immediately sync live staff list and sites from Google Sheet
         syncLiveMetadataFromSheet(false);
         checkForAppUpdate(false);
+
+        // Start periodic sheet reconciliation (every 15s) so manual deletes / resets propagate
+        if (sheetPollHandler != null && sheetPollRunnable != null) {
+            sheetPollHandler.removeCallbacks(sheetPollRunnable);
+            sheetPollHandler.postDelayed(sheetPollRunnable, 15000);
+        }
     }
 
     @Override
@@ -205,8 +212,17 @@ public class MainActivity extends AppCompatActivity {
             stopLocationService();
         }
         updateUI();
+        // User actively opened the app -> trust the sheet (bypass stale guard) so resets propagate
+        forceSheetSync = true;
         syncLiveMetadataFromSheet(false);
+        forceSheetSync = false;
         checkForAppUpdate(false);
+
+        // Restart periodic sync loop
+        if (sheetPollHandler != null && sheetPollRunnable != null) {
+            sheetPollHandler.removeCallbacks(sheetPollRunnable);
+            sheetPollHandler.postDelayed(sheetPollRunnable, 15000);
+        }
     }
 
     // ==============================================================================
@@ -547,6 +563,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Unlock", (dialog, which) -> {
             String enteredPin = input.getText().toString().trim();
             if (MASTER_ADMIN_PIN.equals(enteredPin)) {
+                String prevEmpId = prefs.getString("locked_emp_id", "");
                 prefs.edit()
                         .putBoolean("is_device_locked", false)
                         .putString("locked_emp_id", "")
@@ -559,6 +576,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 updateUI();
                 Toast.makeText(this, "Device successfully unlocked by Admin. Choose fresh name.", Toast.LENGTH_SHORT).show();
+
+                // Offer to reset today's attendance state (useful for testing / re-punch)
+                if (!prevEmpId.isEmpty()) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Reset Today's Attendance?")
+                            .setMessage("Delete today's punch record for " + prevEmpId + " and reset attendance state? (Testing / re-punch)")
+                            .setPositiveButton("Yes, Reset", (d2, w2) -> resetTodayAttendance(prevEmpId))
+                            .setNegativeButton("No", null)
+                            .show();
+                }
             } else {
                 Toast.makeText(this, "Incorrect Admin PIN! Access denied.", Toast.LENGTH_LONG).show();
             }
@@ -566,6 +593,67 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    private void resetTodayAttendance(String empId) {
+        Toast.makeText(this, "Resetting today's attendance for " + empId + "...", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            try {
+                String webhookUrl = prefs.getString("webhook_url", DEFAULT_WEBHOOK_URL);
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                JSONObject json = new JSONObject();
+                json.put("action", "delete_today_punch");
+                json.put("empId", empId);
+                json.put("date", dateStr);
+
+                URL url = new URL(webhookUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = json.toString().getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
+                int code = conn.getResponseCode();
+                InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                if (is != null) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                        String l;
+                        while ((l = reader.readLine()) != null) sb.append(l);
+                    }
+                }
+                conn.disconnect();
+
+                // Clear local state regardless of backend result
+                prefs.edit()
+                        .putBoolean("has_checked_in", false)
+                        .putBoolean("has_checked_out", false)
+                        .putString("checkin_time", "-")
+                        .putString("checkout_time", "-")
+                        .apply();
+
+                runOnUiThread(() -> {
+                    updateUI();
+                    Toast.makeText(MainActivity.this, "Attendance state reset. Check-In ready.", Toast.LENGTH_SHORT).show();
+                });
+            } catch (Exception e) {
+                // Still clear local state so user can re-test
+                prefs.edit()
+                        .putBoolean("has_checked_in", false)
+                        .putBoolean("has_checked_out", false)
+                        .putString("checkin_time", "-")
+                        .putString("checkout_time", "-")
+                        .apply();
+                runOnUiThread(() -> {
+                    updateUI();
+                    Toast.makeText(MainActivity.this, "Reset done (offline). Check-In ready.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
     }
 
     private void promptAdminSettings() {
@@ -623,6 +711,7 @@ public class MainActivity extends AppCompatActivity {
             llBannerStatus.setVisibility(View.VISIBLE);
             llBannerStatus.setBackgroundResource(R.drawable.bg_radar_inside);
             tvBannerTitle.setText("Checked-In");
+tvBannerTitle.setTextSize(20);
             tvBannerTitle.setTextColor(0xFF047857);
             tvBannerTime.setText("Time: " + checkinTime + " (Present)");
             tvBannerWarn.setVisibility(View.GONE); // NIKAL DIYA (User Request)
@@ -638,6 +727,7 @@ public class MainActivity extends AppCompatActivity {
             llBannerStatus.setVisibility(View.VISIBLE);
             llBannerStatus.setBackgroundResource(R.drawable.bg_radar_locating);
             tvBannerTitle.setText("Checked-Out");
+tvBannerTitle.setTextSize(20);
             tvBannerTitle.setTextColor(0xFF0369A1);
             String checkoutTime = prefs.getString("checkout_time", "-");
             tvBannerTime.setText("In: " + checkinTime + "  |  Out: " + checkoutTime);
@@ -745,6 +835,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Toast.makeText(this, "Sending " + punchType + " to Attendance Log...", Toast.LENGTH_SHORT).show();
+
+        // Disable punch button during request (prevent double-punch)
+        runOnUiThread(() -> {
+            if (btnCheckIn != null && btnCheckIn.getVisibility() == View.VISIBLE) {
+                btnCheckIn.setEnabled(false);
+                btnCheckIn.setText("⏳ Saving...");
+            }
+            if (btnCheckOut != null && btnCheckOut.getVisibility() == View.VISIBLE) {
+                btnCheckOut.setEnabled(false);
+                btnCheckOut.setText("⏳ Saving...");
+            }
+        });
 
         // Fast-path: use the already-tracked location (continuous watchPosition) instead of
         // waiting for a fresh high-accuracy GPS fix, which can take 10-30s on mobile.
@@ -883,14 +985,31 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (code == 200 || code == 302) {
+                boolean isSuccess = (respObj != null && "success".equalsIgnoreCase(respObj.optString("status", "")));
+                if (respObj != null) {
+                    String st = respObj.optString("status", "");
+                    if (st.startsWith("blocked") || "error".equalsIgnoreCase(st)) {
+                        isSuccess = false;
+                    }
+                }
+                // If backend returned a usable response with a punchTime, treat as success
+                if (!isSuccess && respObj != null && !respObj.optString("punchTime", "").isEmpty()) {
+                    isSuccess = true;
+                }
+
+                final JSONObject finalRespObj = respObj;
+                if (isSuccess) {
                     runOnUiThread(() -> {
-                        String timeNow = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
+                        String timeNow = (finalRespObj != null && !finalRespObj.optString("punchTime", "").isEmpty())
+                                ? finalRespObj.optString("punchTime")
+                                : new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
+                        String srvStatus = (finalRespObj != null) ? finalRespObj.optString("punchStatus", finalRespObj.optString("status", "")) : "";
                         if ("Check-In".equals(punchType)) {
                             prefs.edit()
                                     .putBoolean("has_checked_in", true)
                                     .putBoolean("has_checked_out", false)
                                     .putString("checkin_time", timeNow)
+                                    .putString("checkin_status", srvStatus.isEmpty() ? "Present" : srvStatus)
                                     .apply();
                             Toast.makeText(MainActivity.this, "Check-In Recorded for " + finalEmpName + "!", Toast.LENGTH_SHORT).show();
                             startLocationService();
@@ -903,14 +1022,17 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Check-Out Recorded! Have a good evening.", Toast.LENGTH_SHORT).show();
                             stopLocationService();
                         }
+                        prefs.edit().putLong("last_punch_time_ms", System.currentTimeMillis()).apply();
                         updateUI();
-                        // Do NOT sync immediately after punch — the sheet may not reflect the
-                        // new punch yet, which caused the check-out button to flicker.
-                        // Local prefs are authoritative right after a punch; periodic sync
-                        // (onResume / background) will reconcile later.
                     });
                 } else {
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Punch response HTTP " + code, Toast.LENGTH_LONG).show());
+                    String errMsg = (respObj != null && !respObj.optString("message", "").isEmpty())
+                            ? respObj.optString("message") : ("Punch failed (HTTP " + code + ")");
+                    runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, errMsg, Toast.LENGTH_LONG).show();
+                        if (btnCheckIn != null && btnCheckIn.getVisibility() == View.VISIBLE) btnCheckIn.setEnabled(true);
+                        if (btnCheckOut != null && btnCheckOut.getVisibility() == View.VISIBLE) btnCheckOut.setEnabled(true);
+                    });
                 }
                 conn.disconnect();
             } catch (Exception e) {
@@ -988,6 +1110,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (sheetPollHandler != null && sheetPollRunnable != null) {
+            sheetPollHandler.removeCallbacks(sheetPollRunnable);
         }
     }
 
@@ -1079,12 +1209,15 @@ public class MainActivity extends AppCompatActivity {
                     boolean localCheckedOut = prefs.getBoolean("has_checked_out", false);
 
                     // Guard against stale sheet data (e.g. right after a punch the sheet
-                    // may not reflect the new record yet). Never regress local state:
-                    // checked-out (2) > checked-in (1) > none (0).
+                    // may not reflect the new record yet). Never regress local state
+                    // WITHIN 60s of a punch; after that, trust the sheet (so manual
+                    // deletes / real resets propagate).
+                    long lastPunchMs = prefs.getLong("last_punch_time_ms", 0);
+                    boolean recentlyPunched = (lastPunchMs > 0) && (System.currentTimeMillis() - lastPunchMs) < 30000;
                     int localLevel = localCheckedOut ? 2 : (localCheckedIn ? 1 : 0);
                     int sheetLevel = (sheetHasCheckedIn && sheetHasCheckedOut) ? 2 : (sheetHasCheckedIn ? 1 : 0);
-                    if (sheetLevel < localLevel) {
-                        android.util.Log.i("MainActivity", "Realtime Sheet Sync: sheet is behind local state (sheet=" + sheetLevel + " local=" + localLevel + "). Keeping local.");
+                    if (!forceSheetSync && recentlyPunched && sheetLevel < localLevel) {
+                        android.util.Log.i("MainActivity", "Realtime Sheet Sync: sheet is behind local state within 60s of punch (sheet=" + sheetLevel + " local=" + localLevel + "). Keeping local.");
                         // fall through to settings update only; skip attendance reconcile
                     } else if (!sheetHasCheckedIn && !sheetHasCheckedOut) {
                         // Google Sheet has NO punches today (e.g. rows deleted or midnight reset)

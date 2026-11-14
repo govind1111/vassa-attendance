@@ -515,6 +515,16 @@
       localStorage.removeItem("vassa_staff_profile");
       localStorage.setItem("vassa_lock_fix_v3", "done");
     }
+    // One-time cleanup: remove stale optimistic punch state from old code
+    if (localStorage.getItem("vassa_punch_state_cleanup_v1") !== "done") {
+      var keysToRemove = [];
+      for (var k = 0; k < localStorage.length; k++) {
+        var key = localStorage.key(k);
+        if (key && key.indexOf("vassa_local_punch_") === 0) keysToRemove.push(key);
+      }
+      for (var r = 0; r < keysToRemove.length; r++) localStorage.removeItem(keysToRemove[r]);
+      localStorage.setItem("vassa_punch_state_cleanup_v1", "done");
+    }
   } catch (e) {}
 
   // Load cached Staff_Master list from localStorage (prevents showing old/hardcoded names before Sheet sync)
@@ -841,27 +851,10 @@
   function applyStaff(staff, isAuto) {
     if (!staff) return;
 
-    // Merge today's instant local punch state if available
-    try {
-      var dateKey = new Date().toISOString().slice(0, 10);
-      var localPunchRaw = localStorage.getItem("vassa_local_punch_" + staff.id + "_" + dateKey);
-      if (localPunchRaw) {
-        var lp = JSON.parse(localPunchRaw);
-        if (lp) {
-          if (lp.hasCheckedIn) {
-            staff.hasCheckedIn = true;
-            staff.hasPunchedToday = true;
-            if (!staff.checkInTime || staff.checkInTime === "-") staff.checkInTime = lp.checkInTime;
-            if (!staff.checkInStatus) staff.checkInStatus = lp.checkInStatus;
-          }
-          if (lp.hasCheckedOut) {
-            staff.hasCheckedOut = true;
-            if (!staff.checkOutTime || staff.checkOutTime === "-") staff.checkOutTime = lp.checkOutTime;
-            if (!staff.workDuration || staff.workDuration === "-") staff.workDuration = lp.workDuration;
-          }
-        }
-      }
-    } catch(e) {}
+    // NOTE: local punch state (vassa_local_punch_*) is intentionally NOT merged here.
+    // Google Sheet is the single source of truth; stale local optimistic state caused
+    // false "Checked-In" / check-out button even when no sheet record existed.
+    // (Offline queue still syncs in background; state reconciles on next fetch.)
 
     currentStaff = staff;
 
@@ -1021,6 +1014,34 @@
 
   function deg2rad(deg) { return deg * (Math.PI / 180); }
 
+  // Work duration between two "hh:mm AM/PM" (or "hh:mm am/pm") strings
+  function calculateWorkDuration(checkInTime, checkOutTime) {
+    if (!checkInTime || checkInTime === "-" || !checkOutTime || checkOutTime === "-") return "-";
+    try {
+      function toMinutes(t) {
+        var m = String(t).trim().match(/(\d{1,2}):(\d{2})\s*(am|pm|AM|PM|Am|Pm)?/);
+        if (!m) return null;
+        var h = parseInt(m[1], 10);
+        var min = parseInt(m[2], 10);
+        var ap = (m[3] || "").toLowerCase();
+        if (ap === "pm" && h < 12) h += 12;
+        if (ap === "am" && h === 12) h = 0;
+        return h * 60 + min;
+      }
+      var inM = toMinutes(checkInTime);
+      var outM = toMinutes(checkOutTime);
+      if (inM === null || outM === null) return "-";
+      var diff = outM - inM;
+      if (diff < 0) diff += 24 * 60; // overnight
+      if (diff < 0) return "-";
+      var hrs = Math.floor(diff / 60);
+      var mins = diff % 60;
+      return hrs + " hrs " + mins + " mins";
+    } catch(e) {
+      return "-";
+    }
+  }
+
   function getDistanceMeters(lat1, lon1, lat2, lon2) {
     var R = 6371e3;
     var dLat = deg2rad(lat2 - lat1);
@@ -1118,9 +1139,18 @@
       radarIcon.className = "radar-icon outside";
       radarIcon.innerText = "";
       radarTitle.innerText = "Outside 100m Range (" + Math.round(distanceToTarget) + "m away)";
-      radarDesc.innerText = "You must be within 100 meters of site pin";
-      punchBtn.disabled = true;
-      punchBtn.innerText = "" + currentPunchMode + " Blocked (" + Math.round(distanceToTarget) + "m Away)";
+
+      // Check-Out can happen from anywhere (no geofence restriction)
+      if (currentPunchMode === "Check-Out" && currentStaff) {
+        radarDesc.innerText = "Check-Out allowed from any location";
+        punchBtn.disabled = false;
+        punchBtn.className = "btn btn-checkout";
+        punchBtn.innerText = "Check-Out Now (" + Math.round(distanceToTarget) + "m)";
+      } else {
+        radarDesc.innerText = "You must be within 100 meters of site pin";
+        punchBtn.disabled = true;
+        punchBtn.innerText = "" + currentPunchMode + " Blocked (" + Math.round(distanceToTarget) + "m Away)";
+      }
     }
   }
 
@@ -1291,7 +1321,8 @@
     };
 
     // ============================================================================
-    // 0ms INSTANT OPTIMISTIC FEEDBACK (Zero Waiting Time for Staff)
+    // HONEST FEEDBACK: show "Saving..." immediately; confirm ONLY after backend
+    // records the punch in Google Sheet. No optimistic false success.
     // ============================================================================
     var instantTimeStr = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
     var instantStatus = "Present (On-Time)";
@@ -1310,46 +1341,20 @@
       try { navigator.vibrate([120, 50, 120]); } catch(e) {}
     }
 
-    // Optimistically update current staff state in 0ms
-    if (type === "Check-In") {
-      currentStaff.hasCheckedIn = true;
-      currentStaff.hasPunchedToday = true;
-      currentStaff.checkInTime = instantTimeStr;
-      currentStaff.checkInStatus = instantStatus;
-      applyStaff(currentStaff, true);
-      startLiveTracking();
-    } else {
-      currentStaff.hasCheckedOut = true;
-      currentStaff.checkOutTime = instantTimeStr;
-      if (currentStaff.checkInTime) {
-        currentStaff.workDuration = calculateWorkDuration(currentStaff.checkInTime, instantTimeStr);
-      }
-      applyStaff(currentStaff, true);
-    }
-
-    // Save immediate punch state in local storage so page reload preserves state
-    try {
-      var dateKey = new Date().toISOString().slice(0, 10);
-      localStorage.setItem("vassa_local_punch_" + currentStaff.id + "_" + dateKey, JSON.stringify({
-        hasCheckedIn: currentStaff.hasCheckedIn,
-        checkInTime: currentStaff.checkInTime,
-        checkInStatus: currentStaff.checkInStatus,
-        hasCheckedOut: currentStaff.hasCheckedOut,
-        checkOutTime: currentStaff.checkOutTime,
-        workDuration: currentStaff.workDuration
-      }));
-    } catch(e) {}
-
-    // Instant Visual Toast & Sync Badge
     var toast = document.getElementById("toast-msg");
     var syncBadge = document.getElementById("punched-sync-badge");
 
+    // Disable button + show "Saving..." (no false success, no state change yet)
+    var punchBtn = document.getElementById("punch-btn");
+    if (punchBtn) {
+      punchBtn.disabled = true;
+      punchBtn.innerText = "⏳ Saving " + type + "...";
+    }
     if (toast) {
       toast.className = "toast success";
       toast.style.display = "block";
-      toast.innerHTML = "<b>" + type + " Recorded!</b> (" + instantTimeStr + ")<br><span style='font-size:11px;opacity:0.9;'>Syncing with Google Sheet in background...</span>";
+      toast.innerHTML = "<b>Saving " + type + " to Google Sheet...</b><br><span style='font-size:11px;opacity:0.9;'>Please wait, do not close.</span>";
     }
-
     if (syncBadge) {
       syncBadge.style.display = "inline-flex";
       syncBadge.style.background = "#E0F2FE";
@@ -1361,6 +1366,12 @@
     // BACKGROUND ASYNC SYNC (Google Apps Script)
     // ============================================================================
     function handleSuccess(res) {
+      // Only treat as success if backend confirms the record was written
+      if (!res || (res.status !== "success" && res.success !== true && !res.isDuplicate)) {
+        handleFailure(new Error((res && res.message) ? res.message : "Punch not recorded in sheet"));
+        return;
+      }
+
       if (res && res.isProxyBlocked) {
         // Revert optimistic punch if proxy punch is rejected by server
         if (type === "Check-In") {
@@ -1392,6 +1403,35 @@
         return;
       }
 
+      // Confirmed by Google Sheet: now update state + button + storage
+      var confirmedTime = res.time || res.punchTime || instantTimeStr;
+      var confirmedStatus = res.status || res.punchStatus || instantStatus;
+      if (type === "Check-In") {
+        currentStaff.hasCheckedIn = true;
+        currentStaff.hasPunchedToday = true;
+        currentStaff.checkInTime = confirmedTime;
+        currentStaff.checkInStatus = confirmedStatus;
+        startLiveTracking();
+      } else {
+        currentStaff.hasCheckedOut = true;
+        currentStaff.checkOutTime = confirmedTime;
+        if (currentStaff.checkInTime) {
+          currentStaff.workDuration = res.duration || res.workDuration || calculateWorkDuration(currentStaff.checkInTime, confirmedTime);
+        }
+      }
+      try {
+        var dateKey = new Date().toISOString().slice(0, 10);
+        localStorage.setItem("vassa_local_punch_" + currentStaff.id + "_" + dateKey, JSON.stringify({
+          hasCheckedIn: currentStaff.hasCheckedIn,
+          checkInTime: currentStaff.checkInTime,
+          checkInStatus: currentStaff.checkInStatus,
+          hasCheckedOut: currentStaff.hasCheckedOut,
+          checkOutTime: currentStaff.checkOutTime,
+          workDuration: currentStaff.workDuration
+        }));
+      } catch(e) {}
+      applyStaff(currentStaff, true);
+
       // Success confirmation from Google Sheets
       if (syncBadge) {
         syncBadge.style.background = "#D1FAE5";
@@ -1409,6 +1449,20 @@
     function handleFailure(err) {
       console.warn("Direct punch sync failed/delayed, queued offline:", err);
       queueOfflinePunch(payload);
+
+      // Revert optimistic state: do NOT mark checked-in/out (sheet has no record yet)
+      if (type === "Check-In") {
+        currentStaff.hasCheckedIn = false;
+        currentStaff.hasPunchedToday = false;
+      } else {
+        currentStaff.hasCheckedOut = false;
+      }
+      applyStaff(currentStaff, false);
+
+      if (punchBtn) {
+        punchBtn.disabled = false;
+        punchBtn.innerText = (type === "Check-In" ? "Check-In" : "Check-Out") + " Again";
+      }
 
       if (syncBadge) {
         syncBadge.style.background = "#FEF3C7";
