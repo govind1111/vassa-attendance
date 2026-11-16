@@ -876,9 +876,6 @@
           <button type="button" onclick="loadPayrollData(true)" style="background: #0284C7; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2,132,199,0.3);">
             Recalculate
           </button>
-          <button type="button" onclick="syncAllPayrollConfigsToSheet()" style="background: #F59E0B; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(245,158,11,0.3);">
-            Sync All to Sheet
-          </button>
           <button type="button" onclick="exportPayrollCSV()" style="background: #059669; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(5,150,105,0.3);">
             Export CSV
           </button>
@@ -2821,6 +2818,9 @@ function switchDashboardView(view) {
       });
     }
 
+    // Sort by Emp ID for consistent display
+    staffPayroll.sort(function(a, b) { return String(a.empId || "").localeCompare(String(b.empId || "")); });
+
     currentPayrollData = {
       month: monthVal,
       monthName: attData ? (attData.monthName || monthVal) : monthVal,
@@ -2842,16 +2842,102 @@ function switchDashboardView(view) {
 
     renderPayrollTable(currentPayrollData);
 
-    // Background sync from server (if online)
-    if (forceRefresh) {
-      sendDashboardApiRequest({ action: "get_payroll_data", month: monthVal })
-        .then(function(res) {
-          if (res && res.status === "success" && res.staff) {
-            // merge server-stored configs if available
-            console.log("Server payroll synced successfully");
+    // Background sync from server: merge sheet-stored configs (sheet is authoritative)
+    // + one-time auto-push of all localStorage configs to sheet (fixes stale/empty sheet)
+    sendDashboardApiRequest({ action: "get_payroll_data", month: monthVal })
+      .then(function(res) {
+        if (res && res.status === "success" && res.staff && res.staff.length > 0) {
+          var cfgs = getStoredPayrollConfigs();
+          var changed = false;
+          for (var si = 0; si < res.staff.length; si++) {
+            var rs = res.staff[si];
+            var eid = String(rs.empId || "").trim().toUpperCase();
+            if (!eid) continue;
+            if (rs.salaryType) {
+              var existing = cfgs[eid] || {};
+              // Sheet is authoritative: if sheet has a non-empty salaryType, use it
+              if (existing.salaryType !== rs.salaryType) {
+                cfgs[eid] = cfgs[eid] || {};
+                cfgs[eid].salaryType = rs.salaryType;
+                changed = true;
+              }
+              // If sheet has real values (baseSalary>0), use them; else keep localStorage
+              if (rs.baseSalary > 0 && existing.baseSalary !== rs.baseSalary) {
+                cfgs[eid] = cfgs[eid] || {};
+                cfgs[eid].baseSalary = rs.baseSalary;
+                changed = true;
+              }
+              if (rs.perDayRate > 0 && existing.perDayRate !== rs.perDayRate) {
+                cfgs[eid] = cfgs[eid] || {};
+                cfgs[eid].perDayRate = rs.perDayRate;
+                changed = true;
+              }
+              if (rs.commissionRate > 0 && existing.commissionRate !== rs.commissionRate) {
+                cfgs[eid] = cfgs[eid] || {};
+                cfgs[eid].commissionRate = rs.commissionRate;
+                changed = true;
+              }
+              if (rs.bonus > 0 && existing.bonus !== rs.bonus) {
+                cfgs[eid] = cfgs[eid] || {};
+                cfgs[eid].bonus = rs.bonus;
+                changed = true;
+              }
+            }
           }
-        }).catch(function(e){});
-    }
+          if (changed) {
+            saveStoredPayrollConfigs(cfgs);
+            loadPayrollData(false); // re-render with merged configs
+          }
+          payrollBackendReady = true;
+
+          // One-time auto-push: if sheet is stale (all baseSalary 0 but localStorage has values), push all
+          if (localStorage.getItem("vassa_payroll_auto_synced") !== "done") {
+            var hasLocalValues = false;
+            var cfgKeys = Object.keys(cfgs);
+            for (var ci = 0; ci < cfgKeys.length; ci++) {
+              if ((cfgs[cfgKeys[ci]].baseSalary || 0) > 0) { hasLocalValues = true; break; }
+            }
+            var sheetEmpty = true;
+            for (var si2 = 0; si2 < res.staff.length; si2++) {
+              if ((res.staff[si2].baseSalary || 0) > 0) { sheetEmpty = false; break; }
+            }
+            if (hasLocalValues && sheetEmpty) {
+              showToast("Syncing payroll configs to Google Sheet...", "info");
+              var empIds = Object.keys(cfgs);
+              var done = 0;
+              function pushNext(i) {
+                if (i >= empIds.length) {
+                  localStorage.setItem("vassa_payroll_auto_synced", "done");
+                  showToast("Payroll synced to Google Sheet: " + done + "/" + empIds.length, "success");
+                  loadPayrollData(true);
+                  return;
+                }
+                var eid = empIds[i];
+                var c = cfgs[eid] || {};
+                sendDashboardApiRequest({
+                  action: "save_payroll_config",
+                  empId: eid,
+                  name: (currentPayrollData && currentPayrollData.staff) ? ((currentPayrollData.staff.find(function(x){return x.empId===eid;})||{}).name || eid) : eid,
+                  salaryType: c.salaryType || "Fixed",
+                  baseSalary: c.baseSalary || 0,
+                  perDayRate: c.perDayRate || 0,
+                  commissionRate: c.commissionRate || 0,
+                  bonus: c.bonus || 0,
+                  deductionPerAbsent: c.deductionPerAbsent || 0,
+                  deductionPerLate: c.deductionPerLate || 0,
+                  status: "Active"
+                }).then(function(r){ if (r && r.success) done++; pushNext(i+1); })
+                  .catch(function(e){ pushNext(i+1); });
+              }
+              pushNext(0);
+            } else {
+              localStorage.setItem("vassa_payroll_auto_synced", "done");
+            }
+          }
+        }
+      }).catch(function(e){
+        console.warn("Background payroll sync notice:", e);
+      });
   }
 
   function renderPayrollTable(data) {
@@ -3134,45 +3220,6 @@ function switchDashboardView(view) {
         showToast("Payroll rule synced to Google Sheet for " + empId, "success");
       }
     }).catch(function(e){});
-  }
-
-  // Push all locally-stored payroll configs to Google Sheet (fixes stale sheet)
-  function syncAllPayrollConfigsToSheet() {
-    var cfgs = getStoredPayrollConfigs();
-    var empIds = Object.keys(cfgs);
-    if (empIds.length === 0) { showToast("No payroll configs to sync.", "warning"); return; }
-    showToast("Syncing " + empIds.length + " payroll configs to Google Sheet...", "info");
-    var done = 0;
-    var failed = 0;
-    function next(i) {
-      if (i >= empIds.length) {
-        showToast("Sync complete: " + done + " synced, " + failed + " failed.", done > 0 ? "success" : "warning");
-        loadPayrollData(true);
-        return;
-      }
-      var eid = empIds[i];
-      var c = cfgs[eid] || {};
-      sendDashboardApiRequest({
-        action: "save_payroll_config",
-        empId: eid,
-        name: (currentPayrollData && currentPayrollData.staff) ? ((currentPayrollData.staff.find(function(x){return x.empId===eid;})||{}).name || eid) : eid,
-        salaryType: c.salaryType || "Fixed",
-        baseSalary: c.baseSalary || 0,
-        perDayRate: c.perDayRate || 0,
-        commissionRate: c.commissionRate || 0,
-        bonus: c.bonus || 0,
-        deductionPerAbsent: c.deductionPerAbsent || 0,
-        deductionPerLate: c.deductionPerLate || 0,
-        status: "Active"
-      }).then(function(res){
-        if (res && res.success) done++; else failed++;
-        next(i+1);
-      }).catch(function(err){
-        failed++;
-        next(i+1);
-      });
-    }
-    next(0);
   }
 
   // Official Branded Salary Slip Generator (Printable)
