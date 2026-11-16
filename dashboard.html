@@ -876,6 +876,9 @@
           <button type="button" onclick="loadPayrollData(true)" style="background: #0284C7; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2,132,199,0.3);">
             Recalculate
           </button>
+          <button type="button" onclick="syncAllPayrollConfigsToSheet()" style="background: #F59E0B; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(245,158,11,0.3);">
+            Sync All to Sheet
+          </button>
           <button type="button" onclick="exportPayrollCSV()" style="background: #059669; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(5,150,105,0.3);">
             Export CSV
           </button>
@@ -935,7 +938,7 @@
               <tr>
                 <th style="padding: 12px 10px; width: 80px; min-width: 80px; max-width: 80px; border-bottom: 2px solid var(--input-border); position: sticky; left: 0; background: var(--input-bg); z-index: 5;">Emp ID</th>
                 <th style="padding: 12px 12px; width: 200px; min-width: 200px; max-width: 200px; border-bottom: 2px solid var(--input-border); position: sticky; left: 80px; background: var(--input-bg); z-index: 5; border-right: 2px solid #0284C7;">Staff Member</th>
-                <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid #334155;">Structure</th>
+                <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid var(--input-border);">Structure</th>
                 <th style="padding: 12px 10px; width: 95px; border-bottom: 2px solid #334155; text-align: right;">Base / Rate</th>
                 <th style="padding: 12px 10px; width: 140px; border-bottom: 2px solid #334155; text-align: center;">Attendance</th>
                 <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid #334155; text-align: right;">Deal / Sales (₹)</th>
@@ -2640,14 +2643,15 @@ function switchDashboardView(view) {
   // Becomes true only when the deployed Apps Script backend confirms payroll support
   // (get_monthly_data returns payrollReady). Prevents sending payroll actions to an
   // older backend, which would treat them as attendance punches.
-  var payrollBackendReady = false;
+  var payrollBackendReady = true; // Backend @56+ supports payroll (save_payroll_config, get_payroll_data)
 
   // Persistent default staff compensation structures (Vassa Properties)
+  // All staff default to "Fixed" (consistent baseline; user can change per-staff via rules modal)
   var DEFAULT_PAYROLL_CONFIGS = {
     "VP-001": { salaryType: "Fixed", baseSalary: 60000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 },
-    "VP-002": { salaryType: "Fixed+Commission", baseSalary: 25000, perDayRate: 0, commissionRate: 0.5, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 5000, salesAmount: 3500000 },
-    "VP-003": { salaryType: "Daily", baseSalary: 0, perDayRate: 900, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 50, bonus: 500 },
-    "VP-004": { salaryType: "Commission", baseSalary: 0, perDayRate: 0, commissionRate: 1.5, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 2000, salesAmount: 4800000 },
+    "VP-002": { salaryType: "Fixed", baseSalary: 25000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 5000 },
+    "VP-003": { salaryType: "Fixed", baseSalary: 0, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 50, bonus: 500 },
+    "VP-004": { salaryType: "Fixed", baseSalary: 0, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 2000 },
     "VP-005": { salaryType: "Fixed", baseSalary: 22000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 1000 },
     "VP-006": { salaryType: "Fixed", baseSalary: 20000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 0 }
   };
@@ -3112,12 +3116,7 @@ function switchDashboardView(view) {
     // Recalculate immediately with new rules
     loadPayrollData();
 
-    if (!payrollBackendReady) {
-      showToast("Rule saved locally. Updated backend deploy hone ke baad sheet me sync hoga.", "warning");
-      return;
-    }
-
-    // Async sync with Google Sheet
+    // Async sync with Google Sheet (always attempt; warn only on failure):
     sendDashboardApiRequest({
       action: "save_payroll_config",
       empId: empId,
@@ -3135,6 +3134,45 @@ function switchDashboardView(view) {
         showToast("Payroll rule synced to Google Sheet for " + empId, "success");
       }
     }).catch(function(e){});
+  }
+
+  // Push all locally-stored payroll configs to Google Sheet (fixes stale sheet)
+  function syncAllPayrollConfigsToSheet() {
+    var cfgs = getStoredPayrollConfigs();
+    var empIds = Object.keys(cfgs);
+    if (empIds.length === 0) { showToast("No payroll configs to sync.", "warning"); return; }
+    showToast("Syncing " + empIds.length + " payroll configs to Google Sheet...", "info");
+    var done = 0;
+    var failed = 0;
+    function next(i) {
+      if (i >= empIds.length) {
+        showToast("Sync complete: " + done + " synced, " + failed + " failed.", done > 0 ? "success" : "warning");
+        loadPayrollData(true);
+        return;
+      }
+      var eid = empIds[i];
+      var c = cfgs[eid] || {};
+      sendDashboardApiRequest({
+        action: "save_payroll_config",
+        empId: eid,
+        name: (currentPayrollData && currentPayrollData.staff) ? ((currentPayrollData.staff.find(function(x){return x.empId===eid;})||{}).name || eid) : eid,
+        salaryType: c.salaryType || "Fixed",
+        baseSalary: c.baseSalary || 0,
+        perDayRate: c.perDayRate || 0,
+        commissionRate: c.commissionRate || 0,
+        bonus: c.bonus || 0,
+        deductionPerAbsent: c.deductionPerAbsent || 0,
+        deductionPerLate: c.deductionPerLate || 0,
+        status: "Active"
+      }).then(function(res){
+        if (res && res.success) done++; else failed++;
+        next(i+1);
+      }).catch(function(err){
+        failed++;
+        next(i+1);
+      });
+    }
+    next(0);
   }
 
   // Official Branded Salary Slip Generator (Printable)
