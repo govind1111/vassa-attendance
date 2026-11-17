@@ -885,8 +885,18 @@
           <button type="button" onclick="printAllPayslips()" style="background: #7C3AED; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(124,58,237,0.3);">
             Print All Slips
           </button>
+          <button type="button" onclick="savePayrollSalarySheet()" id="btn-save-payroll-sheet" style="background: #0F766E; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(15,118,110,0.3);" title="Is mahine ka salary sheet Google Sheet ke Payroll_Register tab me save karo (history ke liye)">
+            Save Salary Sheet
+          </button>
+          <button type="button" onclick="printPayrollSalarySheetPDF()" style="background: #B45309; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(180,83,9,0.3);" title="Is mahine ka poora salary sheet PDF me print karo">
+            Print Salary Sheet
+          </button>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div id="payroll-snapshot-status" style="font-size: 11px; color: var(--text-muted); background: var(--input-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--input-border); display: flex; align-items: center; gap: 6px;">
+            <span id="payroll-snapshot-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #94A3B8; display: inline-block;"></span>
+            <span id="payroll-snapshot-text">Checking saved salary sheet...</span>
+          </div>
           <div id="payroll-sheet-status" style="font-size: 11px; color: var(--text-muted); background: var(--input-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--input-border); display: flex; align-items: center; gap: 6px;">
             <span id="payroll-sheet-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #FBBF24; display: inline-block;"></span>
             <span id="payroll-sheet-text">Connecting to Google Sheet...</span>
@@ -2666,6 +2676,10 @@ function switchDashboardView(view) {
   // ==============================================================================
 
   var currentPayrollData = null;
+  // Salary sheet history (Google Sheet tab: Payroll_Register)
+  var payrollRegisterMonths = [];      // [{month:'2026-11', count:14}, ...]
+  var payrollAutoSnapshot = false;     // set right before a rule change, consumed after re-render
+  var payrollLastSavedAt = "";         // ISO timestamp of the last saved snapshot
   var activeConfigEmpId = null;
   // Becomes true only when the deployed Apps Script backend confirms payroll support
   // (get_monthly_data returns payrollReady). Prevents sending payroll actions to an
@@ -2778,14 +2792,350 @@ function switchDashboardView(view) {
       currentMonthlyData = attData;
     }
 
+    var wantSnapshot = payrollAutoSnapshot;
+    payrollAutoSnapshot = false;
+
     // 2. Instant paint from the cached rules (so the tab never looks empty)
     computeAndRenderPayroll(monthVal, attData, getStoredPayrollConfigs());
+    setPayrollSnapshotStatus("pending");
 
-    // 3. Always re-read the authoritative rules from the Payroll_Config sheet
-    fetchPayrollConfigsFromSheet(function(configs) {
-      if (configs) computeAndRenderPayroll(monthVal, attData, configs);
-      payrollBackendReady = true;
+    // 3. Saved salary sheet (Payroll_Register) is the source of truth for past months
+    fetchPayrollRegisterFromSheet(monthVal, function(reg) {
+      var isPastMonth = monthVal < currentMonthKey();
+      var hasSaved = !!(reg && reg.rows && reg.rows.length);
+
+      if (hasSaved && isPastMonth) {
+        // Locked history: rules change hone ke baad bhi purana sheet same rehta hai
+        renderPayrollFromRegister(reg);
+        return;
+      }
+
+      // 4. Live calculation from attendance + Payroll_Config rules
+      fetchPayrollConfigsFromSheet(function(configs) {
+        if (configs) computeAndRenderPayroll(monthVal, attData, configs);
+        payrollBackendReady = true;
+
+        if (hasSaved) {
+          markPayrollSnapshotSaved(reg.rows[0].savedAt, monthVal);
+        } else if (isPastMonth) {
+          setPayrollSnapshotStatus("past_unsaved");
+        } else {
+          setPayrollSnapshotStatus("unsaved");
+        }
+
+        if (wantSnapshot) savePayrollSalarySheet({ silent: true });
+      });
     });
+  }
+
+  // ---------------------------------------------------------------------------
+  // SALARY SHEET HISTORY (Payroll_Register sheet)
+  // ---------------------------------------------------------------------------
+  function currentMonthKey() {
+    var n = new Date();
+    var m = n.getMonth() + 1;
+    return n.getFullYear() + "-" + (m < 10 ? "0" + m : m);
+  }
+
+  function monthOptionLabel(val) {
+    var names = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    var parts = String(val || "").split("-");
+    var y = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    if (!y || !m) return String(val || "");
+    return names[m - 1] + " " + y;
+  }
+
+  function formatSavedStamp(savedAtIso) {
+    if (!savedAtIso) return "";
+    var d = new Date(savedAtIso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function setPayrollSnapshotStatus(mode, extra) {
+    var dot = document.getElementById("payroll-snapshot-dot");
+    var txt = document.getElementById("payroll-snapshot-text");
+    if (!dot || !txt) return;
+    var colors = { pending: "#94A3B8", unsaved: "#F59E0B", past_unsaved: "#F97316", saving: "#38BDF8", saved: "#10B981", error: "#EF4444" };
+    var labels = {
+      pending: "Checking saved salary sheet...",
+      unsaved: "Live calculation \u2013 not saved to sheet yet",
+      past_unsaved: "Past month not saved \u2013 live estimate only",
+      saving: "Saving salary sheet to Google Sheet...",
+      saved: "Saved to Payroll_Register \u2022 " + (extra || ""),
+      error: "Salary sheet save failed"
+    };
+    dot.style.background = colors[mode] || "#94A3B8";
+    txt.innerText = labels[mode] || "";
+  }
+
+  function markPayrollSnapshotSaved(savedAtIso, monthVal) {
+    payrollLastSavedAt = savedAtIso || new Date().toISOString();
+    setPayrollSnapshotStatus("saved", formatSavedStamp(payrollLastSavedAt));
+  }
+
+  function mergePayrollRegisterMonths(months) {
+    var sel = document.getElementById("payroll-select-month");
+    if (!sel || !months || !months.length) return;
+    var existing = {};
+    for (var i = 0; i < sel.options.length; i++) existing[sel.options[i].value] = true;
+    var keepVal = sel.value;
+    var changed = false;
+    for (var j = 0; j < months.length; j++) {
+      var mv = months[j] && months[j].month ? months[j].month : months[j];
+      if (!mv || existing[mv]) continue;
+      var opt = document.createElement("option");
+      opt.value = mv;
+      opt.textContent = monthOptionLabel(mv) + " \u2022 saved";
+      sel.appendChild(opt);
+      existing[mv] = true;
+      changed = true;
+    }
+    if (changed) {
+      var opts = Array.prototype.slice.call(sel.options);
+      opts.sort(function(a, b) { return a.value < b.value ? 1 : (a.value > b.value ? -1 : 0); });
+      sel.innerHTML = "";
+      for (var k = 0; k < opts.length; k++) sel.appendChild(opts[k]);
+      sel.value = keepVal;
+    }
+  }
+
+  function fetchPayrollRegisterFromSheet(monthVal, cb) {
+    sendDashboardApiRequest({ action: "get_payroll_register", month: monthVal })
+      .then(function(res) {
+        if (res && res.success && Array.isArray(res.rows)) {
+          payrollRegisterMonths = Array.isArray(res.months) ? res.months : [];
+          mergePayrollRegisterMonths(payrollRegisterMonths);
+          cb(res);
+        } else {
+          cb({ rows: [], months: [] });
+        }
+      })
+      .catch(function(e) {
+        console.warn("Payroll register load failed:", e);
+        cb({ rows: [], months: [] });
+      });
+  }
+
+  // Paint a locked (already saved) salary sheet from Payroll_Register
+  function renderPayrollFromRegister(reg) {
+    var rows = (reg && reg.rows) ? reg.rows : [];
+    var staff = [];
+    var totNet = 0, totBase = 0, totComm = 0, totDeduct = 0, totBonus = 0;
+
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      var p = {
+        empId: r.empId,
+        name: r.name,
+        department: r.department || "-",
+        designation: r.designation || "-",
+        salaryType: r.salaryType || "Fixed",
+        baseSalary: r.baseSalary || 0,
+        perDayRate: (r.salaryType === "Daily") ? (r.rawPerDayRate || 0) : 0,
+        rawPerDayRate: r.rawPerDayRate || 0,
+        lateRate: 0,
+        absentRate: 0,
+        commissionRate: r.commissionRate || 0,
+        salesAmount: r.salesAmount || 0,
+        commission: r.commission || 0,
+        presentDays: r.presentDays || 0,
+        lateDays: r.lateDays || 0,
+        absentDays: r.absentDays || 0,
+        leaveDays: r.leaveDays || 0,
+        workingDays: r.workingDays || 0,
+        gross: r.gross || 0,
+        deductions: r.deductions || 0,
+        absentDeduction: r.absentDeduction || 0,
+        lateDeduction: r.lateDeduction || 0,
+        bonus: r.bonus || 0,
+        net: r.net || 0
+      };
+      staff.push(p);
+      totNet += p.net;
+      totComm += p.commission;
+      totDeduct += p.deductions;
+      totBonus += p.bonus;
+      totBase += (p.salaryType === "Daily") ? p.gross : ((p.salaryType === "Commission") ? 0 : p.baseSalary);
+    }
+
+    staff.sort(function(a, b) { return String(a.empId || "").localeCompare(String(b.empId || "")); });
+
+    currentPayrollData = {
+      month: reg.month,
+      monthName: monthOptionLabel(reg.month),
+      workingDays: (rows.length ? (rows[0].workingDays || 0) : 0),
+      totalNet: totNet,
+      totalBase: totBase,
+      totalComm: totComm,
+      totalDeduct: totDeduct,
+      totalBonus: totBonus,
+      staff: staff,
+      source: "register",
+      savedAt: (rows.length ? rows[0].savedAt : "")
+    };
+
+    document.getElementById("pay-kpi-net").textContent = "\u20B9" + Math.round(totNet).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-base").textContent = "\u20B9" + Math.round(totBase).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-comm").textContent = "\u20B9" + Math.round(totComm).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-deduct").textContent = "\u20B9" + Math.round(totDeduct).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-bonus").textContent = "\u20B9" + Math.round(totBonus).toLocaleString("en-IN");
+
+    renderPayrollTable(currentPayrollData);
+    markPayrollSnapshotSaved(currentPayrollData.savedAt, reg.month);
+  }
+
+  // Write the currently displayed month into the Payroll_Register sheet
+  function savePayrollSalarySheet(opts) {
+    opts = opts || {};
+    if (!currentPayrollData || !currentPayrollData.staff || !currentPayrollData.staff.length) {
+      if (!opts.silent) showToast("Pehle payroll data load hone do, phir save karo.", "warning");
+      return;
+    }
+
+    var monthVal = currentPayrollData.month;
+    var rows = currentPayrollData.staff.map(function(p) {
+      return {
+        empId: p.empId,
+        name: p.name,
+        department: p.department,
+        designation: p.designation,
+        salaryType: p.salaryType,
+        baseSalary: p.baseSalary,
+        rawPerDayRate: (p.rawPerDayRate !== undefined ? p.rawPerDayRate : p.perDayRate),
+        commissionRate: p.commissionRate,
+        salesAmount: p.salesAmount,
+        commission: p.commission,
+        bonus: p.bonus,
+        presentDays: p.presentDays,
+        lateDays: p.lateDays,
+        absentDays: p.absentDays,
+        leaveDays: p.leaveDays,
+        workingDays: p.workingDays,
+        gross: p.gross,
+        deductions: p.deductions,
+        absentDeduction: (p.absentDeduction || 0),
+        lateDeduction: (p.lateDeduction || 0),
+        net: p.net
+      };
+    });
+
+    var btn = document.getElementById("btn-save-payroll-sheet");
+    if (btn && !opts.silent) { btn.disabled = true; btn.innerText = "Saving..."; }
+    setPayrollSnapshotStatus("saving");
+
+    sendDashboardApiRequest({
+      action: "save_payroll_register",
+      month: monthVal,
+      rows: rows
+    }).then(function(res) {
+      if (btn) { btn.disabled = false; btn.innerText = "Save Salary Sheet"; }
+      if (res && res.success) {
+        currentPayrollData.source = "register";
+        currentPayrollData.savedAt = new Date().toISOString();
+        markPayrollSnapshotSaved(currentPayrollData.savedAt, monthVal);
+        showToast(res.message || ("Salary sheet saved: " + monthVal), "success");
+        fetchPayrollRegisterFromSheet(monthVal, function() {});
+      } else {
+        setPayrollSnapshotStatus("error");
+        showToast("Salary sheet save failed: " + (res ? (res.message || res.status) : "no response"), "warning");
+      }
+    }).catch(function(err) {
+      if (btn) { btn.disabled = false; btn.innerText = "Save Salary Sheet"; }
+      console.warn("Salary sheet save error:", err);
+      setPayrollSnapshotStatus("error");
+      showToast("Salary sheet save failed (network) \u2013 sheet me kuch nahi likha gaya.", "warning");
+    });
+  }
+
+  // Printable A4-landscape salary sheet for any month (saved or live)
+  function printPayrollSalarySheetPDF() {
+    if (!currentPayrollData || !currentPayrollData.staff || !currentPayrollData.staff.length) {
+      alert("Please wait for payroll records to load first.");
+      return;
+    }
+    var d = currentPayrollData;
+    var monthName = d.monthName || monthOptionLabel(d.month);
+    var win = window.open("", "_blank");
+    if (!win) { alert("Please allow popups to print the Salary Sheet."); return; }
+
+    var srcNote = (d.source === "register")
+      ? ("Saved salary sheet \u2022 Payroll_Register \u2022 " + (formatSavedStamp(d.savedAt) || "-"))
+      : "Live calculation (Google Sheet rules + attendance)";
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Salary Sheet - ' + monthName + '</title>';
+    html += '<style>';
+    html += '@page { size: A4 landscape; margin: 10mm; }';
+    html += 'body { font-family: "Segoe UI", Arial, sans-serif; color: #0F172A; margin: 0; padding: 12px; font-size: 10px; }';
+    html += '.head { text-align: center; border-bottom: 2px solid #0284C7; padding-bottom: 8px; margin-bottom: 10px; }';
+    html += '.head img { max-height: 52px; width: auto; }';
+    html += '.head .t { font-size: 17px; font-weight: 900; color: #0369A1; margin-top: 2px; letter-spacing: 1px; }';
+    html += '.head .s { font-size: 10px; color: #475569; margin-top: 2px; }';
+    html += 'table { width: 100%; border-collapse: collapse; }';
+    html += 'th { background: #0F172A; color: #FFFFFF; padding: 6px 5px; font-size: 9px; text-transform: uppercase; border: 1px solid #0F172A; }';
+    html += 'td { border: 1px solid #CBD5E1; padding: 5px; font-size: 9.5px; }';
+    html += 'td.num, th.num { text-align: right; }';
+    html += 'tbody tr:nth-child(even) td { background: #F8FAFC; }';
+    html += 'tfoot td { background: #E2E8F0; font-weight: 800; }';
+    html += '.sign { display: flex; justify-content: space-between; margin-top: 36px; font-size: 10px; font-weight: 700; color: #475569; }';
+    html += '</style></head><body>';
+
+    html += '<div class="head">';
+    html += '<img src="' + getVassaLogoDataUri() + '" alt="Vassa Properties">';
+    html += '<div class="t">SALARY SHEET</div>';
+    html += '<div class="s">Month: <strong>' + monthName + '</strong> \u2022 ' + srcNote + '</div>';
+    html += '<div class="s">Head Office: Golden City Center, Chikalthana, Chhatrapati Sambhajinagar \u2022 Generated: ' + new Date().toLocaleString("en-IN") + '</div>';
+    html += '</div>';
+
+    html += '<table><thead><tr>';
+    html += '<th>Emp ID</th><th>Staff Name</th><th>Designation</th><th>Structure</th><th class="num">Base / Rate</th>';
+    html += '<th class="num">P</th><th class="num">L</th><th class="num">A</th><th class="num">AL</th><th class="num">Working Days</th>';
+    html += '<th class="num">Gross</th><th class="num">Deductions</th><th class="num">Bonus</th><th class="num">Net Payable</th>';
+    html += '</tr></thead><tbody>';
+
+    var tGross = 0, tDed = 0, tBonus = 0, tNet = 0;
+    d.staff.forEach(function(p) {
+      var baseVal = (p.salaryType === 'Daily')
+        ? ("\u20B9" + Math.round(p.perDayRate) + "/day")
+        : ("\u20B9" + Math.round(p.baseSalary).toLocaleString("en-IN"));
+      tGross += (p.gross || 0);
+      tDed += (p.deductions || 0);
+      tBonus += (p.bonus || 0);
+      tNet += (p.net || 0);
+      html += '<tr>';
+      html += '<td>' + (p.empId || "") + '</td>';
+      html += '<td>' + (p.name || "") + '</td>';
+      html += '<td>' + (p.designation || "-") + '</td>';
+      html += '<td>' + (p.salaryType || "-") + '</td>';
+      html += '<td class="num">' + baseVal + '</td>';
+      html += '<td class="num">' + (p.presentDays || 0) + '</td>';
+      html += '<td class="num">' + (p.lateDays || 0) + '</td>';
+      html += '<td class="num">' + (p.absentDays || 0) + '</td>';
+      html += '<td class="num">' + (p.leaveDays || 0) + '</td>';
+      html += '<td class="num">' + (p.workingDays || 0) + '</td>';
+      html += '<td class="num">\u20B9' + Math.round(p.gross || 0).toLocaleString("en-IN") + '</td>';
+      html += '<td class="num">\u20B9' + Math.round(p.deductions || 0).toLocaleString("en-IN") + '</td>';
+      html += '<td class="num">\u20B9' + Math.round(p.bonus || 0).toLocaleString("en-IN") + '</td>';
+      html += '<td class="num">\u20B9' + Math.round(p.net || 0).toLocaleString("en-IN") + '</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody><tfoot><tr>';
+    html += '<td colspan="10">TOTAL (' + d.staff.length + ' staff)</td>';
+    html += '<td class="num">\u20B9' + Math.round(tGross).toLocaleString("en-IN") + '</td>';
+    html += '<td class="num">\u20B9' + Math.round(tDed).toLocaleString("en-IN") + '</td>';
+    html += '<td class="num">\u20B9' + Math.round(tBonus).toLocaleString("en-IN") + '</td>';
+    html += '<td class="num">\u20B9' + Math.round(tNet).toLocaleString("en-IN") + '</td>';
+    html += '</tr></tfoot></table>';
+
+    html += '<div class="sign"><div>Prepared By (HR &amp; Operations)</div><div>Authorized Signatory / Director<br>(Vassa Properties)</div></div>';
+    html += '<scr' + 'ipt>window.onload = function(){ window.print(); };<\/scr' + 'ipt>';
+    html += '</body></html>';
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
   }
 
   // Build the payroll table from a set of rules (source: Payroll_Config sheet)
@@ -3264,6 +3614,7 @@ function switchDashboardView(view) {
     }).then(function(res) {
       if (res && res.success) {
         showToast("Saved to Payroll_Config sheet: " + empId, "success");
+        payrollAutoSnapshot = true; // salary sheet snapshot bhi refresh ho jaye
         loadPayrollData(true);
       } else {
         showToast("Sheet save failed: " + (res ? (res.message || res.status) : "no response"), "warning");
@@ -3302,6 +3653,7 @@ function switchDashboardView(view) {
           delete sheetPayrollConfigs[empId].action;
           saveStoredPayrollConfigs(sheetPayrollConfigs);
           showToast("Bonus saved to sheet for " + empId, "success");
+          savePayrollSalarySheet({ silent: true });
         } else {
           showToast("Bonus save failed: " + (res ? (res.message || res.status) : "no response"), "warning");
         }
@@ -4969,7 +5321,7 @@ function switchDashboardView(view) {
     </div>
 
     <div class="form-group">
-      <label>Start Time</label>
+      <label>Start Time <span style="font-weight: normal; font-size: 10px; color: #94A3B8;">(sirf Late / On-Time decide karta hai &mdash; check-in har din 06:00 AM se open hota hai)</span></label>
       <select id="shift-start-select" onchange="updateShiftPreview()">
         <option value="05:00 AM">05:00 AM</option>
         <option value="05:05 AM">05:05 AM</option>
