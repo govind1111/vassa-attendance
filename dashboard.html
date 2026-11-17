@@ -883,8 +883,12 @@
             Print All Slips
           </button>
         </div>
-        <div style="font-size: 11px; color: var(--text-muted); background: var(--input-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--input-border); display: flex; align-items: center; gap: 6px;">
-          Live synced with <strong>Monthly Attendance Matrix</strong>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div id="payroll-sheet-status" style="font-size: 11px; color: var(--text-muted); background: var(--input-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--input-border); display: flex; align-items: center; gap: 6px;">
+            <span id="payroll-sheet-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #FBBF24; display: inline-block;"></span>
+            <span id="payroll-sheet-text">Connecting to Google Sheet...</span>
+          </div>
+          <a id="payroll-sheet-link" href="#" target="_blank" rel="noopener" style="font-size: 11px; font-weight: 700; color: #38BDF8; text-decoration: none; background: var(--input-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--input-border);">Open Payroll_Config sheet</a>
         </div>
       </div>
 
@@ -928,6 +932,12 @@
             <span style="display: inline-flex; align-items: center; gap: 4px; color: #FB923C;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FB923C;"></span> Daily Wage</span>
           </div>
         </div>
+        <div style="font-size: 10px; color: #64748B; margin: -4px 0 10px; line-height: 1.5;">
+          <strong>Formula:</strong> Deductions = (absent days \u00D7 absent rate) + (late days \u00D7 late rate).
+          <strong>Absent rate 0 = koi deduction nahi.</strong> Per-day deduction chahiye to Rule me amount bharo
+          (&quot;Auto fill&quot; = base \u00F7 working days). Base, Bonus aur dono rates seedha
+          <strong>Payroll_Config</strong> sheet se aate hain \u2013 jo sheet me hai wahi yahan dikhega.
+        </div>
 
         <div style="overflow-x: auto; border: 1px solid var(--input-border); border-radius: 10px; background: var(--input-bg);">
           <table style="width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; text-align: left; min-width: 1220px;">
@@ -936,12 +946,12 @@
                 <th style="padding: 12px 10px; width: 80px; min-width: 80px; max-width: 80px; border-bottom: 2px solid var(--input-border); position: sticky; left: 0; background: var(--input-bg); z-index: 5;">Emp ID</th>
                 <th style="padding: 12px 12px; width: 200px; min-width: 200px; max-width: 200px; border-bottom: 2px solid var(--input-border); position: sticky; left: 80px; background: var(--input-bg); z-index: 5; border-right: 2px solid #0284C7;">Staff Member</th>
                 <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid var(--input-border);">Structure</th>
-                <th style="padding: 12px 10px; width: 95px; border-bottom: 2px solid #334155; text-align: right;">Base / Rate</th>
+                <th style="padding: 12px 10px; width: 145px; border-bottom: 2px solid #334155; text-align: right;">Base / Rate</th>
                 <th style="padding: 12px 10px; width: 140px; border-bottom: 2px solid #334155; text-align: center;">Attendance</th>
                 <th style="padding: 12px 10px; width: 125px; border-bottom: 2px solid #334155; text-align: right;">Deal / Sales (₹)</th>
                 <th style="padding: 12px 10px; width: 100px; border-bottom: 2px solid #334155; text-align: right;">Commission</th>
                 <th style="padding: 12px 10px; width: 95px; border-bottom: 2px solid #334155; text-align: right;">Gross Pay</th>
-                <th style="padding: 12px 10px; width: 110px; border-bottom: 2px solid #334155; text-align: right; color: #F87171;">Deductions</th>
+                <th title="Auto-calculated from attendance: absent days x (base / working days) + late days x late rate. Sheet me sirf rate store hota hai." style="padding: 12px 10px; width: 110px; border-bottom: 2px solid #334155; text-align: right; color: #F87171; cursor: help;">Deductions</th>
                 <th style="padding: 12px 10px; width: 90px; border-bottom: 2px solid #334155; text-align: right; color: #FBBF24;">Bonus (₹)</th>
                 <th style="padding: 12px 12px; width: 115px; border-bottom: 2px solid #334155; text-align: right; color: #34D399; font-weight: 900;">Net Payable</th>
                 <th style="padding: 12px 10px; width: 135px; border-bottom: 2px solid #334155; text-align: center;">Actions</th>
@@ -2433,6 +2443,7 @@ function switchDashboardView(view) {
       if (btnMonthly) { btnMonthly.style.background = "#841524"; btnMonthly.style.color = "#F7CA14"; btnMonthly.style.borderColor = "#334155"; }
       populatePayrollMonthSelector();
       loadPayrollData();
+      startPayrollAutoRefresh();
     } else if (view === "monthly") {
       if (dailyEl) dailyEl.style.display = "none";
       if (monthlyEl) monthlyEl.style.display = "block";
@@ -2642,26 +2653,19 @@ function switchDashboardView(view) {
   // older backend, which would treat them as attendance punches.
   var payrollBackendReady = true; // Backend @56+ supports payroll (save_payroll_config, get_payroll_data)
 
-  // Persistent default staff compensation structures (Vassa Properties)
-  // All staff default to "Fixed" (consistent baseline; user can change per-staff via rules modal)
-  var DEFAULT_PAYROLL_CONFIGS = {
-    "VP-001": { salaryType: "Fixed", baseSalary: 60000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 },
-    "VP-002": { salaryType: "Fixed", baseSalary: 25000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 5000 },
-    "VP-003": { salaryType: "Fixed", baseSalary: 0, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 50, bonus: 500 },
-    "VP-004": { salaryType: "Fixed", baseSalary: 0, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 2000 },
-    "VP-005": { salaryType: "Fixed", baseSalary: 22000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 1000 },
-    "VP-006": { salaryType: "Fixed", baseSalary: 20000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 0 }
-  };
+  // Payroll rules live in the Google Sheet tab "Payroll_Config" - that sheet is the
+  // single source of truth. localStorage is only an offline display cache and is
+  // NEVER pushed over the sheet (that used to overwrite real data with fake defaults).
+  var DEFAULT_PAYROLL_CONFIGS = {}; // no invented defaults: a staff without a rule shows zero
+  var sheetPayrollConfigs = null;   // last known rules loaded from the sheet
 
   function getStoredPayrollConfigs() {
+    if (sheetPayrollConfigs) return Object.assign({}, sheetPayrollConfigs);
     try {
       var raw = localStorage.getItem("vassa_payroll_configs");
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        return Object.assign({}, DEFAULT_PAYROLL_CONFIGS, parsed);
-      }
+      if (raw) return JSON.parse(raw) || {};
     } catch(e) {}
-    return Object.assign({}, DEFAULT_PAYROLL_CONFIGS);
+    return {};
   }
 
   function saveStoredPayrollConfigs(cfgs) {
@@ -2669,6 +2673,54 @@ function switchDashboardView(view) {
       localStorage.setItem("vassa_payroll_configs", JSON.stringify(cfgs));
     } catch(e) {}
   }
+
+  var payrollSheetMeta = { url: "", gid: 0 };
+
+  function setPayrollSheetStatus(ok, text) {
+    var dot = document.getElementById("payroll-sheet-dot");
+    var txt = document.getElementById("payroll-sheet-text");
+    if (dot) dot.style.background = ok ? "#34D399" : "#F87171";
+    if (txt) txt.textContent = text;
+  }
+
+  // Read every payroll rule straight from the Payroll_Config sheet
+  function fetchPayrollConfigsFromSheet(cb) {
+    sendDashboardApiRequest({ action: "get_payroll_configs" })
+      .then(function(res) {
+        if (res && res.status === "success" && res.configs) {
+          sheetPayrollConfigs = res.configs;
+          saveStoredPayrollConfigs(res.configs);
+          payrollSheetMeta.url = res.spreadsheetUrl || "";
+          payrollSheetMeta.gid = res.sheetGid || 0;
+          var link = document.getElementById("payroll-sheet-link");
+          if (link && res.spreadsheetUrl) {
+            link.href = res.spreadsheetUrl + "#gid=" + (res.sheetGid || 0);
+          }
+          var stamp = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+          setPayrollSheetStatus(true, "Live from Google Sheet \u2022 Payroll_Config \u2022 " + res.count + " rules \u2022 " + stamp);
+          if (typeof cb === "function") cb(res.configs);
+        } else {
+          setPayrollSheetStatus(false, "Sheet response invalid \u2013 showing cached rules");
+          if (typeof cb === "function") cb(null);
+        }
+      })
+      .catch(function(e) {
+        console.warn("Payroll rules load failed:", e);
+        setPayrollSheetStatus(false, "Sheet offline \u2013 showing cached rules");
+        if (typeof cb === "function") cb(null);
+      });
+  }
+
+  // Keep the tab in sync with the sheet while it is open
+  var payrollAutoTimer = null;
+  function startPayrollAutoRefresh() {
+    if (payrollAutoTimer) return;
+    payrollAutoTimer = setInterval(function() {
+      var el = document.getElementById("view-payroll");
+      if (el && el.style.display !== "none") loadPayrollData(true);
+    }, 30000);
+  }
+
 
   function populatePayrollMonthSelector() {
     var sel = document.getElementById("payroll-select-month");
@@ -2707,10 +2759,22 @@ function switchDashboardView(view) {
       currentMonthlyData = attData;
     }
 
+    // 2. Instant paint from the cached rules (so the tab never looks empty)
+    computeAndRenderPayroll(monthVal, attData, getStoredPayrollConfigs());
+
+    // 3. Always re-read the authoritative rules from the Payroll_Config sheet
+    fetchPayrollConfigsFromSheet(function(configs) {
+      if (configs) computeAndRenderPayroll(monthVal, attData, configs);
+      payrollBackendReady = true;
+    });
+  }
+
+  // Build the payroll table from a set of rules (source: Payroll_Config sheet)
+  function computeAndRenderPayroll(monthVal, attData, configs) {
+    configs = configs || {};
     var workingDays = (attData && attData.summary && attData.summary.workingDaysElapsed) ? attData.summary.workingDaysElapsed : 26;
     if (workingDays <= 0) workingDays = 26;
 
-    var configs = getStoredPayrollConfigs();
     var staffList = (attData && attData.staff) ? attData.staff : [];
     var staffPayroll = [];
 
@@ -2723,26 +2787,21 @@ function switchDashboardView(view) {
     for (var i = 0; i < staffList.length; i++) {
       var st = staffList[i];
       var empId = String(st.empId || ("VP-" + String(i + 1).padStart(3, "0"))).trim().toUpperCase();
-      var cfg = configs[empId] || { salaryType: "Fixed", baseSalary: 20000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 };
-      
+      var cfg = configs[empId] || { salaryType: "Fixed", baseSalary: 0, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 };
+
       var presentDays = st.presentCount || 0;
       var lateDays = st.lateCount || 0;
       var absentDays = st.absentCount || 0;
       var leaveDays = st.leaveCount || 0;
       var totalDays = st.totalWorkingDays || workingDays;
 
-      // Existing sales / bonus preservation
-      var salesAmount = (currentPayrollData && currentPayrollData.staff) ? 
+      // Sales deal value is month-scoped UI state (not stored in the sheet)
+      var salesAmount = (currentPayrollData && currentPayrollData.month === monthVal && currentPayrollData.staff) ?
         (currentPayrollData.staff.find(function(x){ return x.empId === empId; }) || {}).salesAmount : undefined;
-      if (salesAmount === undefined) {
-        salesAmount = cfg.salesAmount !== undefined ? cfg.salesAmount : 0;
-      }
+      if (salesAmount === undefined) salesAmount = 0;
 
-      var bonusAmount = (currentPayrollData && currentPayrollData.staff) ? 
-        (currentPayrollData.staff.find(function(x){ return x.empId === empId; }) || {}).bonus : undefined;
-      if (bonusAmount === undefined) {
-        bonusAmount = cfg.bonus || 0;
-      }
+      // Bonus always comes from the sheet rule
+      var bonusAmount = parseFloat(cfg.bonus) || 0;
 
       var type = cfg.salaryType || "Fixed";
       var base = parseFloat(cfg.baseSalary) || 0;
@@ -2760,7 +2819,7 @@ function switchDashboardView(view) {
       var netPay = 0;
 
       if (type === "Fixed") {
-        perDayEffective = customDedAbs > 0 ? customDedAbs : (totalDays > 0 ? (base / totalDays) : 0);
+        perDayEffective = customDedAbs; // 0 = no deduction (sheet value is used literally)
         absentDeduction = absentDays * perDayEffective;
         totalDeductions = absentDeduction + lateDeduction;
         gross = base;
@@ -2774,7 +2833,7 @@ function switchDashboardView(view) {
         totComm += commissionEarned;
       } else if (type === "Fixed+Commission") {
         commissionEarned = salesAmount * (commRate / 100);
-        perDayEffective = customDedAbs > 0 ? customDedAbs : (totalDays > 0 ? (base / totalDays) : 0);
+        perDayEffective = customDedAbs; // 0 = no deduction (sheet value is used literally)
         absentDeduction = absentDays * perDayEffective;
         totalDeductions = absentDeduction + lateDeduction;
         gross = base + commissionEarned;
@@ -2801,6 +2860,9 @@ function switchDashboardView(view) {
         salaryType: type,
         baseSalary: base,
         perDayRate: perDayEffective,
+        rawPerDayRate: dailyWage,
+        lateRate: dedLateRate,
+        absentRate: customDedAbs,
         commissionRate: commRate,
         salesAmount: salesAmount,
         commission: commissionEarned,
@@ -2818,6 +2880,48 @@ function switchDashboardView(view) {
       });
     }
 
+    // Staff who have a rule in the sheet but no attendance rows this month must still
+    // appear (otherwise the table looks out of sync with Payroll_Config).
+    var listed = {};
+    for (var li = 0; li < staffPayroll.length; li++) listed[staffPayroll[li].empId] = true;
+    Object.keys(configs).forEach(function(cid) {
+      var key = String(cid || "").trim().toUpperCase();
+      if (!key || listed[key]) return;
+      var c2 = configs[cid] || {};
+      var t2 = c2.salaryType || "Fixed";
+      var b2 = parseFloat(c2.baseSalary) || 0;
+      var bn2 = parseFloat(c2.bonus) || 0;
+      staffPayroll.push({
+        empId: key,
+        name: c2.name || key,
+        department: "No attendance this month",
+        designation: "Rule only",
+        salaryType: t2,
+        baseSalary: b2,
+        perDayRate: 0,
+        rawPerDayRate: parseFloat(c2.perDayRate) || 0,
+        lateRate: parseFloat(c2.deductionPerLate) || 0,
+        absentRate: parseFloat(c2.deductionPerAbsent) || 0,
+        commissionRate: parseFloat(c2.commissionRate) || 0,
+        salesAmount: 0,
+        commission: 0,
+        presentDays: 0,
+        lateDays: 0,
+        absentDays: 0,
+        leaveDays: 0,
+        workingDays: workingDays,
+        gross: (t2 === "Commission" ? 0 : b2),
+        deductions: 0,
+        absentDeduction: 0,
+        lateDeduction: 0,
+        bonus: bn2,
+        net: (t2 === "Commission" ? 0 : b2) + bn2
+      });
+      totBase += (t2 === "Commission" ? 0 : b2);
+      totBonus += bn2;
+      totNet += (t2 === "Commission" ? 0 : b2) + bn2;
+    });
+
     // Sort by Emp ID for consistent display
     staffPayroll.sort(function(a, b) { return String(a.empId || "").localeCompare(String(b.empId || "")); });
 
@@ -2834,63 +2938,13 @@ function switchDashboardView(view) {
     };
 
     // Update KPI Card Numbers
-    document.getElementById("pay-kpi-net").textContent = "₹" + Math.round(totNet).toLocaleString("en-IN");
-    document.getElementById("pay-kpi-base").textContent = "₹" + Math.round(totBase).toLocaleString("en-IN");
-    document.getElementById("pay-kpi-comm").textContent = "₹" + Math.round(totComm).toLocaleString("en-IN");
-    document.getElementById("pay-kpi-deduct").textContent = "₹" + Math.round(totDeduct).toLocaleString("en-IN");
-    document.getElementById("pay-kpi-bonus").textContent = "₹" + Math.round(totBonus).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-net").textContent = "\u20B9" + Math.round(totNet).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-base").textContent = "\u20B9" + Math.round(totBase).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-comm").textContent = "\u20B9" + Math.round(totComm).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-deduct").textContent = "\u20B9" + Math.round(totDeduct).toLocaleString("en-IN");
+    document.getElementById("pay-kpi-bonus").textContent = "\u20B9" + Math.round(totBonus).toLocaleString("en-IN");
 
     renderPayrollTable(currentPayrollData);
-
-    // Background: one-time push of ALL localStorage configs to sheet (fixes stale/empty sheet).
-    // localStorage is the working copy (user's correct values). Sheet is the backup.
-    // We push localStorage -> sheet, NOT sheet -> localStorage (to avoid stale sheet
-    // overwriting user's correct values, which caused the mismatch).
-    if (localStorage.getItem("vassa_payroll_auto_synced_v2") !== "done") {
-      var cfgs = getStoredPayrollConfigs();
-      var cfgKeys = Object.keys(cfgs);
-      if (cfgKeys.length > 0) {
-        showToast("Syncing payroll configs to Google Sheet...", "info");
-        var batchConfigs = [];
-        for (var ci = 0; ci < cfgKeys.length; ci++) {
-          var eid = cfgKeys[ci];
-          var c = cfgs[eid] || {};
-          var staffName = eid;
-          if (currentPayrollData && currentPayrollData.staff) {
-            var found = currentPayrollData.staff.find(function(x){ return x.empId === eid; });
-            if (found && found.name) staffName = found.name;
-          }
-          batchConfigs.push({
-            empId: eid,
-            name: staffName,
-            salaryType: c.salaryType || "Fixed",
-            baseSalary: c.baseSalary || 0,
-            perDayRate: c.perDayRate || 0,
-            commissionRate: c.commissionRate || 0,
-            bonus: c.bonus || 0,
-            deductionPerAbsent: c.deductionPerAbsent || 0,
-            deductionPerLate: c.deductionPerLate || 0,
-            status: "Active"
-          });
-        }
-        sendDashboardApiRequest({
-          action: "sync_payroll_configs",
-          configs: batchConfigs
-        }).then(function(r){
-          if (r && r.success) {
-            showToast("Payroll synced to Google Sheet: " + (r.saved || batchConfigs.length) + " staff", "success");
-          } else {
-            showToast("Sync failed: " + (r ? r.message : "Unknown"), "warning");
-          }
-          localStorage.setItem("vassa_payroll_auto_synced_v2", "done");
-        }).catch(function(e){
-          console.warn("Payroll sync error:", e);
-          showToast("Sync failed (offline). Will retry later.", "warning");
-        });
-      } else {
-        localStorage.setItem("vassa_payroll_auto_synced_v2", "done");
-      }
-    }
   }
 
   function renderPayrollTable(data) {
@@ -2948,7 +3002,10 @@ function switchDashboardView(view) {
       trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155;">' + structBadge + '</td>';
 
       // Base / Rate
-      trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: right; font-weight: 700; color: #CBD5E1;">' + baseDisplay + '</td>';
+      var sheetRuleTip = "Google Sheet rule -> Base: " + Math.round(p.baseSalary || 0) + " | Bonus: " + Math.round(p.bonus || 0) + " | Late rate: " + Math.round(p.lateRate || 0) + "/day | Absent rate: " + Math.round(p.absentRate || 0) + "/day";
+      trHtml += '<td title="' + sheetRuleTip + '" style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: right; font-weight: 700; color: #CBD5E1;">' + baseDisplay;
+      trHtml += '<div style="font-size: 9px; font-weight: 600; color: #64748B; margin-top: 2px; white-space: nowrap;" title="Bonus | Late penalty per day | Absent deduction per day (0 = none)">B \u20B9' + Math.round(p.bonus || 0) + ' \u00B7 L \u20B9' + Math.round(p.lateRate || 0) + '/d \u00B7 A \u20B9' + Math.round(p.absentRate || 0) + '/d</div>';
+      trHtml += '</td>';
 
       // Attendance Pill
       trHtml += '<td style="padding: 10px 8px; border-bottom: 1px solid #334155; text-align: center;">';
@@ -2982,7 +3039,7 @@ function switchDashboardView(view) {
 
       // Bonus Input
       trHtml += '<td style="padding: 8px 6px; border-bottom: 1px solid #334155; text-align: right;">';
-      trHtml += '<input type="number" step="500" value="' + (p.bonus || 0) + '" style="width: 75px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: #FBBF24; font-weight: 700; font-size: 12px; text-align: right;" oninput="updatePayrollBonus(\'' + safeEmpId + '\', this.value)" placeholder="Bonus">';
+      trHtml += '<input type="number" step="500" value="' + (p.bonus || 0) + '" style="width: 75px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: #FBBF24; font-weight: 700; font-size: 12px; text-align: right;" oninput="updatePayrollBonus(\'' + safeEmpId + '\', this.value)" onchange="persistPayrollBonus(\'' + safeEmpId + '\', this.value)" placeholder="Bonus">';
       trHtml += '</td>';
 
       // Net Payable (Emerald Large)
@@ -3064,13 +3121,26 @@ function switchDashboardView(view) {
   function openPayrollConfig(empId, staffName) {
     activeConfigEmpId = empId;
     var cfgs = getStoredPayrollConfigs();
-    var cfg = cfgs[empId] || { salaryType: "Fixed", baseSalary: 25000, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 100, bonus: 0 };
+    var cfg = cfgs[empId] || { salaryType: "Fixed", baseSalary: 0, perDayRate: 0, commissionRate: 0, deductionPerAbsent: 0, deductionPerLate: 0, bonus: 0 };
 
     document.getElementById("cfg-emp-name").textContent = staffName;
     document.getElementById("cfg-emp-id").textContent = empId;
 
     var sObj = (currentPayrollData && currentPayrollData.staff) ? currentPayrollData.staff.find(function(x){ return x.empId === empId; }) : null;
     document.getElementById("cfg-emp-dept").textContent = sObj ? (sObj.department || "Operations") : "Operations";
+
+    var noteEl = document.getElementById("cfg-sheet-note");
+    if (noteEl) {
+      if (cfg && cfg.salaryType !== undefined) {
+        noteEl.innerHTML = "Google Sheet \u2192 <strong>Payroll_Config</strong> me abhi saved: Base \u20B9" + Math.round(cfg.baseSalary || 0) +
+          " \u00B7 Bonus \u20B9" + Math.round(cfg.bonus || 0) +
+          " \u00B7 Late \u20B9" + Math.round(cfg.deductionPerLate || 0) + "/day" +
+          " \u00B7 Absent \u20B9" + Math.round(cfg.deductionPerAbsent || 0) + "/day" +
+          (parseFloat(cfg.deductionPerAbsent || 0) === 0 ? " (no absent deduction)" : "");
+      } else {
+        noteEl.innerHTML = "Is staff ka koi rule sheet me nahi hai \u2013 Save karte hi <strong>Payroll_Config</strong> me naya row ban jayega.";
+      }
+    }
 
     // Set radio
     var struct = cfg.salaryType || "Fixed";
@@ -3089,6 +3159,20 @@ function switchDashboardView(view) {
 
     var modal = document.getElementById("modal-payroll-config");
     if (modal) modal.style.display = "flex";
+  }
+
+  // Fills the absent per-day rate with base / working days of the selected month
+  function autoFillAbsentRate() {
+    var base = parseFloat(document.getElementById("cfg-base-salary").value) || 0;
+    var days = (currentPayrollData && currentPayrollData.workingDays) ? currentPayrollData.workingDays : 0;
+    if (!days) days = (currentMonthlyData && currentMonthlyData.summary && currentMonthlyData.summary.workingDaysElapsed) ? currentMonthlyData.summary.workingDaysElapsed : 26;
+    if (base <= 0 || days <= 0) {
+      showToast("Base salary daalo pehle (working days: " + days + ")", "warning");
+      return;
+    }
+    var rate = Math.round(base / days);
+    document.getElementById("cfg-absent-deduct").value = rate;
+    showToast("Absent rate = " + base + " / " + days + " days = \u20B9" + rate + "/day", "info");
   }
 
   function onSalaryStructureChange(struct) {
@@ -3136,9 +3220,9 @@ function switchDashboardView(view) {
     var absDed = parseFloat(document.getElementById("cfg-absent-deduct").value) || 0;
     var lateDed = parseFloat(document.getElementById("cfg-late-deduct").value) || 0;
     var bonus = parseFloat(document.getElementById("cfg-bonus").value) || 0;
+    var staffName = document.getElementById("cfg-emp-name").textContent;
 
-    var cfgs = getStoredPayrollConfigs();
-    cfgs[empId] = {
+    var newCfg = {
       salaryType: selStruct,
       baseSalary: base,
       commissionRate: comm,
@@ -3147,19 +3231,22 @@ function switchDashboardView(view) {
       deductionPerLate: lateDed,
       bonus: bonus
     };
+
+    // Optimistic local cache only for instant paint; the sheet response decides the truth
+    var cfgs = getStoredPayrollConfigs();
+    cfgs[empId] = newCfg;
     saveStoredPayrollConfigs(cfgs);
+    if (!sheetPayrollConfigs) sheetPayrollConfigs = {};
+    sheetPayrollConfigs[empId] = Object.assign({ name: staffName, status: "Active" }, newCfg);
 
     closeModal("modal-payroll-config");
-    showToast("Compensation rule updated for " + empId + " (" + selStruct + ")", "success");
+    showToast("Saving rule for " + empId + " to Google Sheet...", "info");
 
-    // Recalculate immediately with new rules
-    loadPayrollData();
-
-    // Async sync with Google Sheet (always attempt; warn only on failure):
+    // Write to the Payroll_Config sheet, then re-render from the sheet
     sendDashboardApiRequest({
       action: "save_payroll_config",
       empId: empId,
-      name: document.getElementById("cfg-emp-name").textContent,
+      name: staffName,
       salaryType: selStruct,
       baseSalary: base,
       perDayRate: daily,
@@ -3168,11 +3255,55 @@ function switchDashboardView(view) {
       deductionPerAbsent: absDed,
       deductionPerLate: lateDed,
       status: "Active"
-    }).then(function(res){
+    }).then(function(res) {
       if (res && res.success) {
-        showToast("Payroll rule synced to Google Sheet for " + empId, "success");
+        showToast("Saved to Payroll_Config sheet: " + empId, "success");
+        loadPayrollData(true);
+      } else {
+        showToast("Sheet save failed: " + (res ? (res.message || res.status) : "no response"), "warning");
       }
-    }).catch(function(e){});
+    }).catch(function(err) {
+      console.warn("Payroll save error:", err);
+      showToast("Sheet save failed (network). Rule NOT saved.", "warning");
+    });
+  }
+
+  // Bonus typed directly in the table also goes to the sheet
+  var payrollBonusTimer = null;
+  function persistPayrollBonus(empId, val) {
+    var cfg = (sheetPayrollConfigs && sheetPayrollConfigs[empId]) ? sheetPayrollConfigs[empId] : getStoredPayrollConfigs()[empId];
+    if (!cfg) return;
+    var bonus = Math.max(0, parseFloat(val) || 0);
+    var payload = {
+      action: "save_payroll_config",
+      empId: empId,
+      name: cfg.name || empId,
+      salaryType: cfg.salaryType || "Fixed",
+      baseSalary: parseFloat(cfg.baseSalary) || 0,
+      perDayRate: parseFloat(cfg.perDayRate) || 0,
+      commissionRate: parseFloat(cfg.commissionRate) || 0,
+      bonus: bonus,
+      deductionPerAbsent: parseFloat(cfg.deductionPerAbsent) || 0,
+      deductionPerLate: parseFloat(cfg.deductionPerLate) || 0,
+      status: "Active"
+    };
+    if (payrollBonusTimer) clearTimeout(payrollBonusTimer);
+    payrollBonusTimer = setTimeout(function() {
+      sendDashboardApiRequest(payload).then(function(res) {
+        if (res && res.success) {
+          if (!sheetPayrollConfigs) sheetPayrollConfigs = {};
+          sheetPayrollConfigs[empId] = Object.assign({}, payload);
+          delete sheetPayrollConfigs[empId].action;
+          saveStoredPayrollConfigs(sheetPayrollConfigs);
+          showToast("Bonus saved to sheet for " + empId, "success");
+        } else {
+          showToast("Bonus save failed: " + (res ? (res.message || res.status) : "no response"), "warning");
+        }
+      }).catch(function(e) {
+        console.warn("Bonus save error:", e);
+        showToast("Bonus save failed (network).", "warning");
+      });
+    }, 900);
   }
 
   // Official Branded Salary Slip Generator (Printable)
@@ -5859,6 +5990,10 @@ function switchDashboardView(view) {
       </div>
     </div>
 
+    <div id="cfg-sheet-note" style="font-size: 10px; font-weight: 600; color: #64748B; background: var(--input-bg); border: 1px dashed var(--input-border); border-radius: 8px; padding: 8px 12px; margin: -6px 0 16px;">
+      Ye rule Google Sheet ke <strong>Payroll_Config</strong> tab me save hota hai.
+    </div>
+
     <!-- Salary Structure Selector -->
     <div style="margin-bottom: 18px;">
       <label style="display: block; font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 8px;">Select Compensation Structure:</label>
@@ -5918,8 +6053,11 @@ function switchDashboardView(view) {
       <!-- Absent Deduction Policy -->
       <div id="field-absent-deduct" style="display: block;">
         <label style="display: block; font-size: 11px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Absent Deduction per Day (₹):</label>
-        <input type="number" id="cfg-absent-deduct" placeholder="0 = Auto Per-Day Rate" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); font-size: 13px; font-weight: 700; box-sizing: border-box;">
-        <div style="font-size: 10px; color: #64748B; margin-top: 3px;">Leave as 0 to auto-divide base salary by total working days.</div>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" id="cfg-absent-deduct" placeholder="0 = No deduction" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); font-size: 13px; font-weight: 700; box-sizing: border-box;">
+          <button type="button" onclick="autoFillAbsentRate()" title="Base salary / working days (current month)" style="white-space: nowrap; background: #334155; color: #E2E8F0; border: 1px solid var(--input-border); padding: 0 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;">Auto fill</button>
+        </div>
+        <div style="font-size: 10px; color: #64748B; margin-top: 3px;"><strong>0 = koi deduction nahi.</strong> Per-day deduction chahiye to &quot;Auto fill&quot; dabao (base &divide; working days) ya amount type karo.</div>
       </div>
 
       <!-- Late Penalty Input -->
