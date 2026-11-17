@@ -2842,102 +2842,55 @@ function switchDashboardView(view) {
 
     renderPayrollTable(currentPayrollData);
 
-    // Background sync from server: merge sheet-stored configs (sheet is authoritative)
-    // + one-time auto-push of all localStorage configs to sheet (fixes stale/empty sheet)
-    sendDashboardApiRequest({ action: "get_payroll_data", month: monthVal })
-      .then(function(res) {
-        if (res && res.status === "success" && res.staff && res.staff.length > 0) {
-          var cfgs = getStoredPayrollConfigs();
-          var changed = false;
-          for (var si = 0; si < res.staff.length; si++) {
-            var rs = res.staff[si];
-            var eid = String(rs.empId || "").trim().toUpperCase();
-            if (!eid) continue;
-            if (rs.salaryType) {
-              var existing = cfgs[eid] || {};
-              // Sheet is authoritative: if sheet has a non-empty salaryType, use it
-              if (existing.salaryType !== rs.salaryType) {
-                cfgs[eid] = cfgs[eid] || {};
-                cfgs[eid].salaryType = rs.salaryType;
-                changed = true;
-              }
-              // If sheet has real values (baseSalary>0), use them; else keep localStorage
-              if (rs.baseSalary > 0 && existing.baseSalary !== rs.baseSalary) {
-                cfgs[eid] = cfgs[eid] || {};
-                cfgs[eid].baseSalary = rs.baseSalary;
-                changed = true;
-              }
-              if (rs.perDayRate > 0 && existing.perDayRate !== rs.perDayRate) {
-                cfgs[eid] = cfgs[eid] || {};
-                cfgs[eid].perDayRate = rs.perDayRate;
-                changed = true;
-              }
-              if (rs.commissionRate > 0 && existing.commissionRate !== rs.commissionRate) {
-                cfgs[eid] = cfgs[eid] || {};
-                cfgs[eid].commissionRate = rs.commissionRate;
-                changed = true;
-              }
-              if (rs.bonus > 0 && existing.bonus !== rs.bonus) {
-                cfgs[eid] = cfgs[eid] || {};
-                cfgs[eid].bonus = rs.bonus;
-                changed = true;
-              }
-            }
+    // Background: one-time push of ALL localStorage configs to sheet (fixes stale/empty sheet).
+    // localStorage is the working copy (user's correct values). Sheet is the backup.
+    // We push localStorage -> sheet, NOT sheet -> localStorage (to avoid stale sheet
+    // overwriting user's correct values, which caused the mismatch).
+    if (localStorage.getItem("vassa_payroll_auto_synced_v2") !== "done") {
+      var cfgs = getStoredPayrollConfigs();
+      var cfgKeys = Object.keys(cfgs);
+      if (cfgKeys.length > 0) {
+        showToast("Syncing payroll configs to Google Sheet...", "info");
+        var batchConfigs = [];
+        for (var ci = 0; ci < cfgKeys.length; ci++) {
+          var eid = cfgKeys[ci];
+          var c = cfgs[eid] || {};
+          var staffName = eid;
+          if (currentPayrollData && currentPayrollData.staff) {
+            var found = currentPayrollData.staff.find(function(x){ return x.empId === eid; });
+            if (found && found.name) staffName = found.name;
           }
-          if (changed) {
-            saveStoredPayrollConfigs(cfgs);
-            loadPayrollData(false); // re-render with merged configs
-          }
-          payrollBackendReady = true;
-
-          // One-time auto-push: if sheet is stale (all baseSalary 0 but localStorage has values), push all
-          if (localStorage.getItem("vassa_payroll_auto_synced") !== "done") {
-            var hasLocalValues = false;
-            var cfgKeys = Object.keys(cfgs);
-            for (var ci = 0; ci < cfgKeys.length; ci++) {
-              if ((cfgs[cfgKeys[ci]].baseSalary || 0) > 0) { hasLocalValues = true; break; }
-            }
-            var sheetEmpty = true;
-            for (var si2 = 0; si2 < res.staff.length; si2++) {
-              if ((res.staff[si2].baseSalary || 0) > 0) { sheetEmpty = false; break; }
-            }
-            if (hasLocalValues && sheetEmpty) {
-              showToast("Syncing payroll configs to Google Sheet...", "info");
-              var empIds = Object.keys(cfgs);
-              var done = 0;
-              function pushNext(i) {
-                if (i >= empIds.length) {
-                  localStorage.setItem("vassa_payroll_auto_synced", "done");
-                  showToast("Payroll synced to Google Sheet: " + done + "/" + empIds.length, "success");
-                  loadPayrollData(true);
-                  return;
-                }
-                var eid = empIds[i];
-                var c = cfgs[eid] || {};
-                sendDashboardApiRequest({
-                  action: "save_payroll_config",
-                  empId: eid,
-                  name: (currentPayrollData && currentPayrollData.staff) ? ((currentPayrollData.staff.find(function(x){return x.empId===eid;})||{}).name || eid) : eid,
-                  salaryType: c.salaryType || "Fixed",
-                  baseSalary: c.baseSalary || 0,
-                  perDayRate: c.perDayRate || 0,
-                  commissionRate: c.commissionRate || 0,
-                  bonus: c.bonus || 0,
-                  deductionPerAbsent: c.deductionPerAbsent || 0,
-                  deductionPerLate: c.deductionPerLate || 0,
-                  status: "Active"
-                }).then(function(r){ if (r && r.success) done++; pushNext(i+1); })
-                  .catch(function(e){ pushNext(i+1); });
-              }
-              pushNext(0);
-            } else {
-              localStorage.setItem("vassa_payroll_auto_synced", "done");
-            }
-          }
+          batchConfigs.push({
+            empId: eid,
+            name: staffName,
+            salaryType: c.salaryType || "Fixed",
+            baseSalary: c.baseSalary || 0,
+            perDayRate: c.perDayRate || 0,
+            commissionRate: c.commissionRate || 0,
+            bonus: c.bonus || 0,
+            deductionPerAbsent: c.deductionPerAbsent || 0,
+            deductionPerLate: c.deductionPerLate || 0,
+            status: "Active"
+          });
         }
-      }).catch(function(e){
-        console.warn("Background payroll sync notice:", e);
-      });
+        sendDashboardApiRequest({
+          action: "sync_payroll_configs",
+          configs: batchConfigs
+        }).then(function(r){
+          if (r && r.success) {
+            showToast("Payroll synced to Google Sheet: " + (r.saved || batchConfigs.length) + " staff", "success");
+          } else {
+            showToast("Sync failed: " + (r ? r.message : "Unknown"), "warning");
+          }
+          localStorage.setItem("vassa_payroll_auto_synced_v2", "done");
+        }).catch(function(e){
+          console.warn("Payroll sync error:", e);
+          showToast("Sync failed (offline). Will retry later.", "warning");
+        });
+      } else {
+        localStorage.setItem("vassa_payroll_auto_synced_v2", "done");
+      }
+    }
   }
 
   function renderPayrollTable(data) {
