@@ -770,7 +770,7 @@
       <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
           <label style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px;">Select Month:</label>
-          <select id="monthly-select-month" onchange="loadMonthlyRegisterData()" style="background: var(--input-bg); border: 1px solid #38BDF8; color: var(--input-text); padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; outline: none; cursor: pointer;">
+          <select id="monthly-select-month" onchange="loadMonthlyRegisterData(true)" style="background: var(--input-bg); border: 1px solid #38BDF8; color: var(--input-text); padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; outline: none; cursor: pointer;">
           </select>
           <button class="btn" onclick="loadMonthlyRegisterData(true)" style="background: #841524; color: #F7CA14; border: 1px solid #38BDF8; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             Sync Current Sheet
@@ -833,7 +833,11 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #334155;">
           <div>
             <div style="font-size: 17px; font-weight: 800; color: #F8FAFC;" id="mon-register-heading">Monthly Staff Attendance Register</div>
-            <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">Live synchronization with Google Sheet Attendance_Log &amp; Staff_Master</div>
+            <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">Live from Google Sheet &mdash; <strong>Attendance_Log</strong> punches + <strong>Attendance_Register</strong> manual edits</div>
+      <div id="monthly-sync-status" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+        <span id="monthly-sync-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #FBBF24; margin-right: 6px;"></span>
+        <span id="monthly-sync-text">Connecting to Google Sheet...</span>
+      </div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11px; font-weight: 700;">
             <span style="display: inline-flex; align-items: center; gap: 4px; color: #10B981;"><span style="display: inline-block; width: 14px; height: 14px; background: #065F46; border: 1px solid #10B981; border-radius: 4px; text-align: center; line-height: 12px; font-size: 9px; font-weight: 800;">P</span> Present</span>
@@ -3660,45 +3664,36 @@ function switchDashboardView(view) {
     }
     var dateStr = monthVal + "-" + (day < 10 ? "0" + day : day);
 
-    // 1. Instant Optimistic Local Update
-    if (currentMonthlyData && currentMonthlyData.staff) {
-      var emp = currentMonthlyData.staff.find(function(x) { return x.empId === empId; });
-      if (emp) {
-        if (!emp.daywise) emp.daywise = {};
-        if (!emp.dayDetails) emp.dayDetails = {};
-        emp.daywise[day] = newStatus;
-        emp.dayDetails[day] = remark ? (newStatus + " — " + remark) : ("Admin Override: " + newStatus);
-
-        recalculateMonthlySummary(currentMonthlyData);
-        renderMonthlyTable(currentMonthlyData);
-      }
-    }
+    var empRec = (currentMonthlyData && currentMonthlyData.staff) ?
+      currentMonthlyData.staff.find(function(x) { return x.empId === empId; }) : null;
+    var empName = empRec ? empRec.name : "";
 
     closeModal("modal-edit-attendance");
-    showToast("Saving " + empId + " (" + newStatus + ") to Google Sheet...", "info");
+    showToast("Saving " + empId + " " + dateStr + " (" + newStatus + ") to Google Sheet...", "info");
 
-    if (!payrollBackendReady) {
-      showToast("Saved locally. Updated backend deploy hone ke baad yeh change Google Sheet me bhi sync hoga.", "warning");
-      return;
-    }
-
-    // 2. Dispatch to Google Sheet Backend
+    // Write to the permanent day-wise register (Attendance_Register), then reload from sheet
     sendDashboardApiRequest({
       action: "update_attendance",
       date: dateStr,
       empId: empId,
+      name: empName,
       status: newStatus,
-      remark: remark || "Month-end Admin Override",
+      remark: remark || "Monthly register edit",
       updatedBy: "Admin"
     }).then(function(res) {
       if (res && res.success) {
-        showToast("Attendance saved to Google Sheet for " + empId + " on Day " + day + " (" + newStatus + ")", "success");
+        showToast("Saved to Attendance_Register: " + empId + " " + dateStr + " \u2192 " + newStatus, "success");
+        loadMonthlyRegisterData(true);
+        var payEl = document.getElementById("view-payroll");
+        if (payEl && payEl.style.display === "block") loadPayrollData(true);
       } else {
-        showToast("Updated locally. Sheet response: " + (res ? res.message : "Pending"), "warning");
+        showToast("Sheet save failed: " + (res ? (res.message || res.status) : "no response"), "warning");
+        loadMonthlyRegisterData(true);
       }
     }).catch(function(err) {
-      console.warn("Backend sync notice:", err);
-      showToast("Updated locally (Offline / Network pending)", "warning");
+      console.warn("Attendance save error:", err);
+      showToast("Sheet save failed (network). Change NOT saved.", "warning");
+      loadMonthlyRegisterData(true);
     });
   }
 
@@ -3726,13 +3721,22 @@ function switchDashboardView(view) {
           if (res.payrollReady) payrollBackendReady = true;
           currentMonthlyData = res;
           renderMonthlyTable(res);
+          setMonthlySyncStatus(true, "Synced with Google Sheet \u2022 " + new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
           var payEl = document.getElementById("view-payroll");
           if (payEl && payEl.style.display === "block") loadPayrollData();
         }
       })
       .catch(function(err) {
         console.warn("Background monthly sync notice:", err);
+        setMonthlySyncStatus(false, "Sheet offline \u2013 yeh preview data hai, save nahi hoga");
       });
+  }
+
+  function setMonthlySyncStatus(ok, text) {
+    var dot = document.getElementById("monthly-sync-dot");
+    var txt = document.getElementById("monthly-sync-text");
+    if (dot) dot.style.background = ok ? "#34D399" : "#F87171";
+    if (txt) txt.textContent = text;
   }
 
   // Render Daywise Attendance Matrix & KPI Cards
